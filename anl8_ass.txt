@@ -1,0 +1,117 @@
+Members of Unique Meal
+
+A new account has to be created 
+A new account has a free-tier subscription
+They can change their subscription after creating their account
+
+
+1.	Super Administrator (Hardcoded) – A super admin has full control of the system.
+2.	System Administrators (to be defined by the Super Administrator only) – An admin who can manage consultants accounts (register new consultant, modify or delete a consultant, etc.)
+3.	Consultant (to be defined by a system administrator or a super administrator) – A consultant can manage members in the system (register new members, modify, search or retrieve their information.)
+
+Note that the members of the application are not users of the management system 
+
+Members can be created by all these accounts ^
+
+For a member, the following data must be entered to the system:
+● First Name and Last Name
+● Age, Gender, Weight
+● Address (Street name, House number, Zip Code (DDDDXX), City (system should generate a list of 10 city names of your choice predefined in the system)
+● Email Address
+● Mobile Phone (+31-6-DDDDDDDD) – only DDDDDDDD to be entered by the user.
+
+automatically:
+ 1. registration date
+ 2. ID to every new member. 
+     The membership ID is a string of 10 digits, formatted as below. The last digit on the right is a checksum digit, which must be equal to the remainder of the sum of the first 9 digits by 10. 
+
+0 and 1 are for the current year
+2 to 8 are randomly generated
+9 is all numbers together (x%10)
+
+
+Do not suppose that the user (and your teacher when testing and grading your assignment) should guess how to work with the user interface.
+(Explain to the user how to continue)
+
+sensitive data, including usernames, and members’ data must be encrypted in the database. You must not store any password in the database, rather as you learned (or will learn soon) in the lessons, you must only store the hash of password in the database.
+
+
+Consultant should be able to:
+1. Update their own password
+2. Add a new member
+3. Modify a member
+4. Get information of a member
+	The search function must accept any data field as a search key (member ID, first name, last name, address, email address, and phone number). It must also accept partial keys. For example, a user can search for a member with a name “Mike Thomson” and member ID “2123287421” by entering any of these keys: “mik”, “omso”, or “2328”, etc.
+
+System Administrators
+All of the consultant's powers
+5. Check list of all users and roles
+6. Add a new consultant
+7. Update consultant
+8. delete consultant
+9. reset consultant’s password (a temporary password)
+10. Backup of the system and restore a backup (members information and users’ data).
+11. See the logs file(s) of the system.
+12. Delete member's record from the database (note that a consultant cannot delete a record but can only modify or update a member’s information).
+
+Super Administrator (Logged in with "super_admin" and "Admin_123?"
+All of System Administa
+13. Add system admin
+14. Edit system admin
+15. Reset admin password (temp one)
+
+
+
+consultants and system admins should have profiles, in addition to their usernames and passwords. Their profiles contain only first name, last name, and registration date.
+
+The search function must accept any data field as a search key (member ID, first name, last name, address, email address, and phone number). It must also accept partial keys. For example, a user can search for a member with a name “Mike Thomson” and member ID “2123287421” by entering any of these keys: “mik”, “omso”, or “2328”, etc.
+
+
+LOGGING
+(see fig1 for structure)
+
+all logs asymmetric encrypted
+
+
+PASSWORDS
+all passwords need to be hashed
+
+
+BACKUPS
+Multiple backups need to be able to be created
+
+LOGIN
+> Username:
+   1. must be unique and have a length of at least 8 characters
+   2. must be no longer than 10 characters
+   3. must be started with a letter or underscores (_)
+   4. can contain letters (a-z), numbers (0-9), underscores (_), apostrophes ('), and periods (.)
+   5. No distinguish between lowercase or uppercase letters
+
+
+> Password:
+   1. must have a length of at least 12 characters
+   2. must be no longer than 30 characters
+   3. can contain letters (a-z), (A-Z), numbers (0-9), Special characters such as ~!@#$%&_-+=`|\(){}[]:;'<>,.?/
+   4. must have a combination of at least one lowercase letter, one uppercase letter, one digit, and one special character
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+console-based interface 
+Python 3
+You should use SQLite 3 database for this purpose
