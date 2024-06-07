@@ -54,7 +54,7 @@ All of the consultant's powers
 11. See the logs file(s) of the system.
 12. Delete member's record from the database (note that a consultant cannot delete a record but can only modify or update a member’s information).
 
-Super Administrator (Logged in with "super_admin" and "Admin_123?"
+Super Administrator Logged in with "super_admin" and "Admin_123?"
 All of System Administa
 13. Add system admin
 14. Edit system admin

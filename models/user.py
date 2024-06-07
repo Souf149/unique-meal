@@ -16,7 +16,7 @@ class Level(Enum):
     CONSULTANT = 3
     MEMBER = 4
 
-def create_user(id: str, level: int, f_name: str, l_name: str, age: int, gender: Gender, weight: float, street: str, house_number: str, zip: str, city: str, email: str, phone: str, registration_date: date, hashed_login: str) -> dict:
+def create_user(id: str, level: int, f_name: str, l_name: str, age: int, gender: Gender, weight: float, street: str, house_number: str, zip: str, city: str, email: str, phone: str, registration_date: date, username: str, hashed_pass: str) -> dict:
     d: dict = {}
 
     d["id"] = id
@@ -33,7 +33,8 @@ def create_user(id: str, level: int, f_name: str, l_name: str, age: int, gender:
     d["email"] = email
     d["phone"] = phone
     d["registration_date"] = registration_date
-    d["hashed_login"] = hashed_login
+    d["username"] = username
+    d["hashed_pass"] = hashed_pass
 
     return d
 
@@ -53,11 +54,10 @@ def generate_id():
     result = year + "".join(random_seq) + str(sum%10)
     return result
 
-def hash_login(username: str, password: str) -> bytes:
-    username = username.lower()
-    hash_object = SHA256.new(data=(username + password).encode())
+def hash_password(password: str) -> bytes:
+    hash_object = SHA256.new(data=(password).encode())
     return hash_object.digest()
 
 
 if __name__ == "__main__":
-    print(hash_login("ik", "pass"))
+    print(hash_password("ik", "pass"))
