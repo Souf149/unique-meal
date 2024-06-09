@@ -1,12 +1,12 @@
 import sqlite3
 from time import sleep
+from functionalities.one import one
 from models.connection import Connection
 import os
 import re
 
 from models.user import hash_password
 
-special_characters = ["~","!","@","#","$","%","&","_","-","+","=","`","|","\\","(",")","{","}","[","]",":",";","'","<",">",",",".","?","/"]
 
 db = Connection()
 
@@ -52,37 +52,7 @@ while True:
             os.system('cls')
             break
         elif option == "1":
-            while True:
-                new_pass = input("What do you want to change your current password into?")
-                pass_length = len(new_pass)
-                if pass_length < 12 or pass_length > 30:
-                    print("Your password must be of length between 12 and 30 please.")
-                    continue
-                
-                # Pass must contain one of the special characters
-                if not any(c in special_characters for c in new_pass):
-                    print("Please include a special character in your password.")
-                    continue
-                
-                # Pass must only contain A-z 0-9 special characters
-                possible_chars_pattern = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@#$%&_\-+=`|\\(){}[\]:;\'<>,.?/])$')
-                if bool(possible_chars_pattern.match(new_pass)):
-                    print("Password can only contain letters, numbers and these characters: ~!@#$%&_\-+=`|\\(){}[\]:;'<>,.?\/\"")
-                    continue
-                
-                # Pass must contain one of each
-                one_of_each_pattern = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@#$%&_\-+=`|\\(){}[\]:;\'<>,.?/])[A-Za-z\d~!@#$%&_\-+=`|\\(){}[\]:;\'<>,.?/]+$')
-                if not bool(one_of_each_pattern.match(new_pass)):
-                    print("Make sure the password has at least 1 of each: a lower case letter, an upper case letter, a digit and a special character")
-                    continue
-                
-                user["hashed_pass"] = hash_password(new_pass)
-                db.updateUser(user)
-                sleep(1)
-                print("Password changed succesfully!")
-                sleep(1)
-                break
-
+            one(db, user)
 
         elif option == "2":
             pass

@@ -1,0 +1,18 @@
+
+from time import sleep
+from models.connection import Connection
+from models.user import hash_password
+from tools.tools import check_password
+
+
+def one(db: Connection, user: dict):
+    while True:
+        new_pass = input("What do you want to change your current password into?")
+        
+        if check_password(new_pass):
+            user["hashed_pass"] = hash_password(new_pass)
+            db.updateUser(user)
+            sleep(1)
+            print("Password changed succesfully!")
+            sleep(1)
+            return
