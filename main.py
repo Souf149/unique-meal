@@ -23,28 +23,27 @@ while True:
     while True:
         print(f"Welcome {user['f_name']}!")
 
-
         # Administators
         print("Choose a number to select what you want to do")
         print("1).\tChange my password")
-        print("2. Add a new member")
-        print("3. Modify a member")
-        print("4. Get information of a member")
+        print("2).\tAdd a new member")
+        print("3).\tModify a member")
+        print("4).\tGet information of a member")
 
         # System Administrators")
-        print("5. Check list of all users and their roles")
-        print("6. Add a new consultant")
-        print("7. Update consultant")
-        print("8. delete consultant")
-        print("9. reset consultant's password (a temporary password)")
-        print("10. Backup of the system and restore a backup (members information and users' data)")
-        print("11. See the logs file(s) of the system")
-        print("12. Delete member's record from the database (note that a consultant cannot delete a record but can only modify or update a member's information)")
+        print("5).\tCheck list of all users and their roles")
+        print("6).\tAdd a new consultant")
+        print("7).\tUpdate consultant")
+        print("8).\tdelete consultant")
+        print("9).\treset consultant's password (a temporary password)")
+        print("10).\tBackup of the system and restore a backup (members information and users' data)")
+        print("11).\tSee the logs file(s) of the system")
+        print("12).\tDelete member's record from the database (note that a consultant cannot delete a record but can only modify or update a member's information)")
 
         # Super Administrator
-        print("13). Add system admin")
-        print("14). Edit system admin")
-        print("15). Reset admin password (temp one)")
+        print("13).\tAdd system admin")
+        print("14).\tEdit system admin")
+        print("15).\tReset admin password (temp one)")
 
 
         option = input("Press the corresponding number of the action you want to take or press \"Q\" to log out\n").lower()
@@ -72,16 +71,8 @@ while True:
                     continue
                 
                 # Pass must contain one of each
-                pattern = re.compile(
-                r'^(?=.*[a-z])'  # At least one lowercase letter
-                r'(?=.*[A-Z])'   # At least one uppercase letter
-                r'(?=.*\d)'      # At least one digit
-                r'(?=.*[~!@#$%&_\-+=`|\\(){}[\]:;\'<>,.?/])'  # At least one special character
-                r'[A-Za-z\d~!@#$%&_\-+=`|\\(){}[\]:;\'<>,.?/]+$'  # Only allowed characters
-                )
-
-                # one_of_each_pattern = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@#$%&_\-+=`|\\(){}[\]:;\'<>,.?/])')
-                if not bool(pattern.match(new_pass)):
+                one_of_each_pattern = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@#$%&_\-+=`|\\(){}[\]:;\'<>,.?/])[A-Za-z\d~!@#$%&_\-+=`|\\(){}[\]:;\'<>,.?/]+$')
+                if not bool(one_of_each_pattern.match(new_pass)):
                     print("Make sure the password has at least 1 of each: a lower case letter, an upper case letter, a digit and a special character")
                     continue
                 
