@@ -15,11 +15,11 @@ while True:
     username = input("Give your username please: ")
     password = input("Give your password please: ")
     user = db.getUserFromLogin(username, password)
-
     if user == None:
         print("wrong login")
         continue
 
+    print(f"Logged in with the id: {user['id']}")
     while True:
         print(f"Welcome {user['f_name']}!")
 
@@ -66,19 +66,31 @@ while True:
                     continue
                 
                 # Pass must only contain A-z 0-9 special characters
-                possible_chars_pattern = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@#$%&_\-+=`|\\(){}[\]:;\'<>,.?/])')
+                possible_chars_pattern = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@#$%&_\-+=`|\\(){}[\]:;\'<>,.?/])$')
                 if bool(possible_chars_pattern.match(new_pass)):
                     print("Password can only contain letters, numbers and these characters: ~!@#$%&_\-+=`|\\(){}[\]:;'<>,.?\/\"")
                     continue
                 
                 # Pass must contain one of each
-                one_of_each_pattern = re.compile(r'^(?=.*[a-z])'r'(?=.*[A-Z])'r'(?=.*\d)'r'(?=.*[~!@#$%&_\-+=`|\\(){}[\]:;\'<>,.?/])')
-                if bool(possible_chars_pattern.search(new_pass)):
+                pattern = re.compile(
+                r'^(?=.*[a-z])'  # At least one lowercase letter
+                r'(?=.*[A-Z])'   # At least one uppercase letter
+                r'(?=.*\d)'      # At least one digit
+                r'(?=.*[~!@#$%&_\-+=`|\\(){}[\]:;\'<>,.?/])'  # At least one special character
+                r'[A-Za-z\d~!@#$%&_\-+=`|\\(){}[\]:;\'<>,.?/]+$'  # Only allowed characters
+                )
+
+                # one_of_each_pattern = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~!@#$%&_\-+=`|\\(){}[\]:;\'<>,.?/])')
+                if not bool(pattern.match(new_pass)):
                     print("Make sure the password has at least 1 of each: a lower case letter, an upper case letter, a digit and a special character")
                     continue
                 
                 user["hashed_pass"] = hash_password(new_pass)
                 db.updateUser(user)
+                sleep(1)
+                print("Password changed succesfully!")
+                sleep(1)
+                break
 
 
         elif option == "2":

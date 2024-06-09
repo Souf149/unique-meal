@@ -35,5 +35,6 @@ class Connection():
         for i, user in enumerate(self.mock_db["users"]):
             if user["id"] == updatedUser["id"]:
                 self.mock_db["users"][i] = updatedUser
+                return
                 
         raise Exception("NO USER FOUND WITH THIS ID: " + updatedUser["id"])
