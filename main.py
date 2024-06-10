@@ -1,19 +1,21 @@
 import sqlite3
 from time import sleep
 from functionalities.one import one
+from functionalities.two import two
 from models.connection import Connection
 import os
 import re
+from tools.tools import check_password, user_input
 
-from models.user import hash_password
+from models.user import Level, hash_password
 
 
 db = Connection()
 
 while True:
     user = None
-    username = input("Give your username please: ")
-    password = input("Give your password please: ")
+    username = user_input("Give your username please: ")
+    password = user_input("Give your password please: ")
     user = db.getUserFromLogin(username, password)
     if user == None:
         print("wrong login")
@@ -45,17 +47,18 @@ while True:
         print("14).\tEdit system admin")
         print("15).\tReset admin password (temp one)")
 
-
-        option = input("Press the corresponding number of the action you want to take or press \"Q\" to log out\n").lower()
+        option = user_input(
+            "Press the corresponding number of the action you want to take or press \"Q\" to log out").lower()
         if option == "q":
             print("Logging out")
             os.system('cls')
             break
+
         elif option == "1":
             one(db, user)
 
         elif option == "2":
-            pass
+            two(db, user, Level.MEMBER)
 
         elif option == "3":
             pass
@@ -95,6 +98,3 @@ while True:
 
         elif option == "15":
             pass
-
-
-

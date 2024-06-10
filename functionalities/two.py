@@ -1,0 +1,81 @@
+
+from datetime import datetime
+import re
+from time import sleep
+from models.connection import Connection
+from models.user import Level, create_user, generate_id, generate_password, hash_password
+from tools.tools import check_password, user_input
+
+
+def two(db: Connection, user: dict, max_level: Level):
+    while True:
+        level = max([max_level.value, user["level"].value])
+        f_name = user_input("Input first name please")
+        l_name = user_input("Input last name please")
+
+        while True:
+            age = user_input("Input a valid age please")
+            if age.isdigit():
+                age = int(age)
+                break
+
+        while True:
+            gender = user_input("Input 'f' or 'm' to choose the gender")
+            if gender == "m" or gender == "f":
+                break
+
+        while True:
+            weight = user_input("Input the weight")
+            try:
+                weight = float(weight)
+                break
+            except ValueError:
+                continue
+
+        street = user_input("Input the street name")
+        house_number = user_input("Input the house number")
+        zip = user_input("Input the zipcode")
+        city = user_input("Input the city's name")
+
+        while True:
+            email = user_input("Input the emailaddress")
+            if re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)").match(email):
+                break
+
+        while True:
+            phone = user_input("Input the phone number after +31-6. Input 8 digits please")
+            if re.compile(r'^\d{8}$').match(phone):
+                break
+
+        registration_date = datetime.now()
+        password = generate_password()
+        hashed_pass = hash_password(password)
+
+        while True:
+            print("For the final info, please choose a name for the user")
+            username = user_input("Input the username")
+
+            if len(username) < 8 or len(username) > 10:
+                print("Username has to be between 8 and 10 characters")
+                continue
+
+            if not re.match(r'^[a-zA-Z_]', username):
+                print("Username can only start with a letter or an underscore")
+                continue
+
+            # Rule 4: Check if username contains only allowed characters
+            if not re.match(r'^[a-zA-Z0-9_.\']+$', username):
+                continue
+
+            if db.usernameExist(username):
+                print("Username exists already")
+                continue
+
+            break
+
+        print("User has been created!")
+        print("The password of this user is: " + password)
+        sleep(1)
+        db.addUser(create_user(generate_id(), level, f_name, l_name, age, gender, weight, street,
+                   house_number, zip, city, email, phone, registration_date, username, hashed_pass))
+        break
