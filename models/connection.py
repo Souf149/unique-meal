@@ -48,3 +48,13 @@ class Connection():
 
     def addUser(self, user: dict):
         self.mock_db["users"].append(user)
+
+    def getAllUsersFromLevelAndLower(self, level: Level) -> list[dict]:
+        users = []
+        for user in self.mock_db["users"]:
+            if user["level"].value >= level.value:
+                users.append(user)
+        return users
+    
+    def searchForUsers(self, term: str) -> list[dict]:
+        raise NotImplementedError()

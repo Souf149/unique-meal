@@ -7,9 +7,8 @@ from models.user import Level, create_user, generate_id, generate_password, hash
 from tools.tools import check_password, user_input
 
 
-def two(db: Connection, user: dict, max_level: Level):
+def create_new_user(db: Connection, user: dict, max_level: Level):
     while True:
-        level = max([max_level.value, user["level"].value])
         f_name = user_input("Input first name please")
         l_name = user_input("Input last name please")
 
@@ -72,6 +71,9 @@ def two(db: Connection, user: dict, max_level: Level):
                 continue
 
             break
+
+        while True:
+            level = user_input("What level should this user have access to?")
 
         print("User has been created!")
         print("The password of this user is: " + password)

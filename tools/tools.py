@@ -1,4 +1,5 @@
 
+from builtins import input
 import re
 
 
@@ -33,7 +34,7 @@ def check_password(password: str) -> bool:
     return True
 
 
-def user_input(prompt: str = ""):
+def user_input(prompt: str = "") -> str:
     res = ""
     while res == "":
         res = input(prompt + "\n")

@@ -5,7 +5,7 @@ from models.user import hash_password
 from tools.tools import check_password
 
 
-def one(db: Connection, user: dict):
+def change_my_password(db: Connection, user: dict):
     while True:
         new_pass = user_input(
             "What do you want to change your current password into?")

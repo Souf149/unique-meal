@@ -1,7 +1,8 @@
 import sqlite3
 from time import sleep
-from functionalities.one import one
-from functionalities.two import two
+from functionalities.list_users import list_users
+from functionalities.one import change_my_password
+from functionalities.two import create_new_user
 from models.connection import Connection
 import os
 import re
@@ -55,13 +56,13 @@ while True:
             break
 
         elif option == "1":
-            one(db, user)
+            change_my_password(db, user)
 
         elif option == "2":
-            two(db, user, Level.MEMBER)
+            create_new_user(db, user, Level.MEMBER)
 
         elif option == "3":
-            pass
+            list_users(db, user)
 
         elif option == "4":
             pass
