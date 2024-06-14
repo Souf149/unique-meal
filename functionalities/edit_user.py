@@ -1,6 +1,7 @@
 from time import sleep
 from models.connection import Connection
 from tools.tools import print_user_without_pass, user_input
+from tools.validators import is_valid
 
 
 
@@ -34,5 +35,13 @@ def edit_user(db: Connection, user: dict):
         if chosen_field in keys:
             break
         print("Please choose a valid field")
-        
-    new_value = user_input("What would you like this field to become?")
+    
+    while True:
+        new_value = user_input("What would you like this field to become?")
+        if is_valid(chosen_field, new_value):
+            user[chosen_field] = new_value
+            db.updateUser(user)
+            print("Field has been updated!")
+            sleep(1)
+            return
+        print("That is not a valid input, please try again")

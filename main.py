@@ -2,8 +2,8 @@ import sqlite3
 from time import sleep
 from functionalities.edit_user import edit_user
 from functionalities.list_users import list_users
-from functionalities.one import change_my_password
-from functionalities.two import create_new_user
+from functionalities.change_password import change_my_password
+from functionalities.create_user import create_new_user
 from models.connection import Connection
 import os
 import re
