@@ -12,7 +12,8 @@ from tools.tools import check_password, user_input
 from models.user import Level, hash_password
 
 
-db = Connection()
+dbPath = os.path.join(os.path.dirname(__file__	), 'uniqueMeal.db')
+db = Connection(dbPath)
 
 while True:
     user = None
@@ -30,7 +31,7 @@ while True:
         # Administators
         print("Choose a number to select what you want to do")
         print("1).\tChange my password")
-        print("2).\tAdd a new member")
+        print("2).\tCreate a new User")
         print("3).\tGet information about a member")
         print("4).\tEdit/Delete a member")
 

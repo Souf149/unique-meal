@@ -1,12 +1,16 @@
 from enum import Enum
 from models.user import create_user, generate_id, Level, hash_password
 from datetime import date
+import sqlite3
+from sqlite3 import Error
+from models.user import Level
 
 
 class Connection():
 
-    def __init__(self) -> None:
-        self.db = None
+    def __init__(self, databaseFile) -> None:
+        self.db = databaseFile
+        
         self.mock_db = {"users": [
             create_user("2400000000", Level.SUPER_ADMINISTRATOR, "teacher", "INF", 31, "m", 70.2, "wijnhaven", "207", "4294",
                         "Rotterdam", "cmi@hr.nl", "+31-6-12345678", date(2023, 3, 1), "teacher23", hash_password("Admin_123?")),
@@ -19,6 +23,72 @@ class Connection():
         ]
         }
 
+    def createMembersTable(self):
+        create_query =  """
+        CREATE TABLE IF NOT EXISTS members (
+            id TEXT PRIMARY KEY,
+            level INTEGER NOT NULL,
+            f_name TEXT NOT NULL,
+            l_name TEXT NOT NULL,
+            age INTEGER NOT NULL,
+            gender TEXT NOT NULL,
+            weight REAL NOT NULL,
+            street TEXT NOT NULL,
+            house_number TEXT NOT NULL,
+            zip TEXT NOT NULL,
+            city TEXT NOT NULL,
+            email TEXT NOT NULL,
+            phone TEXT NOT NULL,
+            registration_date DATE NOT NULL,
+            username TEXT UNIQUE NOT NULL,
+            hashed_pass TEXT NOT NULL
+        )
+        """
+        conn = sqlite3.connect(self.db)
+        cursor = conn.cursor()
+        cursor.execute(create_query)
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+    def createUsersTable(self):
+        create_query = """
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            first_name TEXT NOT NULL,
+            last_name TEXT NOT NULL,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            registration_date DATE NOT NULL,
+            role TEXT CHECK(role IN ('admin', 'consultant', 'superadmin')) NOT NULL,
+            temp BOOLEAN NOT NULL CHECK(temp IN (0, 1))
+        )
+        """
+        conn = sqlite3.connect(self.databaseFile)
+        cursor = conn.cursor()
+        cursor.execute(create_query)
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+    def initSuperadmin(self):
+        conn = sqlite3.connect(self.databaseFile)
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT COUNT(*) FROM users WHERE username = 'SUPER_ADMINISTRATOR'")
+        user_exists = cursor.fetchone()[0] > 0
+
+        if not user_exists:
+            query = "INSERT INTO users (first_name, last_name, username, password, registration_date, role, temp) VALUES (?, ?, ?, ?, ?, ?, ?)"
+            parameters = ("Reajel", "Cicilia", "SUPER_ADMINISTRATOR", "Admin_123?", date.today().strftime("%Y-%m-%d"), "superadmin", False)
+            cursor.execute(query, parameters)
+            conn.commit()
+        else:
+            pass
+
+        cursor.close()
+        conn.close()
+
     def getUserFromUsername(self, name: str):
         for user in self.mock_db["users"]:
             if user["name"] == name:
@@ -29,12 +99,6 @@ class Connection():
         hashed = hash_password(password)
         for user in self.mock_db["users"]:
             if user["username"].lower() == username.lower() and user["hashed_pass"] == hashed:
-                return user
-        return None
-    
-    def getUserFromId(self, id):
-        for user in self.mock_db["users"]:
-            if user["id"] == id:
                 return user
         return None
 
@@ -52,8 +116,35 @@ class Connection():
                 return True
         return False
 
+    #def addUser(self, user: dict):
+     #   self.mock_db["users"].append(user)
+
     def addUser(self, user: dict):
-        self.mock_db["users"].append(user)
+        conn = sqlite3.connect(self.db)
+        query = """
+        INSERT INTO members (id, level, f_name, l_name, age, gender, weight, street, house_number, zip, city, email, phone, registration_date, username, hashed_pass)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """
+        parameters = (
+            user["id"], user["level"].value, user["f_name"], user["l_name"], user["age"], 
+            user["gender"], user["weight"], user["street"], user["house_number"], user["zip"], 
+            user["city"], user["email"], user["phone"], user["registration_date"], 
+            user["username"], user["hashed_pass"]
+        )
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute(query, parameters)
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return "OK"
+        except sqlite3.Error as e:
+            print("An error occurred while creating the member:", e)
+            cursor.close()
+            conn.close()
+            return None
+
 
     def getAllUsersFromLevelAndLower(self, level: Level) -> list[dict]:
         users = []
@@ -63,4 +154,51 @@ class Connection():
         return users
     
     def searchForUsers(self, term: str) -> list[dict]:
-        raise NotImplementedError() # Not wasting time on implementing it on dictionaries when we have to do it on sqllite3 anwyays
+        raise NotImplementedError()
+    
+    def searchMember(self, search_key):
+        try:
+            conn = sqlite3.connect(self.databaseFile)
+            cursor = conn.cursor()
+            query = """
+            SELECT * FROM members 
+            WHERE 
+                id LIKE ? OR
+                first_name LIKE ? OR
+                last_name LIKE ? OR
+                address LIKE ? OR
+                email LIKE ? OR
+                mobile LIKE ?
+            """
+            # Constructing search patterns for partial matches
+            search_pattern = '%' + search_key + '%'
+            parameters = (search_pattern, search_pattern, search_pattern, search_pattern, search_pattern, search_pattern)
+            
+            cursor.execute(query, parameters)
+            members = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            return members
+        except sqlite3.Error as e:
+            print("An error occurred while searching members:", e)
+            return None
+    
+    def getMembers(self):
+        conn = sqlite3.connect(self.db)
+        cursor = conn.cursor()
+        query = "SELECT * FROM members"
+        cursor.execute(query)
+        members = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return 
+
+    def DoMembersExist(self):
+        conn = sqlite3.connect(self.db)
+        cursor = conn.cursor()
+        query = "SELECT * FROM members"
+        cursor.execute(query)
+        members = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return members

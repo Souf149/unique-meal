@@ -18,7 +18,7 @@ def list_users(db: Connection, user: dict):
         if choice.lower() == "f":
             print("LOOKING FOR USER...")
             term = user_input("Input text that we will look for: ")
-            found_users = db.searchForUsers(term)
+            found_users = db.searchMember(term)
             if len(found_users) == 0:
                 print("No users found")
                 continue

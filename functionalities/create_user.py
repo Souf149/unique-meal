@@ -73,8 +73,20 @@ def create_new_user(db: Connection, user: dict, max_level: Level):
             break
 
         while True:
-            level = user_input("What level should this user have access to?")
-
+            level = user_input("What level should this user have access to? ( Please choose one of these numbers )\n1). SUPER ADMIN\n2). SYSTEM ADMIN\n3). CONSULTANT\n4). MEMBER")
+            if level == "1":
+                level = Level.SUPER_ADMINISTRATOR
+                break
+            if level == "2":
+                level = Level.SYSTEM_ADMINISTRATORS
+                break
+            if level == "3":
+                level = Level.CONSULTANT
+                break
+            if level == "4":
+                level = Level.MEMBER
+                break
+            
         print("User has been created!")
         print("The password of this user is: " + password)
         sleep(1)
