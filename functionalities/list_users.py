@@ -1,6 +1,6 @@
 from time import sleep
 from models.connection import Connection
-from tools.tools import user_input
+from tools.tools import print_user_without_pass, user_input
 
 def list_users(db: Connection, user: dict):
     users = db.getAllUsersFromLevelAndLower(user["level"])
@@ -11,7 +11,7 @@ def list_users(db: Connection, user: dict):
         
         
 
-        print("Choose the number of the user you want to edit.")
+        print("Choose the number of the user you want to list.")
         print("To start looking for a user press f")
 
         choice = user_input()
@@ -28,21 +28,12 @@ def list_users(db: Connection, user: dict):
                 print(f"{i + 1}). {_user['f_name']} {_user['l_name']}")
         
 
-            while True:
-                choice = user_input("Choose the number of the user you want to edit.")
-
-                if choice.isdigit() and 0 > int(choice) and int(choice) <= len(found_users):
-                    break
-                print("please choose a valid number")
         
         
         if choice.isdigit():
             try:
                 chosen_user = users[int(choice) - 1]
-                for key, value in chosen_user.items():
-                    if key != "hashed_pass":
-                        print(f"{key}: {value}")
-                    
+                print_user_without_pass(chosen_user)    
                 sleep(1)
                 return # end of looking
             except Exception as e:

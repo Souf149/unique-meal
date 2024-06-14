@@ -39,3 +39,9 @@ def user_input(prompt: str = "") -> str:
     while res == "":
         res = input(prompt + "\n")
     return res
+
+def print_user_without_pass(user: dict):
+    for key, value in user.items():
+        if key != "hashed_pass":
+            print(f"{key}: {value}")
+    

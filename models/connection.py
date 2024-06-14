@@ -31,6 +31,12 @@ class Connection():
             if user["username"].lower() == username.lower() and user["hashed_pass"] == hashed:
                 return user
         return None
+    
+    def getUserFromId(self, id):
+        for user in self.mock_db["users"]:
+            if user["id"] == id:
+                return user
+        return None
 
     def updateUser(self, updatedUser: dict):
         for i, user in enumerate(self.mock_db["users"]):
@@ -57,4 +63,4 @@ class Connection():
         return users
     
     def searchForUsers(self, term: str) -> list[dict]:
-        raise NotImplementedError()
+        raise NotImplementedError() # Not wasting time on implementing it on dictionaries when we have to do it on sqllite3 anwyays

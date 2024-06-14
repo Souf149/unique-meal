@@ -1,5 +1,6 @@
 import sqlite3
 from time import sleep
+from functionalities.edit_user import edit_user
 from functionalities.list_users import list_users
 from functionalities.one import change_my_password
 from functionalities.two import create_new_user
@@ -30,8 +31,8 @@ while True:
         print("Choose a number to select what you want to do")
         print("1).\tChange my password")
         print("2).\tAdd a new member")
-        print("3).\tModify a member")
-        print("4).\tGet information of a member")
+        print("3).\tGet information about a member")
+        print("4).\tEdit/Delete a member")
 
         # System Administrators")
         print("5).\tCheck list of all users and their roles")
@@ -65,7 +66,7 @@ while True:
             list_users(db, user)
 
         elif option == "4":
-            pass
+            edit_user(db, user)
 
         elif option == "5":
             pass
