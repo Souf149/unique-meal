@@ -1,11 +1,29 @@
 
 from datetime import datetime
+import os
 import re
 from time import sleep
 from models.connection import Connection
 from models.user import Level, create_user, generate_id, generate_password, hash_password
 from tools.tools import check_password, user_input
+import cryptography
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import hashes
+from functionalities import Encryption
 
+
+
+# Ensure keys are generated and saved
+if not os.path.exists("private_key.pem") or not os.path.exists("public_key.pem"):
+    private_key_pem, public_key_pem = Encryption.generate_keys()
+    Encryption.save_key("private_key.pem", private_key_pem)
+    Encryption.save_key("public_key.pem", public_key_pem)
+    print("Keys generated and saved to 'private_key.pem' and 'public_key.pem'")
+else:
+    print("Keys already exist. Loading keys.")
+    
+public_key = Encryption.load_public_key("public_key.pem")
 
 def create_new_user(db: Connection, user: dict, max_level: Level):
     while True:
@@ -90,6 +108,17 @@ def create_new_user(db: Connection, user: dict, max_level: Level):
         print("User has been created!")
         print("The password of this user is: " + password)
         sleep(1)
-        db.addUser(create_user(generate_id(), level, f_name, l_name, age, gender, weight, street,
-                   house_number, zip, city, email, phone, registration_date, username, hashed_pass))
+        # Encrypt sensitive data
+        encrypted_f_name = Encryption.encrypt_message(public_key, f_name.encode())
+        encrypted_l_name = Encryption.encrypt_message(public_key, l_name.encode())
+        encrypted_email = Encryption.encrypt_message(public_key, email.encode())
+        encrypted_phone = Encryption.encrypt_message(public_key, phone.encode())
+        encrypted_street = Encryption.encrypt_message(public_key, street.encode())
+        encrypted_house_number = Encryption.encrypt_message(public_key, house_number.encode())
+        encrypted_zip_code = Encryption.encrypt_message(public_key, zip.encode())
+        encrypted_city = Encryption.encrypt_message(public_key, city.encode())
+
+        db.addUser(create_user(generate_id(), level, encrypted_f_name, encrypted_l_name, age, gender, weight, encrypted_street,
+                   encrypted_house_number, encrypted_zip_code, encrypted_city, encrypted_email, encrypted_phone, registration_date, username, hashed_pass))
+        
         break

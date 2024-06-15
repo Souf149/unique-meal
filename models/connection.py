@@ -4,7 +4,10 @@ from datetime import date
 import sqlite3
 from sqlite3 import Error
 from models.user import Level
-
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import hashes
+from functionalities import Encryption
 
 class Connection():
 
@@ -158,37 +161,151 @@ class Connection():
         return users
     
 
-    def searchForUsers(self, term: str) -> list[dict]:
-        raise NotImplementedError()
+    def searchForUsers(self, term: str):
+        GetMembersList = self.getMembersFirstAndLast
     
+    def GetAllMemberInfo(self):
+        conn = sqlite3.connect(self.db)
+
+        if not self.table_exists('members'):
+            conn.close()
+            return False
+
+        cursor = conn.cursor()
+        query = "SELECT id, f_name, l_name, email, phone FROM members"
+        cursor.execute(query)
+
+        members = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        if not members:  # Check if members list is empty
+            return False  # Return False if no members found
+
+        # Load the private key
+        private_key = Encryption.load_private_key("private_key.pem")
+
+        # Decrypt all encrypted fields for each member
+        decrypted_members = []
+        for member in members:
+            decrypted_id = member[0]  # Assuming id is not encrypted
+            decrypted_f_name = Encryption.decrypt_message(private_key, member[1]).decode()
+            decrypted_l_name = Encryption.decrypt_message(private_key, member[2]).decode()
+            decrypted_email = Encryption.decrypt_message(private_key, member[3]).decode()
+            decrypted_phone_number = Encryption.decrypt_message(private_key, member[4]).decode()
+
+            decrypted_member = {
+                'id': decrypted_id,
+                'f_name': decrypted_f_name,
+                'l_name': decrypted_l_name,
+                'email': decrypted_email,
+                'phone_number': decrypted_phone_number
+            }
+            decrypted_members.append(decrypted_member)
+
+        return decrypted_members
+
+
     def searchMember(self, search_key):
         try:
-            conn = sqlite3.connect(self.databaseFile)
+            conn = sqlite3.connect(self.db)
             cursor = conn.cursor()
             query = """
-            SELECT * FROM members 
+            SELECT id, f_name, l_name, zip, email, phone, username
+            FROM members 
             WHERE 
                 id LIKE ? OR
-                first_name LIKE ? OR
-                last_name LIKE ? OR
-                address LIKE ? OR
+                f_name LIKE ? OR
+                l_name LIKE ? OR
+                zip LIKE ? OR
                 email LIKE ? OR
-                mobile LIKE ?
+                phone LIKE ? OR
+                username LIKE ?
             """
             # Constructing search patterns for partial matches
             search_pattern = '%' + search_key + '%'
-            parameters = (search_pattern, search_pattern, search_pattern, search_pattern, search_pattern, search_pattern)
+            parameters = (search_pattern, search_pattern, search_pattern, search_pattern, search_pattern, search_pattern, search_pattern)
             
             cursor.execute(query, parameters)
             members = cursor.fetchall()
+
+            # Load the private key
+            private_key = Encryption.load_private_key("private_key.pem")
+
+            # Decrypt encrypted fields (f_name, l_name, email, phone)
+            decrypted_members = []
+            for member in members:
+                decrypted_id = member[0]  # Assuming id is not encrypted
+                decrypted_f_name = Encryption.decrypt_message(private_key, member[1]).decode()
+                decrypted_l_name = Encryption.decrypt_message(private_key, member[2]).decode()
+                decrypted_zip = member[3]  # Assuming zip is not encrypted
+                decrypted_email = Encryption.decrypt_message(private_key, member[4]).decode()
+                decrypted_phone = Encryption.decrypt_message(private_key, member[5]).decode()
+                decrypted_username = member[6]  # Assuming username is not encrypted
+
+                decrypted_member = {
+                    'id': decrypted_id,
+                    'f_name': decrypted_f_name,
+                    'l_name': decrypted_l_name,
+                    'zip': decrypted_zip,
+                    'email': decrypted_email,
+                    'phone': decrypted_phone,
+                    'username': decrypted_username
+                }
+                decrypted_members.append(decrypted_member)
+
             cursor.close()
             conn.close()
-            return members
+            return decrypted_members
+
         except sqlite3.Error as e:
             print("An error occurred while searching members:", e)
             return None
+
+        
         
     
+    
+    def updateMember(self, username, new_first_name=None, new_last_name=None, new_username=None, new_email=None):
+        conn = sqlite3.connect(self.db)
+        cursor = conn.cursor()
+
+        parameters = []
+
+        query = "UPDATE members SET "
+
+        if new_first_name !="" :
+            query += "f_name = ?, "
+            parameters.append(new_first_name)
+        
+        if new_last_name != "":
+            query += "l_name = ?, "
+            parameters.append(new_last_name)
+        
+        if new_username != "":
+            query += "username = ?, "
+            parameters.append(new_username)
+        
+        if new_email != "":
+            query += "email = ?, "
+            parameters.append(new_email)
+        
+        # Remove the last comma and add the WHERE clause
+        query = query.rstrip(", ") + " WHERE username = ?"
+        parameters.append(username)
+
+        try:
+            cursor.execute(query, parameters)
+            conn.commit()
+            return "OK"
+        except sqlite3.Error as e:
+            print("An error occurred while updating the member:", e)
+            return None
+        finally:
+            cursor.close()
+            conn.close()
+
 
 
     def table_exists(self, table_name):
@@ -199,6 +316,7 @@ class Connection():
         cursor.close()
         return result is not None
 
+
     def getMembersFirstAndLast(self):
         conn = sqlite3.connect(self.db)
         
@@ -207,7 +325,7 @@ class Connection():
             return False
         
         cursor = conn.cursor()
-        query = "SELECT f_name FROM members"
+        query = "SELECT f_name, l_name FROM members"
         cursor.execute(query)
         
         members = cursor.fetchall()
@@ -218,7 +336,17 @@ class Connection():
         if not members:  # Check if members list is empty
             return False  # Return False if no members found
         
-        return members  # Return members if found
+        # Load the private key
+        private_key = Encryption.load_private_key("private_key.pem")
+
+        # Decrypt the first and last names of each member
+        decrypted_members = []
+        for member in members:
+            decrypted_f_name = Encryption.decrypt_message(private_key, member[0]).decode()
+            decrypted_l_name = Encryption.decrypt_message(private_key, member[1]).decode()
+            decrypted_members.append((decrypted_f_name, decrypted_l_name))
+
+        return decrypted_members  # Return decrypted members if found
 
         
 
@@ -241,3 +369,20 @@ class Connection():
         cursor.close()
         conn.close()
         return members
+    
+    def deleteMember(self, id):
+        conn = sqlite3.connect(self.db)
+        cursor = conn.cursor()
+        query = "DELETE FROM members WHERE id = ?"
+        parameters = (id,)
+        try:
+            cursor.execute(query, parameters)
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return "OK"
+        except sqlite3.Error as e:
+            print("An error occurred while deleting the member:", e)
+            cursor.close()
+            conn.close()
+            return None

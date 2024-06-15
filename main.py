@@ -8,9 +8,8 @@ from models.connection import Connection
 import os
 import re
 from tools.tools import check_password, user_input
-
 from models.user import Level, hash_password
-
+from functionalities import Encryption
 
 dbPath = os.path.join(os.path.dirname(__file__	), 'uniqueMeal.db')
 db = Connection(dbPath)
@@ -31,9 +30,9 @@ while True:
         # Administators
         print("Choose a number to select what you want to do")
         print("1).\tChange my password")
-        print("2).\tCreate a new User")
-        print("3).\tGet information about a member")
-        print("4).\tEdit/Delete a member")
+        print("2).\tCreate a new Member")
+        print("3).\tGet information about a member/Edit or Delete a member")
+        #print("4).\tEdit/Delete a member")
 
         # System Administrators")
         print("5).\tCheck list of all users and their roles")
