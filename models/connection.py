@@ -2,11 +2,18 @@ import sqlite3
 from models.user import create_user_dict, create_user_tuple, generate_id, Level, hash_password
 from datetime import date
 from tools.tools import user_input
+from Crypto.Cipher import Salsa20
 
 
-class Connection():
+class Connection:
 
-    def __init__(self) -> None:
+    def __init__(self, key: str) -> None:
+        self.cipher = Salsa20.new(key.encode())
+        ciphertext =  self.cipher.encrypt(b'The secret I want to send.')
+        ciphertext += self.cipher.encrypt(b'The second part of the secret.')
+        print(self.cipher.nonce)  # A byte string you must send to the receiver too
+        user_input()
+
         self.db = sqlite3.connect('users.db')
         self.init_database_if_needed()
 

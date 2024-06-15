@@ -11,8 +11,11 @@ from tools.tools import check_password, user_input
 
 from models.user import Level, hash_password
 
+with open("./key.key") as f:
+    key = f.read()
 
-db = Connection()
+
+db = Connection(key)
 
 try:
     while True:
