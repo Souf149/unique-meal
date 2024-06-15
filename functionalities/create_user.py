@@ -3,7 +3,7 @@ from datetime import datetime
 import re
 from time import sleep
 from models.connection import Connection
-from models.user import Level, create_user, generate_id, generate_password, hash_password
+from models.user import Level, create_user_tuple, generate_id, generate_password, hash_password
 from tools.tools import check_password, user_input
 
 
@@ -78,6 +78,6 @@ def create_new_user(db: Connection, user: dict, max_level: Level):
         print("User has been created!")
         print("The password of this user is: " + password)
         sleep(1)
-        db.addUser(create_user(generate_id(), level, f_name, l_name, age, gender, weight, street,
+        db.addUser(create_user_tuple(generate_id(), level, f_name, l_name, age, gender, weight, street,
                    house_number, zip, city, email, phone, registration_date, username, hashed_pass))
         break

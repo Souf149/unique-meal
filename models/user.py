@@ -8,36 +8,37 @@ from Crypto.Random import get_random_bytes
 import string
 
 
-class Level(Enum):
+class Level:
     SUPER_ADMINISTRATOR = 1
     SYSTEM_ADMINISTRATORS = 2
     CONSULTANT = 3
     MEMBER = 4
 
 
-def create_user(id: str, level: int, f_name: str, l_name: str, age: int, gender: str, weight: float, street: str, house_number: str, zip: str, city: str, email: str, phone: str, registration_date: date, username: str, hashed_pass: str) -> dict:
+def create_user_tuple(id: str, level: int, f_name: str, l_name: str, age: int, gender: str, weight: float, street: str, house_number: str, zip: str, city: str, email: str, phone: str, registration_date: date, username: str, hashed_pass: str) -> tuple:
+    return (id, level, f_name, l_name, age, gender, weight, street, house_number, zip, city, email, phone, registration_date, username, hashed_pass)
+
+def create_user_dict(tup: tuple) -> dict:
     d: dict = {}
 
-    d["id"] = id
-    d["level"] = level
-    d["f_name"] = f_name
-    d["l_name"] = l_name
-    d["age"] = age
-    d["gender"] = gender
-    d["weight"] = weight
-    d["street"] = street
-    d["house_number"] = house_number
-    d["zip"] = zip
-    d["city"] = city
-    d["email"] = email
-    d["phone"] = phone
-    d["registration_date"] = registration_date
-    d["username"] = username
-    d["hashed_pass"] = hashed_pass
+    d["id"] = tup[0] 
+    d["level"] = tup[1] 
+    d["f_name"] = tup[2] 
+    d["l_name"] = tup[3] 
+    d["age"] = tup[4] 
+    d["gender"] = tup[5] 
+    d["weight"] = tup[6] 
+    d["street"] = tup[7] 
+    d["house_number"] = tup[8] 
+    d["zip"] = tup[9] 
+    d["city"] = tup[10] 
+    d["email"] = tup[11] 
+    d["phone"] = tup[12] 
+    d["registration_date"] = tup[13] 
+    d["username"] = tup[14] 
+    d["hashed_pass"] = tup[15] 
 
     return d
-
-
 def generate_id():
     # First 2 digits
     year = str(datetime.date.today().year % 100)
