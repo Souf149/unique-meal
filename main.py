@@ -1,4 +1,5 @@
 import sqlite3
+import traceback
 from time import sleep
 from functionalities.edit_user import edit_user
 from functionalities.list_users import list_users
@@ -35,7 +36,7 @@ try:
             # Administators
             print("Choose a number to select what you want to do")
             print("1).\tChange my password")
-            print("2).\tAdd a new member")
+            print("2).\tAdd a new user")
             print("3).\tGet information about a member")
             print("4).\tEdit/Delete a member")
 
@@ -107,5 +108,6 @@ try:
                 pass
 except Exception as e:
     print(e)
+    print(traceback.format_exc())
     print("Something went wrong, shutting down...")
     db.close()

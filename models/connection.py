@@ -8,11 +8,8 @@ from Crypto.Cipher import Salsa20
 class Connection:
 
     def __init__(self, key: str) -> None:
-        self.cipher = Salsa20.new(key.encode())
-        ciphertext =  self.cipher.encrypt(b'The secret I want to send.')
-        ciphertext += self.cipher.encrypt(b'The second part of the secret.')
-        print(self.cipher.nonce)  # A byte string you must send to the receiver too
-        user_input()
+        self.encryptor = Salsa20.new(key.encode())
+        self.decryptor = Salsa20.new(key.encode(), self.encryptor.nonce)
 
         self.db = sqlite3.connect('users.db')
         self.init_database_if_needed()
@@ -56,7 +53,6 @@ class Connection:
                         "Pap", "1534433@hr.nl", "+31-6-22141111", date(2024, 7, 6), "flower", hash_password("ab")),
         ]
 
-
         cursor.execute('SELECT COUNT(*) FROM USERS')
         if cursor.fetchone()[0] == 0:
             cursor.executemany('''
@@ -97,12 +93,38 @@ class Connection:
         return None
 
     def updateUser(self, updatedUser: dict):
-        for i, user in enumerate(self.mock_db["users"]):
-            if user["id"] == updatedUser["id"]:
-                self.mock_db["users"][i] = updatedUser
-                return
+        cursor = self.db.cursor()
 
-        raise Exception("NO USER FOUND WITH THIS ID: " + updatedUser["id"])
+        update_query = '''
+            UPDATE USERS
+            SET
+                level = ?,
+                f_name = ?,
+                l_name = ?,
+                age = ?,
+                gender = ?,
+                weight = ?,
+                street = ?,
+                house_number = ?,
+                zip = ?,
+                city = ?,
+                email = ?,
+                phone = ?,
+                registration_date = ?,
+                username = ?,
+                hashed_pass = ?
+            WHERE id = ?
+        '''
+
+        paramaters = list(create_user_tuple(*updatedUser.values()))
+        first = paramaters[0]
+        last = paramaters[len(paramaters) - 1]
+
+        paramaters[0] = last
+        paramaters[len(paramaters) - 1] = first
+
+        print(paramaters)
+        cursor.execute(update_query, tuple(paramaters))
 
     def usernameExist(self, username: str):
         for user in self.mock_db["users"]:
