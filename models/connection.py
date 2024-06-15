@@ -120,6 +120,10 @@ class Connection():
      #   self.mock_db["users"].append(user)
 
     def addUser(self, user: dict):
+        if not self.table_exists('members'):
+            print("Members table does not exist, creating table...")
+            self.createMembersTable()
+        
         conn = sqlite3.connect(self.db)
         query = """
         INSERT INTO members (id, level, f_name, l_name, age, gender, weight, street, house_number, zip, city, email, phone, registration_date, username, hashed_pass)
@@ -146,13 +150,14 @@ class Connection():
             return None
 
 
-    def getAllUsersFromLevelAndLower(self, level: Level) -> list[dict]:
+    def getAllUsersFromLevelAndLower(self):
         users = []
-        for user in self.mock_db["users"]:
+        for user in self.db["users"]:
             if user["level"].value >= level.value:
                 users.append(user)
         return users
     
+
     def searchForUsers(self, term: str) -> list[dict]:
         raise NotImplementedError()
     
@@ -182,8 +187,42 @@ class Connection():
         except sqlite3.Error as e:
             print("An error occurred while searching members:", e)
             return None
+        
     
-    def getMembers(self):
+
+
+    def table_exists(self, table_name):
+        conn = sqlite3.connect(self.db)
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
+        result = cursor.fetchone()
+        cursor.close()
+        return result is not None
+
+    def getMembersFirstAndLast(self):
+        conn = sqlite3.connect(self.db)
+        
+        if not self.table_exists('members'):
+            conn.close()
+            return False
+        
+        cursor = conn.cursor()
+        query = "SELECT f_name FROM members"
+        cursor.execute(query)
+        
+        members = cursor.fetchall()
+        
+        cursor.close()
+        conn.close()
+        
+        if not members:  # Check if members list is empty
+            return False  # Return False if no members found
+        
+        return members  # Return members if found
+
+        
+
+    def GetAllMembers(self):
         conn = sqlite3.connect(self.db)
         cursor = conn.cursor()
         query = "SELECT * FROM members"
@@ -191,9 +230,9 @@ class Connection():
         members = cursor.fetchall()
         cursor.close()
         conn.close()
-        return 
-
-    def DoMembersExist(self):
+        return members
+    
+    def DoAllMmembersExist(self):
         conn = sqlite3.connect(self.db)
         cursor = conn.cursor()
         query = "SELECT * FROM members"
