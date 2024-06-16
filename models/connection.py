@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 import sqlite3
 from models.user import create_user_dict, create_user_tuple, generate_id, Level, hash_password
-from datetime import date
+from datetime import date, datetime
 from tools.tools import user_input
 from cryptography.fernet import Fernet
 
@@ -30,15 +30,40 @@ class Connection:
         self.db = sqlite3.connect('users.db')
         
         self.init_database_if_needed()
+        self.init_logs_if_needed()
+
+    def init_logs_if_needed(self):
+        cursor = self.db.cursor()
+        create_logs_table_query = """
+            CREATE TABLE IF NOT EXISTS logs (
+                No INTEGER PRIMARY KEY AUTOINCREMENT,
+                Time TEXT NOT NULL,
+                Username TEXT NOT NULL,
+                Description_of_activity TEXT NOT NULL,
+                Additional_Information TEXT,
+                Suspicious BOOLEAN NOT NULL CHECK (Suspicious IN (0, 1))
+            )
+        """
+
+        cursor.execute(create_logs_table_query)
+        self.db.commit()
+
+    def log(self, username: str, desc: str, add_info: str, suspicious: bool):
+        insert_log_query = """
+            INSERT INTO logs (Time, Username, Description_of_activity, Additional_Information, Suspicious)
+            VALUES (?, ?, ?, ?, ?)
+        """
+
+        cursor = self.db.cursor()
+        cursor.execute(insert_log_query, (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), username, desc, add_info, 1 if suspicious else 0))
+        self.db.commit()
 
 
-    
+
     def init_database_if_needed(self) -> None:
-        # Connect to SQLite database (or create it if it doesn't exist)
         cursor = self.db.cursor()
 
-        # Create USERS table with the specified attributes if it doesn't exist
-        cursor.execute('''
+        cursor.execute("""
         CREATE TABLE IF NOT EXISTS USERS (
             id TEXT PRIMARY KEY,
             level INTEGER NOT NULL,
@@ -57,7 +82,7 @@ class Connection:
             username TEXT NOT NULL UNIQUE,
             hashed_pass TEXT NOT NULL
         )
-        ''')
+        """)
 
         starter_data = [
             create_user_tuple("2400000000", Level.SUPER_ADMINISTRATOR, "teacher", "INF", 31, "m", 70.2, "wijnhaven", "207", "4294",
@@ -72,10 +97,10 @@ class Connection:
 
         cursor.execute('SELECT COUNT(*) FROM USERS')
         if cursor.fetchone()[0] == 0:
-            cursor.executemany('''
+            cursor.executemany("""
             INSERT INTO USERS (id, level, f_name, l_name, age, gender, weight, street, house_number, zip, city, email, phone, registration_date, username, hashed_pass)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', starter_data)
+            """, starter_data)
             print("Dummy data inserted into USERS table.")
         else:
             print("USERS table already contains data. No new data inserted.")
@@ -93,10 +118,10 @@ class Connection:
         
         cursor = self.db.cursor()
 
-        cursor.execute('''
+        cursor.execute("""
             SELECT * FROM USERS 
             WHERE LOWER(username) = ? AND hashed_pass = ?
-        ''', (username.lower(), hashed))
+        """, (username.lower(), hashed))
 
         user = cursor.fetchone()
         if user:
@@ -107,14 +132,17 @@ class Connection:
         cursor = self.db.cursor()
 
         # Query to get the user by their ID
-        get_user_query = '''
+        get_user_query = """
             SELECT *
             FROM USERS
             WHERE id = ?
-        '''
+        """
 
         cursor.execute(get_user_query, (id,))
-        return self._dict_from_tuple(cursor.fetchone()) 
+        user = cursor.fetchone()
+        if user == None:
+            return None
+        return self._dict_from_tuple(user) 
 
     def updateUser(self, updatedUser: dict):
         cursor = self.db.cursor()
@@ -137,11 +165,11 @@ class Connection:
         cursor = self.db.cursor()
 
         # Query to check if username already exists
-        check_username_query = '''
+        check_username_query = """
             SELECT COUNT(*)
             FROM USERS
             WHERE username = ?
-        '''
+        """
 
         cursor.execute(check_username_query, (username,))
         result = cursor.fetchone()
@@ -150,10 +178,10 @@ class Connection:
 
     def addUser(self, user: tuple):
         cursor = self.db.cursor()
-        cursor.execute('''
+        cursor.execute("""
             INSERT INTO USERS (id, level, f_name, l_name, age, gender, weight, street, house_number, zip, city, email, phone, registration_date, username, hashed_pass)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', user)
+            """, user)
         self.db.commit()
 
     def getAllUsersFromLevelAndLower(self, level: int) -> list[dict]:
@@ -166,7 +194,7 @@ class Connection:
     
     def searchForUsers(self, term: str) -> list[dict]:
         cursor = self.db.cursor()
-        search_query = '''
+        search_query = """
             SELECT *
             FROM USERS
             WHERE
@@ -181,13 +209,37 @@ class Connection:
                 email LIKE '%' || ? || '%' OR
                 phone LIKE '%' || ? || '%' OR
                 username LIKE '%' || ? || '%'
-        '''
+        """
         cursor.execute(search_query, (term, term, term, term,
                               term, term, term, term,
                               term, term, term))
         matching_users = cursor.fetchall()
 
         return self._dicts_from_tuples(matching_users)
+
+    def delete_user(self, id):
+        cursor = self.db.cursor()
+        delete_user_query = """
+            DELETE FROM USERS
+            WHERE id = ?
+        """
+
+        cursor.execute(delete_user_query, (id,))
+
+        self.db.commit()
+
+    
+
+    def get_logs(self) -> list[tuple]:
+        cursor = self.db.cursor()
+
+
+        cursor.execute("""
+            SELECT *
+            FROM logs
+        """)
+
+        return cursor.fetchall()
 
     
     def _dict_from_tuple(self, tuple: tuple) -> dict:
@@ -209,4 +261,5 @@ class Connection:
                 file.write(encrypted_data)
             
         os.remove("./users.db")
-        print("DELETED")
+        print("Safely exited!")
+

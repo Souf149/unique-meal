@@ -9,11 +9,24 @@ from tools.validators import is_valid
 def edit_user(db: Connection, user: dict):
 
     while True:
-        user_id = user_input("Please input the ID of the user you'd like to edit\nPress q to quit.")
+        user_id = user_input("Please input the ID of the user you'd like to edit\nPress q to quit.\nPress D to delete a user.")
         
         if user_id.lower() == "q":
             return
         
+        if user_id[0] == "D":
+            print("We are going to DELETE a user")
+            user_id = user_input("Please enter the ID of the user you want to delete.")
+            victim = db.getUserFromId(user_id)
+            if victim == None:
+                print("User not found...")
+                sleep(1)
+            db.delete_user(user_id)
+            print("User has been deleted")
+            db.log(user['username'], "User has been deleted", f"User was of level: {victim['level']}", False)
+            return
+
+
         victim = db.getUserFromId(user_id)
 
 
@@ -41,6 +54,7 @@ def edit_user(db: Connection, user: dict):
         if is_valid(chosen_field, new_value):
             user[chosen_field] = new_value
             db.updateUser(victim)
+            db.log(user["username"], "Updated user in database", f"User: {user['username']} has been edited in field: {chosen_field}", False)
             print("Field has been updated!")
             sleep(1)
             return

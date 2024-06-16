@@ -78,6 +78,8 @@ def create_new_user(db: Connection, user: dict, max_level: Level):
 
         db.addUser(create_user_tuple(generate_id(), level, f_name, l_name, age, gender, weight, street,
                    house_number, zip, city, email, phone, registration_date, username, hashed_pass))
+        db.log(user["username"], "Created new user", f"Created user: {username}", False)
+
         print("User has been created!")
         print("The password of this user is: " + password)
         sleep(1)

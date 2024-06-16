@@ -16,4 +16,5 @@ def change_my_password(db: Connection, user: dict):
             sleep(1)
             print("Password changed succesfully!")
             sleep(1)
+            db.log(user["username"], "Changed password", f"Changed password of user: {user['username']}", False)
             return
