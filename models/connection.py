@@ -86,11 +86,18 @@ class Connection:
             return self._dict_from_tuple(user)
         return None
     
-    def getUserFromId(self, id):
-        for user in self.mock_db["users"]:
-            if user["id"] == id:
-                return user
-        return None
+    def getUserFromId(self, id: str) -> dict | None:
+        cursor = self.db.cursor()
+
+        # Query to get the user by their ID
+        get_user_query = '''
+            SELECT *
+            FROM USERS
+            WHERE id = ?
+        '''
+
+        cursor.execute(get_user_query, (id,))
+        return self._dict_from_tuple(cursor.fetchone()) 
 
     def updateUser(self, updatedUser: dict):
         cursor = self.db.cursor()

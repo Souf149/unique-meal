@@ -17,6 +17,8 @@ with open("./key.key") as f:
 
 
 db = Connection(key)
+x = db.getAllUsersFromLevelAndLower(5)
+print(x)
 
 try:
     while True:
