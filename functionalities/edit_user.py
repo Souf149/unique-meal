@@ -32,7 +32,7 @@ def edit_user(db: Connection, user: dict):
     while True:
         chosen_field = user_input("What field would you like to edit?")
 
-        if chosen_field in keys:
+        if chosen_field in keys and chosen_field != "hashed_pass":
             break
         print("Please choose a valid field")
     
@@ -40,7 +40,7 @@ def edit_user(db: Connection, user: dict):
         new_value = user_input("What would you like this field to become?")
         if is_valid(chosen_field, new_value):
             user[chosen_field] = new_value
-            db.updateUser(user)
+            db.updateUser(victim)
             print("Field has been updated!")
             sleep(1)
             return

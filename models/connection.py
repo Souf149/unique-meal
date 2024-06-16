@@ -102,36 +102,17 @@ class Connection:
     def updateUser(self, updatedUser: dict):
         cursor = self.db.cursor()
 
-        update_query = '''
+        values = tuple(updatedUser[key] for key in updatedUser.keys() if key != "id")
+        values += (updatedUser["id"],)
+        set_clause = ", ".join([f"{key} = ?" for key in updatedUser.keys() if key != "id"])
+        update_query = f"""
             UPDATE USERS
-            SET
-                level = ?,
-                f_name = ?,
-                l_name = ?,
-                age = ?,
-                gender = ?,
-                weight = ?,
-                street = ?,
-                house_number = ?,
-                zip = ?,
-                city = ?,
-                email = ?,
-                phone = ?,
-                registration_date = ?,
-                username = ?,
-                hashed_pass = ?
+            SET {set_clause}
             WHERE id = ?
-        '''
+        """
 
-        paramaters = list(create_user_tuple(*updatedUser.values()))
-        first = paramaters[0]
-        last = paramaters[len(paramaters) - 1]
-
-        paramaters[0] = last
-        paramaters[len(paramaters) - 1] = first
-
-        print(paramaters)
-        cursor.execute(update_query, tuple(paramaters))
+        cursor.execute(update_query, tuple(values))
+        self.db.commit()
         
 
     def usernameExist(self, username: str):
