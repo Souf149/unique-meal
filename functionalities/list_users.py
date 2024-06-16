@@ -4,7 +4,6 @@ from tools.tools import print_user_without_pass, user_input
 
 def list_users(db: Connection, user: dict):
     users = db.getAllUsersFromLevelAndLower(user["level"])
-    print(len(users))
     while True:
         for i, _user in enumerate(users):
             print(f"{i + 1}). {_user['f_name']} {_user['l_name']}")
@@ -26,7 +25,9 @@ def list_users(db: Connection, user: dict):
             print("These users have been found: ")
             for i, _user in enumerate(found_users):
                 print(f"{i + 1}). {_user['f_name']} {_user['l_name']}")
-        
+
+            choice = user_input("Type the number of the user you want to read information of")
+            
 
         
         

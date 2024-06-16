@@ -106,6 +106,8 @@ try:
 
             elif option == "15":
                 pass
+            
+            db.db.commit()
 except Exception as e:
     print(e)
     print(traceback.format_exc())

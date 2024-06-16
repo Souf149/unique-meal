@@ -125,32 +125,70 @@ class Connection:
 
         print(paramaters)
         cursor.execute(update_query, tuple(paramaters))
+        
 
     def usernameExist(self, username: str):
-        for user in self.mock_db["users"]:
-            if user["username"].lower() == username.lower():
-                return True
-        return False
+        # Connect to SQLite database
+        cursor = self.db.cursor()
 
-    def addUser(self, user: dict):
-        self.mock_db["users"].append(user)
+        # Query to check if username already exists
+        check_username_query = '''
+            SELECT COUNT(*)
+            FROM USERS
+            WHERE username = ?
+        '''
+
+        cursor.execute(check_username_query, (username,))
+        result = cursor.fetchone()
+
+        return result[0] > 0
+
+    def addUser(self, user: tuple):
+        cursor = self.db.cursor()
+        cursor.execute('''
+            INSERT INTO USERS (id, level, f_name, l_name, age, gender, weight, street, house_number, zip, city, email, phone, registration_date, username, hashed_pass)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', user)
 
     def getAllUsersFromLevelAndLower(self, level: int) -> list[dict]:
 
         cursor = self.db.cursor()
-        cursor.execute('SELECT * FROM USERS')
+        cursor.execute('SELECT * FROM USERS LIMIT 50')
         raw_users = cursor.fetchall()
 
         return self._dicts_from_tuples(raw_users)
     
     def searchForUsers(self, term: str) -> list[dict]:
-        raise NotImplementedError() # Not wasting time on implementing it on dictionaries when we have to do it on sqllite3 anwyays
+        cursor = self.db.cursor()
+        search_query = '''
+            SELECT *
+            FROM USERS
+            WHERE
+                id LIKE '%' || ? || '%' OR
+                f_name LIKE '%' || ? || '%' OR
+                l_name LIKE '%' || ? || '%' OR
+                gender LIKE '%' || ? || '%' OR
+                street LIKE '%' || ? || '%' OR
+                house_number LIKE '%' || ? || '%' OR
+                zip LIKE '%' || ? || '%' OR
+                city LIKE '%' || ? || '%' OR
+                email LIKE '%' || ? || '%' OR
+                phone LIKE '%' || ? || '%' OR
+                username LIKE '%' || ? || '%'
+        '''
+        cursor.execute(search_query, (term, term, term, term,
+                              term, term, term, term,
+                              term, term, term))
+        matching_users = cursor.fetchall()
+
+        return self._dicts_from_tuples(matching_users)
+
     
     def _dict_from_tuple(self, tuple: tuple) -> dict:
         return create_user_dict(tuple)
 
     def _dicts_from_tuples(self, tuples: list[tuple]) -> list[dict]:
-        return map(create_user_dict, tuples)
+        return list(map(create_user_dict, tuples))
 
     def close(self):
         self.db.commit()

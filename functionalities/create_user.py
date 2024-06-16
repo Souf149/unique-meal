@@ -62,7 +62,6 @@ def create_new_user(db: Connection, user: dict, max_level: Level):
                 print("Username can only start with a letter or an underscore")
                 continue
 
-            # Rule 4: Check if username contains only allowed characters
             if not re.match(r'^[a-zA-Z0-9_.\']+$', username):
                 continue
 
@@ -74,10 +73,12 @@ def create_new_user(db: Connection, user: dict, max_level: Level):
 
         while True:
             level = user_input("What level should this user have access to?")
+            if level.isdigit() and Level.MEMBER >= int(level) >= user["level"]:
+                break
 
+        db.addUser(create_user_tuple(generate_id(), level, f_name, l_name, age, gender, weight, street,
+                   house_number, zip, city, email, phone, registration_date, username, hashed_pass))
         print("User has been created!")
         print("The password of this user is: " + password)
         sleep(1)
-        db.addUser(create_user_tuple(generate_id(), level, f_name, l_name, age, gender, weight, street,
-                   house_number, zip, city, email, phone, registration_date, username, hashed_pass))
-        break
+        return
