@@ -1,17 +1,34 @@
+import os
+from pathlib import Path
 import sqlite3
 from models.user import create_user_dict, create_user_tuple, generate_id, Level, hash_password
 from datetime import date
 from tools.tools import user_input
-from Crypto.Cipher import Salsa20
+from cryptography.fernet import Fernet
 
 
 class Connection:
 
     def __init__(self, key: str) -> None:
-        self.encryptor = Salsa20.new(key.encode())
-        self.decryptor = Salsa20.new(key.encode(), self.encryptor.nonce)
+        # self.encryptor = Salsa20.new(key.encode())
+        # self.decryptor = Salsa20.new(key.encode(), self.encryptor.nonce)
+        self.fernet = Fernet(key)
+        my_file = Path("./users.encrypted")
+        if my_file.is_file():
+            with open('./users.encrypted', 'rb') as file:
+                
+                encrypted_data = file.read()
+                    
+                decrypted_data = self.fernet.decrypt(encrypted_data)
+
+                with open('users.db', 'wb') as db_file:
+                    db_file.write(decrypted_data)
+            
+
+
 
         self.db = sqlite3.connect('users.db')
+        
         self.init_database_if_needed()
 
 
@@ -137,6 +154,7 @@ class Connection:
             INSERT INTO USERS (id, level, f_name, l_name, age, gender, weight, street, house_number, zip, city, email, phone, registration_date, username, hashed_pass)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', user)
+        self.db.commit()
 
     def getAllUsersFromLevelAndLower(self, level: int) -> list[dict]:
 
@@ -181,3 +199,14 @@ class Connection:
     def close(self):
         self.db.commit()
         self.db.close()
+        
+        with open("./users.db", "rb") as db_file:
+            decrypted_data = db_file.read()
+
+            encrypted_data = self.fernet.encrypt(decrypted_data)
+
+            with open("./users.encrypted", "wb") as file:
+                file.write(encrypted_data)
+            
+        os.remove("./users.db")
+        print("DELETED")

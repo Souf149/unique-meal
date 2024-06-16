@@ -17,8 +17,6 @@ with open("./key.key") as f:
 
 
 db = Connection(key)
-x = db.getAllUsersFromLevelAndLower(5)
-print(x)
 
 try:
     while True:
@@ -110,8 +108,6 @@ try:
                 pass
             
             db.db.commit()
-except Exception as e:
-    print(e)
-    print(traceback.format_exc())
+except:
     print("Something went wrong, shutting down...")
     db.close()

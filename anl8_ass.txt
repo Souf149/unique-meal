@@ -80,25 +80,6 @@ all passwords need to be hashed
 BACKUPS
 Multiple backups need to be able to be created
 
-LOGIN
-> Username:
-   1. must be unique and have a length of at least 8 characters
-   2. must be no longer than 10 characters
-   3. must be started with a letter or underscores (_)
-   4. can contain letters (a-z), numbers (0-9), underscores (_), apostrophes ('), and periods (.)
-   5. No distinguish between lowercase or uppercase letters
-
-
-> Password:
-   1. must have a length of at least 12 characters
-   2. must be no longer than 30 characters
-   3. can contain letters (a-z), (A-Z), numbers (0-9), Special characters such as ~!@#$%&_-+=`|\(){}[]:;'<>,.?/
-   4. must have a combination of at least one lowercase letter, one uppercase letter, one digit, and one special character
-
-
-
-
-
 
 
 
