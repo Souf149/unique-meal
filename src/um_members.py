@@ -109,8 +109,8 @@ class Connection:
                 "souf149",
                 hash_password("a"),
             ),
-            create_user_tuple(
-                generate_id(),
+            hf.create_user_tuple(
+                hf.generate_id(),
                 Level.CONSULTANT,
                 "Reajel",
                 "Cic",
@@ -127,8 +127,8 @@ class Connection:
                 "captainxx",
                 hash_password("a"),
             ),
-            create_user_tuple(
-                generate_id(),
+            hf.create_user_tuple(
+                hf.generate_id(),
                 Level.MEMBER,
                 "Cynthia",
                 "Amel",
