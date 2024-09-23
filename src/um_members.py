@@ -1,8 +1,9 @@
-from datetime import date
+from datetime import date, datetime
 from enum import IntEnum
 import sqlite3
 import traceback
 from time import sleep
+import zipfile
 from src import helper_functions as hf
 import os
 import re
@@ -32,6 +33,8 @@ def user_input(prompt: str = "") -> str:
 
 class Connection:
     def __init__(self, key: str) -> None:
+        # self.encryptor = Salsa20.new(key.encode())
+        # self.decryptor = Salsa20.new(key.encode(), self.encryptor.nonce)
         self.fernet = Fernet(key)
         my_file = Path("./users.encrypted")
         if my_file.is_file():
@@ -47,6 +50,41 @@ class Connection:
 
         self.init_database_if_needed()
         self.init_logs_if_needed()
+
+    def init_logs_if_needed(self):
+        cursor = self.db.cursor()
+        create_logs_table_query = """
+            CREATE TABLE IF NOT EXISTS logs (
+                No INTEGER PRIMARY KEY AUTOINCREMENT,
+                Time TEXT NOT NULL,
+                Username TEXT NOT NULL,
+                Description_of_activity TEXT NOT NULL,
+                Additional_Information TEXT,
+                Suspicious BOOLEAN NOT NULL CHECK (Suspicious IN (0, 1))
+            )
+        """
+
+        cursor.execute(create_logs_table_query)
+        self.db.commit()
+
+    def log(self, username: str, desc: str, add_info: str, suspicious: bool):
+        insert_log_query = """
+            INSERT INTO logs (Time, Username, Description_of_activity, Additional_Information, Suspicious)
+            VALUES (?, ?, ?, ?, ?)
+        """
+
+        cursor = self.db.cursor()
+        cursor.execute(
+            insert_log_query,
+            (
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                username,
+                desc,
+                add_info,
+                1 if suspicious else 0,
+            ),
+        )
+        self.db.commit()
 
     def init_database_if_needed(self) -> None:
         cursor = self.db.cursor()
@@ -162,32 +200,188 @@ class Connection:
 
         self.db.commit()
 
-    def init_logs_if_needed(self):
-        cursor = self.db.cursor()
-        create_logs_table_query = """
-            CREATE TABLE IF NOT EXISTS logs (
-                No INTEGER PRIMARY KEY AUTOINCREMENT,
-                Time TEXT NOT NULL,
-                Username TEXT NOT NULL,
-                Description_of_activity TEXT NOT NULL,
-                Additional_Information TEXT,
-                Suspicious BOOLEAN NOT NULL CHECK (Suspicious IN (0, 1))
-            )
-        """
-
-        cursor.execute(create_logs_table_query)
-        self.db.commit()
+    def getUserFromUsername(self, name: str):
+        raise NotImplementedError()
 
     def getUserFromLogin(self, username: str, password: str) -> dict | None:
-        raise NotImplementedError("")
-        if username:
-            return {}
-        else:
-            return None
+        hashed = hash_password(password)
 
-    def log(self, username: str, desc: str, add_info: str, suspicious: bool) -> None:
-        print(f"{username}, {desc}, {add_info}, {suspicious}")
-        raise NotImplementedError("")
+        cursor = self.db.cursor()
+
+        cursor.execute(
+            """
+            SELECT * FROM USERS 
+            WHERE LOWER(username) = ? AND hashed_pass = ?
+        """,
+            (username.lower(), hashed),
+        )
+
+        user = cursor.fetchone()
+        if user:
+            return self._dict_from_tuple(user)
+        return None
+
+    def getUserFromId(self, id: str) -> dict | None:
+        cursor = self.db.cursor()
+
+        # Query to get the user by their ID
+        get_user_query = """
+            SELECT *
+            FROM USERS
+            WHERE id = ?
+        """
+
+        cursor.execute(get_user_query, (id,))
+        user = cursor.fetchone()
+        if user == None:
+            return None
+        return self._dict_from_tuple(user)
+
+    def updateUser(self, updatedUser: dict):
+        cursor = self.db.cursor()
+
+        values = tuple(updatedUser[key] for key in updatedUser.keys() if key != "id")
+        values += (updatedUser["id"],)
+        set_clause = ", ".join(
+            [f"{key} = ?" for key in updatedUser.keys() if key != "id"]
+        )
+        update_query = f"""
+            UPDATE USERS
+            SET {set_clause}
+            WHERE id = ?
+        """
+
+        cursor.execute(update_query, tuple(values))
+        self.db.commit()
+
+    def usernameExist(self, username: str):
+        # Connect to SQLite database
+        cursor = self.db.cursor()
+
+        # Query to check if username already exists
+        check_username_query = """
+            SELECT COUNT(*)
+            FROM USERS
+            WHERE username = ?
+        """
+
+        cursor.execute(check_username_query, (username,))
+        result = cursor.fetchone()
+
+        return result[0] > 0
+
+    def addUser(self, user: tuple):
+        cursor = self.db.cursor()
+        cursor.execute(
+            """
+            INSERT INTO USERS (id, level, f_name, l_name, age, gender, weight, street, house_number, zip, city, email, phone, registration_date, username, hashed_pass)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            user,
+        )
+        self.db.commit()
+
+    def getAllUsersFromLevelAndLower(self, level: int) -> list[dict]:
+        cursor = self.db.cursor()
+        cursor.execute("SELECT * FROM USERS LIMIT 50")
+        raw_users = cursor.fetchall()
+
+        return self._dicts_from_tuples(raw_users)
+
+    def searchForUsers(self, term: str) -> list[dict]:
+        cursor = self.db.cursor()
+        search_query = """
+            SELECT *
+            FROM USERS
+            WHERE
+                id LIKE '%' || ? || '%' OR
+                f_name LIKE '%' || ? || '%' OR
+                l_name LIKE '%' || ? || '%' OR
+                gender LIKE '%' || ? || '%' OR
+                street LIKE '%' || ? || '%' OR
+                house_number LIKE '%' || ? || '%' OR
+                zip LIKE '%' || ? || '%' OR
+                city LIKE '%' || ? || '%' OR
+                email LIKE '%' || ? || '%' OR
+                phone LIKE '%' || ? || '%' OR
+                username LIKE '%' || ? || '%'
+        """
+        cursor.execute(
+            search_query,
+            (term, term, term, term, term, term, term, term, term, term, term),
+        )
+        matching_users = cursor.fetchall()
+
+        return self._dicts_from_tuples(matching_users)
+
+    def delete_user(self, id):
+        cursor = self.db.cursor()
+        delete_user_query = """
+            DELETE FROM USERS
+            WHERE id = ?
+        """
+
+        cursor.execute(delete_user_query, (id,))
+
+        self.db.commit()
+
+    def get_logs(self) -> list[tuple]:
+        cursor = self.db.cursor()
+
+        cursor.execute("""
+            SELECT *
+            FROM logs
+        """)
+
+        return cursor.fetchall()
+
+    def _dict_from_tuple(self, tuple: tuple) -> dict:
+        return hf.create_user_dict(tuple)
+
+    def _dicts_from_tuples(self, tuples: list[tuple]) -> list[dict]:
+        return list(map(hf.create_user_dict, tuples))
+
+    def close(self):
+        self.db.commit()
+        self.db.close()
+
+        with open("./users.db", "rb") as db_file:
+            decrypted_data = db_file.read()
+
+            encrypted_data = self.fernet.encrypt(decrypted_data)
+
+            with open("./users.encrypted", "wb") as file:
+                file.write(encrypted_data)
+
+        os.remove("./users.db")
+        print("Safely exited!")
+
+    def make_backup(self):
+        with open("./users.db", "rb") as db_file:
+            decrypted_data = db_file.read()
+
+            encrypted_data = self.fernet.encrypt(decrypted_data)
+
+        inpath = "./_temp/backup"
+        outpath = "./backups/" + datetime.now().strftime("%Y-%m-%d.%H-%M-%S") + ".zip"
+        with open(inpath, "wb") as file:
+            file.write(encrypted_data)
+
+        with zipfile.ZipFile(outpath, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+            zf.write(inpath, os.path.basename(inpath))
+
+    def restore_backup(self, file_name):
+        raise NotImplementedError()
+        self.db.close()
+
+        archive = zipfile.ZipFile(f"backups/{file_name}", "r")
+        backup_data = archive.read("backup")
+
+        with open("users.db", "wb") as db_file:
+            db_file.write(backup_data)
+
+        self.db = sqlite3.connect("users.db")
+        self.log("", "Old data has been restored", "", "")
 
 
 with open("./key.key") as f:
