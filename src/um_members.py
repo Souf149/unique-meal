@@ -1,0 +1,553 @@
+from datetime import date, datetime
+from enum import IntEnum
+import sqlite3
+import traceback
+from time import sleep
+import zipfile
+import helper_functions as hf
+import os
+import re
+from Crypto.Hash import SHA256
+from cryptography.fernet import Fernet
+from pathlib import Path
+from functionalities import (
+    backup,
+    change_password,
+    create_user,
+    edit_user,
+    list_users,
+    see_logs,
+    validator
+)
+
+class Level(IntEnum):
+    SUPER_ADMINISTRATOR = 4
+    SYSTEM_ADMINISTRATORS = 3
+    CONSULTANT = 2
+    MEMBER = 1
+
+
+def hash_password(password: str) -> bytes:
+    hash_object = SHA256.new(data=(password).encode())
+    return hash_object.digest()
+
+
+def user_input(prompt: str = "") -> str:
+    res = ""
+    while res == "":
+        res = input(prompt + "\n")
+    return str(res)
+
+
+class Connection:
+    def __init__(self, key: str) -> None:
+        # self.encryptor = Salsa20.new(key.encode())
+        # self.decryptor = Salsa20.new(key.encode(), self.encryptor.nonce)
+        self.fernet = Fernet(key)
+        my_file = Path("./users.encrypted")
+        if my_file.is_file():
+            with open("./users.encrypted", "rb") as file:
+                encrypted_data = file.read()
+
+                decrypted_data = self.fernet.decrypt(encrypted_data)
+
+                with open("users.db", "wb") as db_file:
+                    db_file.write(decrypted_data)
+
+        self.db = sqlite3.connect("users.db")
+
+        self.init_database_if_needed()
+        self.init_logs_if_needed()
+
+    def init_logs_if_needed(self):
+        cursor = self.db.cursor()
+        create_logs_table_query = """
+            CREATE TABLE IF NOT EXISTS logs (
+                No INTEGER PRIMARY KEY AUTOINCREMENT,
+                Time TEXT NOT NULL,
+                Username TEXT NOT NULL,
+                Description_of_activity TEXT NOT NULL,
+                Additional_Information TEXT,
+                Suspicious BOOLEAN NOT NULL CHECK (Suspicious IN (0, 1))
+            )
+        """
+
+        cursor.execute(create_logs_table_query)
+        self.db.commit()
+
+    def log(self, username: str, desc: str, add_info: str, suspicious: bool):
+        insert_log_query = """
+            INSERT INTO logs (Time, Username, Description_of_activity, Additional_Information, Suspicious)
+            VALUES (?, ?, ?, ?, ?)
+        """
+
+        cursor = self.db.cursor()
+        cursor.execute(
+            insert_log_query,
+            (
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                username,
+                desc,
+                add_info,
+                1 if suspicious else 0,
+            ),
+        )
+        self.db.commit()
+
+    def init_database_if_needed(self) -> None:
+        cursor = self.db.cursor()
+
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS USERS (
+            id TEXT PRIMARY KEY,
+            level INTEGER NOT NULL,
+            f_name TEXT NOT NULL,
+            l_name TEXT NOT NULL,
+            age INTEGER NOT NULL,
+            gender TEXT NOT NULL,
+            weight REAL NOT NULL,
+            street TEXT NOT NULL,
+            house_number TEXT NOT NULL,
+            zip TEXT NOT NULL,
+            city TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            phone TEXT NOT NULL,
+            registration_date DATE NOT NULL,
+            username TEXT NOT NULL UNIQUE,
+            hashed_pass TEXT NOT NULL
+        )
+        """)
+
+        starter_data = [
+            hf.create_user_tuple(
+                "2400000000",
+                Level.SUPER_ADMINISTRATOR,
+                "teacher",
+                "INF",
+                31,
+                "m",
+                70.2,
+                "wijnhaven",
+                "207",
+                "4294",
+                "Rotterdam",
+                "cmi@hr.nl",
+                "+31-6-12345678",
+                date(2023, 3, 1),
+                "teacher23",
+                hash_password("Admin_123?"),
+            ),
+            hf.create_user_tuple(
+                hf.generate_id(),
+                Level.SYSTEM_ADMINISTRATORS,
+                "Soufyan",
+                "Abdell",
+                25,
+                "m",
+                257,
+                "otherstreet",
+                "134",
+                "2342",
+                "Dordrecht",
+                "0963595@hr.nl",
+                "+31-6-21424244",
+                date(2023, 3, 3),
+                "souf149",
+                hash_password("a"),
+            ),
+            hf.create_user_tuple(
+                hf.generate_id(),
+                Level.CONSULTANT,
+                "Reajel",
+                "Cic",
+                26,
+                "m",
+                50,
+                "boringstreet",
+                "24",
+                "2556",
+                "Pap",
+                "1535233@hr.nl",
+                "+31-6-11141111",
+                date(2024, 6, 7),
+                "captainxx",
+                hash_password("a"),
+            ),
+            hf.create_user_tuple(
+                hf.generate_id(),
+                Level.MEMBER,
+                "Cynthia",
+                "Amel",
+                19,
+                "f",
+                52,
+                "lijnbaan",
+                "2",
+                "1111",
+                "Pap",
+                "1534433@hr.nl",
+                "+31-6-22141111",
+                date(2024, 7, 6),
+                "flower",
+                hash_password("ab"),
+            ),
+        ]
+
+        cursor.execute("SELECT COUNT(*) FROM USERS")
+        if cursor.fetchone()[0] == 0:
+            cursor.executemany(
+                """
+            INSERT INTO USERS (id, level, f_name, l_name, age, gender, weight, street, house_number, zip, city, email, phone, registration_date, username, hashed_pass)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+                starter_data,
+            )
+            print("Dummy data inserted into USERS table.")
+        else:
+            print("USERS table already contains data. No new data inserted.")
+
+        self.db.commit()
+
+    def getUserFromUsername(self, name: str):
+        raise NotImplementedError()
+
+    def getUserFromLogin(self, username: str, password: str) -> dict | None:
+        hashed = hash_password(password)
+
+        cursor = self.db.cursor()
+
+        cursor.execute(
+            """
+            SELECT * FROM USERS 
+            WHERE LOWER(username) = ? AND hashed_pass = ?
+        """,
+            (username.lower(), hashed),
+        )
+
+        user = cursor.fetchone()
+        if user:
+            return self._dict_from_tuple(user)
+        return None
+
+    def getUserFromId(self, id: str) -> dict | None:
+        cursor = self.db.cursor()
+
+        # Query to get the user by their ID
+        get_user_query = """
+            SELECT *
+            FROM USERS
+            WHERE id = ?
+        """
+
+        cursor.execute(get_user_query, (id,))
+        user = cursor.fetchone()
+        if user == None:
+            return None
+        return self._dict_from_tuple(user)
+
+    def updateUser(self, updatedUser: dict):
+        cursor = self.db.cursor()
+
+        values = tuple(updatedUser[key] for key in updatedUser.keys() if key != "id")
+        values += (updatedUser["id"],)
+        set_clause = ", ".join(
+            [f"{key} = ?" for key in updatedUser.keys() if key != "id"]
+        )
+        update_query = f"""
+            UPDATE USERS
+            SET {set_clause}
+            WHERE id = ?
+        """
+
+        cursor.execute(update_query, tuple(values))
+        self.db.commit()
+
+    def usernameExist(self, username: str):
+        # Connect to SQLite database
+        cursor = self.db.cursor()
+
+        # Query to check if username already exists
+        check_username_query = """
+            SELECT COUNT(*)
+            FROM USERS
+            WHERE username = ?
+        """
+
+        cursor.execute(check_username_query, (username,))
+        result = cursor.fetchone()
+
+        return result[0] > 0
+
+    def addUser(self, user: tuple):
+        cursor = self.db.cursor()
+        cursor.execute(
+            """
+            INSERT INTO USERS (id, level, f_name, l_name, age, gender, weight, street, house_number, zip, city, email, phone, registration_date, username, hashed_pass)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            user,
+        )
+        self.db.commit()
+
+    def getAllUsersFromLevelAndLower(self, level: int) -> list[dict]:
+        cursor = self.db.cursor()
+        cursor.execute("SELECT * FROM USERS LIMIT 50")
+        raw_users = cursor.fetchall()
+
+        return self._dicts_from_tuples(raw_users)
+
+    def searchForUsers(self, term: str) -> list[dict]:
+        cursor = self.db.cursor()
+        search_query = """
+            SELECT *
+            FROM USERS
+            WHERE
+                id LIKE '%' || ? || '%' OR
+                f_name LIKE '%' || ? || '%' OR
+                l_name LIKE '%' || ? || '%' OR
+                gender LIKE '%' || ? || '%' OR
+                street LIKE '%' || ? || '%' OR
+                house_number LIKE '%' || ? || '%' OR
+                zip LIKE '%' || ? || '%' OR
+                city LIKE '%' || ? || '%' OR
+                email LIKE '%' || ? || '%' OR
+                phone LIKE '%' || ? || '%' OR
+                username LIKE '%' || ? || '%'
+        """
+        cursor.execute(
+            search_query,
+            (term, term, term, term, term, term, term, term, term, term, term),
+        )
+        matching_users = cursor.fetchall()
+
+        return self._dicts_from_tuples(matching_users)
+
+    def delete_user(self, id):
+        cursor = self.db.cursor()
+        delete_user_query = """
+            DELETE FROM USERS
+            WHERE id = ?
+        """
+
+        cursor.execute(delete_user_query, (id,))
+
+        self.db.commit()
+
+    def get_logs(self) -> list[tuple]:
+        cursor = self.db.cursor()
+
+        cursor.execute("""
+            SELECT *
+            FROM logs
+        """)
+
+        return cursor.fetchall()
+
+    def _dict_from_tuple(self, tuple: tuple) -> dict:
+        return hf.create_user_dict(tuple)
+
+    def _dicts_from_tuples(self, tuples: list[tuple]) -> list[dict]:
+        return list(map(hf.create_user_dict, tuples))
+
+    def close(self):
+        self.db.commit()
+        self.db.close()
+
+        with open("./users.db", "rb") as db_file:
+            decrypted_data = db_file.read()
+
+            encrypted_data = self.fernet.encrypt(decrypted_data)
+
+            with open("./users.encrypted", "wb") as file:
+                file.write(encrypted_data)
+
+        os.remove("./users.db")
+        print("Safely exited!")
+
+    def make_backup(self):
+        with open("./users.db", "rb") as db_file:
+            decrypted_data = db_file.read()
+
+            encrypted_data = self.fernet.encrypt(decrypted_data)
+
+        inpath = "./_temp/backup"
+        outpath = "./backups/" + datetime.now().strftime("%Y-%m-%d.%H-%M-%S") + ".zip"
+        with open(inpath, "wb") as file:
+            file.write(encrypted_data)
+
+        with zipfile.ZipFile(outpath, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+            zf.write(inpath, os.path.basename(inpath))
+
+    def restore_backup(self, file_name):
+        raise NotImplementedError()
+        self.db.close()
+
+        archive = zipfile.ZipFile(f"backups/{file_name}", "r")
+        backup_data = archive.read("backup")
+
+        with open("users.db", "wb") as db_file:
+            db_file.write(backup_data)
+
+        self.db = sqlite3.connect("users.db")
+        self.log("", "Old data has been restored", "", "")
+
+
+with open("./key.key") as f:
+    key = f.read()
+
+
+db = Connection(key)
+login_attempts = 0
+
+def switchcase(value):
+    match value:
+        case 1:
+            return "option 1"
+        case 2:
+            return "option 1"
+        case 3:
+            return "option 1"
+        
+
+try:
+    while True:
+        user = None
+        username = user_input("Give your username please: ")
+        password = user_input("Give your password please: ")
+        login_attempts += 1
+        user = db.getUserFromLogin(username, password)
+        if user is None:
+            print("wrong login")
+            if login_attempts > 5:
+                db.log(
+                    "",
+                    "Unsuccessful login.",
+                    f"username: {username}. Multiple usernames and passwords are tried in a row.",
+                    True,
+                )
+            else:
+                db.log("", "Unsuccessful login.", f"username: {username}.", False)
+            continue
+
+        # SUCCESFUL LOGIN
+        print(f"Logged in with the id: {user['id']}")
+
+        # Hardcoded credentials for the teachers
+        SUPER_ADMIN_USERNAME = "super_admin"
+        SUPER_ADMIN_PASSWORD = "Admin_123?"
+
+        while True:
+            if user['level'] == 4:  # Super Admin
+                entered_username = input("Enter Super Admin username: ")
+                entered_password = input("Enter Super Admin password: ")
+
+                if entered_username == SUPER_ADMIN_USERNAME and entered_password == SUPER_ADMIN_PASSWORD:
+                    print("Welcome Super Administrator!")
+                else:
+                    print("Invalid credentials. Exiting.")
+                    break
+
+            else:
+                print(f"Welcome {user['f_name']}!")
+                print(f"Level: {user['level']}!")
+
+            # Display options based on user level
+            if user['level'] == 1:  # Member
+                print("As a Member, you have no actions available.")
+                print('Press "Q" to log out.')
+
+            elif user['level'] == 2:  # Consultant
+                print("Choose a number to select what you want to do:")
+                print("1).\tChange my password")
+                print("2).\tAdd a new member")
+                print("3).\tModify/update member information")
+                print("4).\tSearch/retrieve member information")
+                print('Press "Q" to log out.')
+
+            elif user['level'] in [3, 4]:  # Admin or Super Admin
+                print("Choose a number to select what you want to do:")
+                print("1).\tChange my password")
+                print("2).\tCheck list of users and their roles")
+                print("3).\tDefine and add a new consultant")
+                print("4).\tModify/update an existing consultant's account")
+                print("5).\tDelete an existing consultant's account")
+                print("6).\tReset an existing consultant's password")
+                print("7).\tAdd a new member")
+                print("8).\tModify/update member information")
+                print("9).\tSearch/retrieve member information")
+                print("10).\tMake a backup of the system")
+                print("11).\tSee logs")
+                print("12).\tDefine and add a new admin")  # Admin-specific
+                print("13).\tModify/update an existing admin's account")  # Admin-specific
+                print("14).\tDelete an existing admin's account")  # Admin-specific
+                print("15).\tReset an existing admin's password")  # Admin-specific
+                print('Press "Q" to log out.')
+
+            option = user_input('Select an action or press "Q" to log out: ').lower()
+
+            if option == "q":
+                print("Logging out")
+                os.system("cls")
+                break
+
+            # Handle actions based on user level
+            if user['level'] == 2:  # Consultant
+                if option == "1":
+                    change_password.change_my_password(db, user)
+                elif option == "2":
+                    create_user.create_new_user(db, user, Level.MEMBER)
+                elif option == "3":
+                    edit_user.edit_user(db, user)
+                elif option == "4":
+                    list_users.list_users(db, user)
+                else:
+                    print("Invalid option. Please try again.")
+                    continue
+
+            elif user['level'] in [3, 4]:  # Admin or Super Admin
+                if option == "1":
+                    change_password.change_my_password(db, user)
+                elif option == "2":
+                    list_users.list_users(db, user)
+                elif option == "3":
+                    create_user.create_new_consultant(db)  # Create consultant
+                elif option == "4":
+                    edit_user.edit_consultant(db)  # Modify consultant
+                elif option == "5":
+                    delete_user.delete_consultant(db)  # Delete consultant
+                elif option == "6":
+                    reset_password.reset_consultant_password(db)  # Reset consultant's password
+                elif option == "7":
+                    create_user.create_new_user(db, user, Level.MEMBER)  # Add new member
+                elif option == "8":
+                    edit_user.edit_member(db, user)  # Modify member
+                elif option == "9":
+                    list_users.list_users(db, user)  # Search/retrieve member info
+                elif option == "10":
+                    backup.backup(db)  # Backup system
+                elif option == "11":
+                    see_logs.see_logs(db)  # View logs
+                elif option == "12" and user['level'] == 4:  # Only Super Admin can add a new admin
+                    create_user.create_new_admin(db)
+                elif option == "13" and user['level'] == 4:  # Admin-specific
+                    edit_user.edit_admin(db)
+                elif option == "14" and user['level'] == 4:  # Admin-specific
+                    delete_user.delete_admin(db)
+                elif option == "15" and user['level'] == 4:  # Admin-specific
+                    reset_password.reset_admin_password(db)
+                else:
+                    print("Invalid option. Please try again.")
+                    continue
+
+            elif user['level'] == 1:  # Member
+                print("Members cannot perform any actions in this system.")
+
+            db.db.commit()
+
+
+
+
+
+except Exception:
+    print(traceback.format_exc())
+    db.close()
