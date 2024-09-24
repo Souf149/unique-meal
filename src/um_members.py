@@ -68,11 +68,12 @@ try:
                 print(f"Level: {user['level']}!")
 
             # Display options based on user level
-            if user["level"] == 1:  # Member
+            print(user)
+            if user["level"] == Level.MEMBER:  # Member
                 print("As a Member, you have no actions available.")
                 print('Press "Q" to log out.')
 
-            elif user["level"] == 2:  # Consultant
+            elif user["level"] == Level.CONSULTANT:  # Consultant
                 print("Choose a number to select what you want to do:")
                 print("1).\tChange my password")
                 print("2).\tAdd a new member")
@@ -80,7 +81,10 @@ try:
                 print("4).\tSearch/retrieve member information")
                 print('Press "Q" to log out.')
 
-            elif user["level"] in [3, 4]:  # Admin or Super Admin
+            elif user["level"] in [
+                Level.SYSTEM_ADMINISTRATORS,
+                Level.SUPER_ADMINISTRATOR,
+            ]:  # Admin or Super Admin
                 print("Choose a number to select what you want to do:")
                 print("1).\tChange my password")
                 print("2).\tCheck list of users and their roles")

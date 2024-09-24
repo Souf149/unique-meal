@@ -17,17 +17,7 @@ from .helper_functions import (
 
 class Connection:
     def __init__(self, key: str) -> None:
-        
         self.fernet = Fernet(key)
-        my_file = Path("./users.encrypted")
-        if my_file.is_file():
-            with open("./users.encrypted", "rb") as file:
-                encrypted_data = file.read()
-
-                decrypted_data = self.fernet.decrypt(encrypted_data)
-
-                with open("users.db", "wb") as db_file:
-                    db_file.write(decrypted_data)
 
         self.db = sqlite3.connect("users.db")
 

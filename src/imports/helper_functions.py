@@ -100,3 +100,4 @@ def generate_id():
     # Adding the middle digits and adding the last 2
     result = year + "".join(random_seq) + str(sum % 10)
     return result
+

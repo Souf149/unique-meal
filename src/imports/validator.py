@@ -45,18 +45,14 @@ class User_Info_Validator:
         self.hashed_pass = self.validate_hashed_pass(hashed_pass)
 
     @staticmethod
-    def validate_id(id: str) -> bool:
-        if isinstance(id, str):
-            if not id.isdigit():
-                return False
-            id = int(id)
-
-        if isinstance(id, int):
+    def validate_id(inp: str) -> bool:
+        try:
+            id = int(inp)
             if not 0 < id < 1000:
                 return False
             return True
-
-        return False
+        except ValueError:
+            return False
 
     @staticmethod
     def validate_password(password: str) -> bool:
@@ -89,22 +85,22 @@ class User_Info_Validator:
         raise ValueError("Invalid level")
 
     @staticmethod
-    def validate_name(self: str) -> bool:
-        if not isinstance(self, str):
+    def validate_name(name: str) -> bool:
+        if not isinstance(name, str):
             return False
         # Removeleading/trailing spaces and check length
-        self = self.strip()
-        if 2 > len(self) > 50:
+        name = name.strip()
+        if 2 > len(name) > 50:
             return False
         # Check if the name contains  digits
-        if any(char.isdigit() for char in self):
+        if any(char.isdigit() for char in name):
             return False
 
         # Check if the first letter is uppercase (optional)
-        if not (self[1:].islower()):
+        if not (name[1:].islower()):
             return False
 
-        if not re.match("^[A-Za-z]+$", self):  # No special characters
+        if not re.match("^[A-Za-z]+$", name):  # No special characters
             return False
         return True  # If everything is valid, returns True
 
