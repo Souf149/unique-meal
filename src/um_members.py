@@ -4,7 +4,7 @@ import sqlite3
 import traceback
 from time import sleep
 import zipfile
-from src import helper_functions as hf
+import helper_functions as hf
 import os
 import re
 from Crypto.Hash import SHA256
@@ -414,44 +414,131 @@ try:
 
         # SUCCESFUL LOGIN
         print(f"Logged in with the id: {user['id']}")
+
+        # Hardcoded credentials for the teachers
+        SUPER_ADMIN_USERNAME = "super_admin"
+        SUPER_ADMIN_PASSWORD = "Admin_123?"
+
         while True:
-            print(f"Welcome {user['f_name']}!")
+            if user["level"] == 4:  # Super Admin
+                entered_username = input("Enter Super Admin username: ")
+                entered_password = input("Enter Super Admin password: ")
 
-            print("Choose a number to select what you want to do")
-            print("1).\tChange my password")
-            print("2).\tAdd a new user")
-            print("3).\tGet information about a member")
-            print("4).\tEdit/Delete a member")
-            print("5).\tSee logs")
-            print("6).\tCreate/Load backups")
+                if (
+                    entered_username == SUPER_ADMIN_USERNAME
+                    and entered_password == SUPER_ADMIN_PASSWORD
+                ):
+                    print("Welcome Super Administrator!")
+                else:
+                    print("Invalid credentials. Exiting.")
+                    break
 
-            option = user_input(
-                'Press the corresponding number of the action you want to take or press "Q" to log out'
-            ).lower()
+            else:
+                print(f"Welcome {user['f_name']}!")
+                print(f"Level: {user['level']}!")
+
+            # Display options based on user level
+            if user["level"] == 1:  # Member
+                print("As a Member, you have no actions available.")
+                print('Press "Q" to log out.')
+
+            elif user["level"] == 2:  # Consultant
+                print("Choose a number to select what you want to do:")
+                print("1).\tChange my password")
+                print("2).\tAdd a new member")
+                print("3).\tModify/update member information")
+                print("4).\tSearch/retrieve member information")
+                print('Press "Q" to log out.')
+
+            elif user["level"] in [3, 4]:  # Admin or Super Admin
+                print("Choose a number to select what you want to do:")
+                print("1).\tChange my password")
+                print("2).\tCheck list of users and their roles")
+                print("3).\tDefine and add a new consultant")
+                print("4).\tModify/update an existing consultant's account")
+                print("5).\tDelete an existing consultant's account")
+                print("6).\tReset an existing consultant's password")
+                print("7).\tAdd a new member")
+                print("8).\tModify/update member information")
+                print("9).\tSearch/retrieve member information")
+                print("10).\tMake a backup of the system")
+                print("11).\tSee logs")
+                print("12).\tDefine and add a new admin")  # Admin-specific
+                print(
+                    "13).\tModify/update an existing admin's account"
+                )  # Admin-specific
+                print("14).\tDelete an existing admin's account")  # Admin-specific
+                print("15).\tReset an existing admin's password")  # Admin-specific
+                print('Press "Q" to log out.')
+
+            option = user_input('Select an action or press "Q" to log out: ').lower()
+
             if option == "q":
                 print("Logging out")
                 os.system("cls")
                 break
 
-            elif option == "1":
-                change_my_password(db, user)
+            # Handle actions based on user level
+            if user["level"] == 2:  # Consultant
+                if option == "1":
+                    change_password.change_my_password(db, user)
+                elif option == "2":
+                    create_user.create_new_user(db, user, Level.MEMBER)
+                elif option == "3":
+                    edit_user.edit_user(db, user)
+                elif option == "4":
+                    list_users.list_users(db, user)
+                else:
+                    print("Invalid option. Please try again.")
+                    continue
 
-            elif option == "2":
-                create_new_user(db, user, Level.MEMBER)
+            elif user["level"] in [3, 4]:  # Admin or Super Admin
+                if option == "1":
+                    change_password.change_my_password(db, user)
+                elif option == "2":
+                    list_users.list_users(db, user)
+                elif option == "3":
+                    create_user.create_new_consultant(db)  # Create consultant
+                elif option == "4":
+                    edit_user.edit_consultant(db)  # Modify consultant
+                elif option == "5":
+                    delete_user.delete_consultant(db)  # Delete consultant
+                elif option == "6":
+                    reset_password.reset_consultant_password(
+                        db
+                    )  # Reset consultant's password
+                elif option == "7":
+                    create_user.create_new_user(
+                        db, user, Level.MEMBER
+                    )  # Add new member
+                elif option == "8":
+                    edit_user.edit_member(db, user)  # Modify member
+                elif option == "9":
+                    list_users.list_users(db, user)  # Search/retrieve member info
+                elif option == "10":
+                    backup.backup(db)  # Backup system
+                elif option == "11":
+                    see_logs.see_logs(db)  # View logs
+                elif (
+                    option == "12" and user["level"] == 4
+                ):  # Only Super Admin can add a new admin
+                    create_user.create_new_admin(db)
+                elif option == "13" and user["level"] == 4:  # Admin-specific
+                    edit_user.edit_admin(db)
+                elif option == "14" and user["level"] == 4:  # Admin-specific
+                    delete_user.delete_admin(db)
+                elif option == "15" and user["level"] == 4:  # Admin-specific
+                    reset_password.reset_admin_password(db)
+                else:
+                    print("Invalid option. Please try again.")
+                    continue
 
-            elif option == "3":
-                list_users(db, user)
-
-            elif option == "4":
-                edit_user(db, user)
-
-            elif option == "5":
-                see_logs(db)
-
-            elif option == "6":
-                backup(db)
+            elif user["level"] == 1:  # Member
+                print("Members cannot perform any actions in this system.")
 
             db.db.commit()
+
+
 except Exception:
     print(traceback.format_exc())
     db.close()
