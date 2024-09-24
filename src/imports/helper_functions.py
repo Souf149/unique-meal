@@ -1,6 +1,27 @@
 from datetime import date
 import datetime
+from enum import IntEnum
 import random
+from Crypto.Hash import SHA256
+
+
+class Level(IntEnum):
+    SUPER_ADMINISTRATOR = 4
+    SYSTEM_ADMINISTRATORS = 3
+    CONSULTANT = 2
+    MEMBER = 1
+
+
+def hash_password(password: str) -> bytes:
+    hash_object = SHA256.new(data=(password).encode())
+    return hash_object.digest()
+
+
+def user_input(prompt: str = "") -> str:
+    res = ""
+    while res == "":
+        res = input(prompt + "\n")
+    return str(res)
 
 
 def create_user_tuple(
