@@ -5,7 +5,7 @@ from models.connection import Connection
 from models.user import Level, create_user_tuple, generate_id, generate_password, hash_password
 from tools.tools import check_password, user_input
 from datetime import datetime
-from functionalities.validator import User_Info_Validator
+from imports.validator import User_Info_Validator
 
 def create_new_user(db: Connection, user: dict, max_level: Level):
     Validator = User_Info_Validator
@@ -37,7 +37,7 @@ def create_new_user(db: Connection, user: dict, max_level: Level):
 
         while True:
             street = user_input("Input the street name")
-            if (Validator.validate_name(weight)):
+            if (Validator.validate_name(street)):
                 break
 
         while True:
@@ -51,9 +51,14 @@ def create_new_user(db: Connection, user: dict, max_level: Level):
                 break
 
         while True:
-            city = user_input("Input the city's name")
-            if (Validator.validate_name(city)):
+            prepicked = Validator.validate_age(user_input("If you want to pick out of a list of cities press [1] else press [2]"))
+            if (prepicked == 1):
+                Validator.choose_city()
                 break
+            else:                
+                city = user_input("Input the city's name")
+                if (Validator.validate_name(city)):
+                    break
 
         while True:
             email = user_input("Input the emailaddress")
@@ -61,31 +66,31 @@ def create_new_user(db: Connection, user: dict, max_level: Level):
                 break
 
         while True:
-            phone = user_input("Input the phone number")
+            phone = user_input("Input the phone number. only the 8 characters after the '+316'")
             if (Validator.validate_phone(phone)):
                 break
 
         while True:
-            registration_date = user_input("Input the registration date")
+            registration_date = user_input("Input the registration date. Example: 2001-09-11")
             if (Validator.validate_registration_date(registration_date)):
                 break
 
         while True:
-            password = user_input("Input the password")
+            password = user_input("Input the password. One uppercase\nOne special character\nMin 8 characters max 12 ")
             if (Validator.validate_password(password)):
                 break
 
         hashed_pass = hash_password(password) # komt nog
 
         while True:
-            print("For the final info, please choose a name for the user")
-            username = user_input("Input the password")
-            if (Validator.validate_username(username)):
+            level = user_input("What level should this user have access to?")
+            if (Validator.validate_level(level, user)):
                 break
 
         while True:
-            level = user_input("What level should this user have access to?")
-            if (Validator.validate_level(level)):
+            print("For the final info, please choose a name for the user")
+            username = user_input("Input the username")
+            if (Validator.validate_username(username)):
                 break
 
         db.addUser(create_user_tuple(generate_id(), level, f_name, l_name, age, gender, weight, street,

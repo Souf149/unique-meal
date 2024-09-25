@@ -12,7 +12,8 @@ from pathlib import Path
 
 from imports.helper_functions import Level, user_input
 from imports.connection import Connection
-
+from functionalities import backup,change_password,edit_user,list_users,see_logs
+from imports import create_user
 
 with open("./key.key") as f:
     key = f.read()
@@ -132,21 +133,17 @@ try:
                 elif option == "2":
                     list_users.list_users(db, user)
                 elif option == "3":
-                    create_user.create_new_consultant(db)  # Create consultant
+                    create_user.create_new_user(db)  # Create consultant
                 elif option == "4":
-                    edit_user.edit_consultant(db)  # Modify consultant
+                    edit_user.edit_user(db)  # Modify consultant
                 elif option == "5":
-                    delete_user.delete_consultant(db)  # Delete consultant
+                    edit_user.edit_user(db)  # Delete consultant
                 elif option == "6":
-                    reset_password.reset_consultant_password(
-                        db
-                    )  # Reset consultant's password
+                    reset_password.reset_consultant_password(db)  # Reset consultant's password
                 elif option == "7":
-                    create_user.create_new_user(
-                        db, user, Level.MEMBER
-                    )  # Add new member
+                    create_user.create_new_user( db, user, Level.MEMBER)  # Add new member
                 elif option == "8":
-                    edit_user.edit_member(db, user)  # Modify member
+                    edit_user.edit_user(db, user)  # Modify member
                 elif option == "9":
                     list_users.list_users(db, user)  # Search/retrieve member info
                 elif option == "10":
@@ -160,9 +157,9 @@ try:
                 elif option == "13" and user["level"] == 4:  # Admin-specific
                     edit_user.edit_admin(db)
                 elif option == "14" and user["level"] == 4:  # Admin-specific
-                    delete_user.delete_admin(db)
+                    edit_user.edit_user(db)
                 elif option == "15" and user["level"] == 4:  # Admin-specific
-                    reset_password.reset_admin_password(db)
+                    reset_password.reset_admin_password(db) # MOET NOG KOMEN
                 else:
                     print("Invalid option. Please try again.")
                     continue
