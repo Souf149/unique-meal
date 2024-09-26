@@ -153,7 +153,7 @@ try:
                 elif (
                     option == "12" and user["level"] == 4
                 ):  # Only Super Admin can add a new admin
-                    create_user.create_new_admin(db)
+                    create_user.create_new_user(db)
                 elif option == "13" and user["level"] == 4:  # Admin-specific
                     edit_user.edit_admin(db)
                 elif option == "14" and user["level"] == 4:  # Admin-specific

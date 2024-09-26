@@ -1,6 +1,10 @@
 from datetime import date
 import datetime
 import re
+import uuid
+import random
+
+
 
 
 class User_Info_Validator:
@@ -45,7 +49,21 @@ class User_Info_Validator:
         self.hashed_pass = self.validate_hashed_pass(hashed_pass)
 
     @staticmethod
-    def validate_id(inp: str) -> bool:
+    def validate_id() -> str:
+        regis_date = datetime.datetime.today().year - 2000
+        identify = ''.join(str(random.randint(0, 9)) for _ in range(7))
+        
+        base_id = f"{regis_date}{identify}"
+
+        checksum = sum(int(digit) for digit in base_id) % 10
+
+        membership_id = f"{base_id}{checksum}"
+        
+        print(f"Generated ID: {membership_id}")
+        return membership_id
+
+
+    def validate_id_above_level_3(inp: str) -> bool:
         try:
             id = int(inp)
             if not 0 < id < 1000:
@@ -53,7 +71,7 @@ class User_Info_Validator:
             return True
         except ValueError:
             return False
-
+        
     @staticmethod
     def validate_password(password: str) -> bool:
         #  must have a length of at least 12 characters & ○	must have a length of at least 12 characters
@@ -134,11 +152,11 @@ class User_Info_Validator:
 
         return False
 
-        @staticmethod
-        def validate_gender(gender: str) -> bool:
-            if gender.upper() in {"M", "F"}:
-                return True
-            return False
+    @staticmethod
+    def validate_gender(gender: str) -> bool:
+        if gender.upper() in {"M", "F"}:
+            return True
+        return False
 
     @staticmethod
 
@@ -191,7 +209,7 @@ class User_Info_Validator:
         return False
 
     @staticmethod
-    def validate_registration_date(registration_date) -> bool:
+    def validate_registration_date(registration_date, user) -> bool:
         if isinstance(registration_date, date):
             if registration_date > date.today():
                 return False

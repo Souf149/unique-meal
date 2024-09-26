@@ -46,7 +46,7 @@ def create_new_user(db: Connection, user: dict, max_level: Level):
                 break
 
         while True:
-            zip = user_input("Input the zipcode")
+            zip = user_input("Input the zipcode. \n Example: Zip Code (DDDDXX) - only enter DDDDXX ")
             if (Validator.validate_zip(zip)):
                 break
 
@@ -61,40 +61,44 @@ def create_new_user(db: Connection, user: dict, max_level: Level):
                     break
 
         while True:
-            email = user_input("Input the emailaddress")
+            email = user_input("Input the emailaddress.")
             if (Validator.validate_email(email)):
                 break
 
         while True:
-            phone = user_input("Input the phone number. only the 8 characters after the '+316'")
+            phone = user_input("Input the phone number.\nExample: (+31-6-DDDDDDDD) - only enter DDDDDDDD '")
             if (Validator.validate_phone(phone)):
                 break
 
         while True:
+            if (user['level'] < 3):
+                registration_date = regis_date = datetime.datetime.today().year - 2000
+                break # mogelijk bij alle levels
             registration_date = user_input("Input the registration date. Example: 2001-09-11")
             if (Validator.validate_registration_date(registration_date)):
                 break
 
         while True:
-            password = user_input("Input the password. One uppercase\nOne special character\nMin 8 characters max 12 ")
+            password = user_input("Input the password.\nmust be unique and have a length of at least 8 characters\nmust be no longer than 10 characters\nmust be started with a letter or underscores (_)\ncan contain letters (a-z), numbers (0-9), underscores (_), apostrophes ('), and periods (.)\nno distinguish between lowercase or uppercase letters")
             if (Validator.validate_password(password)):
                 break
 
         hashed_pass = hash_password(password) # komt nog
 
         while True:
-            level = user_input("What level should this user have access to?")
+            level = user_input(f"What level should this user have access to?. Important: You can only make users of level: {user['level']}")
             if (Validator.validate_level(level, user)):
                 break
 
         while True:
-            print("For the final info, please choose a name for the user")
+            membership_id = Validator.validate_id() # membershipID
+            print("For the final info, please choose a name for the user.\nmust be unique and have a length of at least 8 characters\nmust be no longer than 10 characters\nmust be started with a letter or underscores (_)\ncan contain letters (a-z), numbers (0-9), underscores (_), apostrophes ('), and periods (.)\nno distinguish between lowercase or uppercase letters")
             username = user_input("Input the username")
             if (Validator.validate_username(username)):
                 break
 
         db.addUser(create_user_tuple(generate_id(), level, f_name, l_name, age, gender, weight, street,
-                   house_number, zip, city, email, phone, registration_date, username, hashed_pass))
+                   house_number, zip, city, email, phone, registration_date, username, hashed_pass)) #ID = membership_id
         db.log(user["username"], "Created new user",
                f"Created user: {username}", False)
 
