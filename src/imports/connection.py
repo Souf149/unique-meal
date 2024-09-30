@@ -355,3 +355,46 @@ class Connection:
 
         self.db = sqlite3.connect("users.db")
         self.log("", "Old data has been restored", "", "")
+
+    def encrypt_tuple(
+        self,
+        tup: tuple[
+            str,
+            int,
+            str,
+            str,
+            int,
+            str,
+            float,
+            str,
+            str,
+            str,
+            str,
+            str,
+            str,
+            date,
+            str,
+            bytes,
+        ],
+    ) -> tuple:
+        res: list[bytes] = []
+        for val in tup:
+            if type(val) is str:
+                res.append(str.encode(val))
+            elif type(val) is int:
+                res.append(val.to_bytes(4, "big"))
+            elif type(val) is float:
+                res.append(val.hex().encode())
+            elif type(val) is date:
+                res.append(val.isoformat().encode())
+            elif type(val) is bytes:
+                res.append(val)
+            else:
+                raise Exception(
+                    f"Received a type I can not encrypt. value: {str(val)} of type: {type(val)}"
+                )
+        return tuple([self.fernet.encrypt(x) for x in res])
+
+    # def decrypt_tuple(self, tup: tuple[bytes]):
+    #     return create_user_tuple()
+
