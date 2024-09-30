@@ -163,3 +163,4 @@ cython_debug/
 /models/__pycache__
 /users.db
 /users.encrypted
+/src/users.db
