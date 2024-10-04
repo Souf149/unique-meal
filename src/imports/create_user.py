@@ -6,6 +6,7 @@ from models.user import Level, create_user_tuple, generate_id, generate_password
 from tools.tools import check_password, user_input
 from datetime import datetime
 from imports.validator import User_Info_Validator
+from imports import helper_functions
 
 def create_new_user(db: Connection, user: dict, max_level: Level):
     Validator = User_Info_Validator
@@ -91,12 +92,15 @@ def create_new_user(db: Connection, user: dict, max_level: Level):
                 break
 
         while True:
-            membership_id = Validator.validate_id() # membershipID
             print("For the final info, please choose a name for the user.\nmust be unique and have a length of at least 8 characters\nmust be no longer than 10 characters\nmust be started with a letter or underscores (_)\ncan contain letters (a-z), numbers (0-9), underscores (_), apostrophes ('), and periods (.)\nno distinguish between lowercase or uppercase letters")
             username = user_input("Input the username")
             if (Validator.validate_username(username)):
                 break
-
+        while True:
+            membershipnumber = helper_functions.generate_id()
+            membership_id = Validator.validate_id(helper_functions.generate_id()) # membershipID 
+            if (membership_id):
+                break
         db.addUser(create_user_tuple(generate_id(), level, f_name, l_name, age, gender, weight, street,
                    house_number, zip, city, email, phone, registration_date, username, hashed_pass)) #ID = membership_id
         db.log(user["username"], "Created new user",

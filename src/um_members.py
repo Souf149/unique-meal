@@ -96,7 +96,7 @@ try:
                 print("7).\tAdd a new member")
                 print("8).\tModify/update member information")
                 print("9).\tSearch/retrieve member information")
-                print("10).\tMake a backup of the system")
+                print("10).\tMake/Delete a backup of the system")
                 print("11).\tSee logs")
                 print("12).\tDefine and add a new admin")  # Admin-specific
                 print(
@@ -155,7 +155,7 @@ try:
                 ):  # Only Super Admin can add a new admin
                     create_user.create_new_user(db)
                 elif option == "13" and user["level"] == 4:  # Admin-specific
-                    edit_user.edit_admin(db)
+                    edit_user.edit_user(db)
                 elif option == "14" and user["level"] == 4:  # Admin-specific
                     edit_user.edit_user(db)
                 elif option == "15" and user["level"] == 4:  # Admin-specific

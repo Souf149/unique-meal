@@ -49,18 +49,12 @@ class User_Info_Validator:
         self.hashed_pass = self.validate_hashed_pass(hashed_pass)
 
     @staticmethod
-    def validate_id() -> str:
-        regis_date = datetime.datetime.today().year - 2000
-        identify = ''.join(str(random.randint(0, 9)) for _ in range(7))
-        
-        base_id = f"{regis_date}{identify}"
-
-        checksum = sum(int(digit) for digit in base_id) % 10
-
-        membership_id = f"{base_id}{checksum}"
-        
-        print(f"Generated ID: {membership_id}")
-        return membership_id
+    def validate_id(membershipid:str) -> bool:
+        digits = [int(digit) for digit in membershipid[:-1]]
+        digit_sum = sum(digits)
+        expected_checksum = digit_sum % 10
+        actual_checksum = int(membershipid[-1])
+        return actual_checksum == expected_checksum
 
 
     def validate_id_above_level_3(inp: str) -> bool:
