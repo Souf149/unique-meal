@@ -263,7 +263,7 @@ class Connection:
 
             encrypted_data = self.fernet.encrypt(decrypted_data)
 
-        inpath = "./_temp/backup"
+        inpath = "./_temp/"
         outpath = "./backups/" + datetime.now().strftime('%Y-%m-%d.%H-%M-%S') + ".zip"
         with open(inpath, "wb") as file:
             file.write(encrypted_data)
