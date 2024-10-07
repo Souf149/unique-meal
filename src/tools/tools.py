@@ -1,8 +1,8 @@
 
 from builtins import input
 import re
-
-
+import os
+import pyfiglet
 def check_password(password: str) -> bool:
     special_characters = ["~", "!", "@", "#", "$", "%", "&", "_", "-", "+", "=", "`", "|",
                           "\\", "(", ")", "{", "}", "[", "]", ":", ";", "'", "<", ">", ",", ".", "?", "/"]
@@ -45,3 +45,15 @@ def print_user_without_pass(user: dict):
     for key, value in user.items():
         if key != "hashed_pass":
             print(f"{key}: {value}")
+
+def validate_number(prompt: str ):
+    while True:
+        try:
+            value = float(user_input(prompt))  # Change to int() if only integers are allowed
+            return value
+        except ValueError:
+            print("Invalid input! A number is supposed to be given. Please try again.")
+def clear_terminal_with_title(title="UNIQUE MEAL"):
+    os.system("cls" if os.name == "nt" else "clear")  # Clear terminal for Windows or Unix
+    big_title = pyfiglet.figlet_format(title, font='slant')  # Use a specific font
+    print(big_title)  # Print the title

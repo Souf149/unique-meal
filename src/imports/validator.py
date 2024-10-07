@@ -54,6 +54,7 @@ class User_Info_Validator:
         digit_sum = sum(digits)
         expected_checksum = digit_sum % 10
         actual_checksum = int(membershipid[-1])
+        
         return actual_checksum == expected_checksum
 
 
@@ -110,6 +111,7 @@ class User_Info_Validator:
             return True
         else:
             print("Level is out of range.")
+            return False
 
         return False
 
@@ -133,6 +135,8 @@ class User_Info_Validator:
         if not re.match("^[A-Za-z]+$", name):  # No special characters
             return False
         return True  # If everything is valid, returns True
+    
+    
 
     @staticmethod
     def validate_age(age) -> bool:
@@ -266,25 +270,6 @@ class User_Info_Validator:
 
         return False
     
-
-    def choose_city():
-        city_list = [
-        "Amsterdam", "Rotterdam", "Utrecht", "The Hague", "Eindhoven",
-        "Groningen", "Maastricht", "Leiden", "Tilburg", "Almere"
-        ]
-        print("Please choose a city from the list below by entering the number next to it:")
-        for i, city in enumerate(city_list, 1):
-            print(f"{i}. {city}")
-
-        while True:
-            try:
-                choice = int(input("Enter a number from 1-10: "))
-                if 1 <= choice <= 10:
-                    return city_list[choice - 1]
-                else:
-                    print("Invalid choice. Please choose a number between 1 and 10.")
-            except ValueError:
-                print("Invalid input. Please enter a number.")
 
     def to_dict(self) -> dict:
         return {

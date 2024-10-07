@@ -2,11 +2,14 @@ from tools.tools import check_password, user_input
 from time import sleep
 from models.connection import Connection
 from models.user import hash_password
-from tools.tools import check_password
+from tools.tools import check_password,clear_terminal_with_title
+import os
 
 
 def change_my_password(db: Connection, user: dict):
+    
     while True:
+        clear_terminal_with_title("UNIQUE MEAL")
         new_pass = user_input(
             "What do you want to change your current password into?")
 

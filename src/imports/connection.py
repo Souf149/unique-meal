@@ -333,26 +333,31 @@ class Connection:
         with open("./users.db", "rb") as db_file:
             decrypted_data = db_file.read()
 
-            encrypted_data = self.fernet.encrypt(decrypted_data)
 
-        inpath = "./_temp/temp"
+        inpath = "./_temp/uniquemeal.db"#uniquemeal.db
         outpath = "./backups/" + datetime.now().strftime('%Y-%m-%d.%H-%M-%S') + ".zip"
         with open(inpath, "wb") as file:
-            file.write(encrypted_data)
+            file.write(decrypted_data)
 
         with zipfile.ZipFile(outpath, "w", compression=zipfile.ZIP_DEFLATED) as zf:
             zf.write(inpath, os.path.basename(inpath))
 
 
     def restore_backup(self, file_name):
-        raise NotImplementedError()
-        self.db.close()
+        # Open the zip file (backup archive)
+        with zipfile.ZipFile(f"backups/{file_name}", "r") as archive:
+            archive.extractall(f"C:/Users/Reajel/Documents/GitHub/unique-meal/backups")
+            
+        #     backup_data = archive.read("temp")
+            
+        # # Decrypt the backup data before writing it to the users.db
+        # decrypted_data = self.fernet.decrypt(backup_data)
 
-        archive = zipfile.ZipFile(f"backups/{file_name}", "r")
-        backup_data = archive.read("backup")
+        # # Write the decrypted data to the database file
+        # with open("users.db", "wb") as db_file:
+        #     db_file.write(decrypted_data)
 
-        with open("users.db", "wb") as db_file:
-            db_file.write(backup_data)
-
-        self.db = sqlite3.connect("users.db")
-        self.log("", "Old data has been restored", "", "")
+        # # Reconnect the database and log success
+        # self.db = sqlite3.connect("users.db")
+        # self.log("", "Old data has been restored", "", "")
+        # self.db.close()

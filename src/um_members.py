@@ -30,7 +30,9 @@ try:
         password = user_input("Give your password please: ")
         login_attempts += 1
         user = db.getUserFromLogin(username, password)
-        if user is None:
+        os.system('cls') 
+
+        if user is None and user['level'] == 1:
             print("wrong login")
             if login_attempts > 5:
                 db.log(
@@ -45,12 +47,15 @@ try:
 
         # SUCCESFUL LOGIN
         print(f"Logged in with the id: {user['id']}")
+        os.system('cls')  
 
         # Hardcoded credentials for the teachers
         SUPER_ADMIN_USERNAME = "super_admin"
         SUPER_ADMIN_PASSWORD = "Admin_123?"
 
-        while True:
+        while True and user['level'] != 1:
+            os.system('cls')  # Clear the screen before showing the menu
+
             if user["level"] == 4:  # Super Admin
                 entered_username = input("Enter Super Admin username: ")
                 entered_password = input("Enter Super Admin password: ")
@@ -69,7 +74,6 @@ try:
                 print(f"Level: {user['level']}!")
 
             # Display options based on user level
-            print(user)
             if user["level"] == Level.MEMBER:  # Member
                 print("As a Member, you have no actions available.")
                 print('Press "Q" to log out.')
@@ -110,7 +114,7 @@ try:
 
             if option == "q":
                 print("Logging out")
-                os.system("cls")
+                os.system("cls")  # Clear the screen on logout
                 break
 
             # Handle actions based on user level
@@ -125,19 +129,21 @@ try:
                     list_users.list_users(db, user)
                 else:
                     print("Invalid option. Please try again.")
+                    sleep(2)  # Small delay before clearing
+                    os.system('cls')  # Clear after an invalid option
                     continue
 
             elif user["level"] in [3, 4]:  # Admin or Super Admin
                 if option == "1":
                     change_password.change_my_password(db, user)
                 elif option == "2":
-                    list_users.list_users(db, user)
+                    list_users.list_users(db, user) # Clean gemaakt
                 elif option == "3":
-                    create_user.create_new_user(db)  # Create consultant
+                    create_user.create_new_user(db, user, Level.MEMBER)  # Create consultant
                 elif option == "4":
-                    edit_user.edit_user(db)  # Modify consultant
+                    edit_user.edit_user(db, user)  # Modify consultant
                 elif option == "5":
-                    edit_user.edit_user(db)  # Delete consultant
+                    edit_user.edit_user(db, user)  # Delete consultant
                 elif option == "6":
                     reset_password.reset_consultant_password(db)  # Reset consultant's password
                 elif option == "7":
@@ -153,7 +159,7 @@ try:
                 elif (
                     option == "12" and user["level"] == 4
                 ):  # Only Super Admin can add a new admin
-                    create_user.create_new_user(db)
+                    create_user.create_new_user(db, user , Level.MEMBER)
                 elif option == "13" and user["level"] == 4:  # Admin-specific
                     edit_user.edit_user(db)
                 elif option == "14" and user["level"] == 4:  # Admin-specific
@@ -162,6 +168,8 @@ try:
                     reset_password.reset_admin_password(db) # MOET NOG KOMEN
                 else:
                     print("Invalid option. Please try again.")
+                    sleep(2)  # Small delay before clearing
+                    os.system('cls')  # Clear after an invalid option
                     continue
 
             elif user["level"] == 1:  # Member

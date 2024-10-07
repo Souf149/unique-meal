@@ -3,18 +3,42 @@ import re
 from time import sleep
 from models.connection import Connection
 from models.user import Level, create_user_tuple, generate_id, generate_password, hash_password
-from tools.tools import check_password, user_input
+from tools.tools import check_password, user_input, clear_terminal_with_title
 from datetime import datetime
 from imports.validator import User_Info_Validator
 from imports import helper_functions
+import os
+
+def choose_city():
+    city_list = [
+    "Amsterdam", "Rotterdam", "Utrecht", "The Hague", "Eindhoven",
+    "Groningen", "Maastricht", "Leiden", "Tilburg", "Almere"
+    ]
+    print("Please choose a city from the list below by entering the number next to it:")
+    for i, city in enumerate(city_list, 1):
+        print(f"{i}. {city}")
+
+    while True:
+        try:
+            choice = int(input("Enter a number from 1-10: "))
+            if 1 <= choice <= 10:
+                return city_list[choice - 1]
+            else:
+                print("Invalid choice. Please choose a number between 1 and 10.")
+        except ValueError:
+            print("Invalid input. Please enter a number.")
 
 def create_new_user(db: Connection, user: dict, max_level: Level):
+    #clear_terminal_with_title()
     Validator = User_Info_Validator
     while True:
         while True:
+            clear_terminal_with_title()
             f_name = user_input("Input first name please")
             if (Validator.validate_name(f_name)):
                 break
+            else:
+                print("Invalid option! Example: Mark")
 
         while True:
             l_name = user_input("Input last name please")
@@ -25,11 +49,15 @@ def create_new_user(db: Connection, user: dict, max_level: Level):
             age = user_input("Input a valid age please")
             if (Validator.validate_age(age)):
                 break
+            else:
+                print("Invalid option. Your age has to be between 0 and 120")
 
         while True:
             gender = user_input("Input 'f' or 'm' to choose the gender")
             if (Validator.validate_gender(gender)):
                 break
+            else:
+                print("Invalid option!")
 
         while True:
             weight = user_input("Input the weight")
@@ -40,6 +68,8 @@ def create_new_user(db: Connection, user: dict, max_level: Level):
             street = user_input("Input the street name")
             if (Validator.validate_name(street)):
                 break
+            else:
+                print("Incorrect street name!")
 
         while True:
             house_number = user_input("Input the house number")
@@ -52,14 +82,10 @@ def create_new_user(db: Connection, user: dict, max_level: Level):
                 break
 
         while True:
-            prepicked = Validator.validate_age(user_input("If you want to pick out of a list of cities press [1] else press [2]"))
-            if (prepicked == 1):
-                Validator.choose_city()
+            city = choose_city() 
+            if (Validator.validate_name(city)):
+                print(f"Chosen city{city}")
                 break
-            else:                
-                city = user_input("Input the city's name")
-                if (Validator.validate_name(city)):
-                    break
 
         while True:
             email = user_input("Input the emailaddress.")

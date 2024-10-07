@@ -258,18 +258,24 @@ class Connection:
         print("Safely exited!")
 
     def make_backup(self):
+        os.makedirs("./_temp/", exist_ok=True)
+        os.makedirs("./backups/", exist_ok=True)
+
         with open("./users.db", "rb") as db_file:
             decrypted_data = db_file.read()
-
             encrypted_data = self.fernet.encrypt(decrypted_data)
 
-        inpath = "./_temp/"
-        outpath = "./backups/" + datetime.now().strftime('%Y-%m-%d.%H-%M-%S') + ".zip"
-        with open(inpath, "wb") as file:
-            file.write(encrypted_data)
+        temp_file_path = "./_temp/encrypted_backup.dat"
+        
+        with open(temp_file_path, "wb") as temp_file:
+            temp_file.write(encrypted_data)
+
+        outpath = f"./backups/{datetime.now().strftime('%Y-%m-%d.%H-%M-%S')}.zip"
 
         with zipfile.ZipFile(outpath, "w", compression=zipfile.ZIP_DEFLATED) as zf:
-            zf.write(inpath, os.path.basename(inpath))
+            zf.write(temp_file_path, os.path.basename(temp_file_path))
+
+        os.remove(temp_file_path)
 
     def restore_backup(self, file_name):
         raise NotImplementedError()
