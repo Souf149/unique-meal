@@ -14,7 +14,7 @@ from imports.helper_functions import Level, user_input
 from imports.connection import Connection
 from functionalities import backup,change_password,edit_user,list_users,see_logs
 from imports import create_user
-
+from tools.tools import check_password, user_input, clear_terminal_with_title
 with open("./key.key") as f:
     key = f.read()
 
@@ -30,7 +30,7 @@ try:
         password = user_input("Give your password please: ")
         login_attempts += 1
         user = db.getUserFromLogin(username, password)
-        os.system('cls') 
+        clear_terminal_with_title()
 
         if user is None and user['level'] == 1:
             print("wrong login")
@@ -47,14 +47,14 @@ try:
 
         # SUCCESFUL LOGIN
         print(f"Logged in with the id: {user['id']}")
-        os.system('cls')  
+        clear_terminal_with_title()
 
         # Hardcoded credentials for the teachers
         SUPER_ADMIN_USERNAME = "super_admin"
         SUPER_ADMIN_PASSWORD = "Admin_123?"
 
         while True and user['level'] != 1:
-            os.system('cls')  # Clear the screen before showing the menu
+            clear_terminal_with_title() 
 
             if user["level"] == 4:  # Super Admin
                 entered_username = input("Enter Super Admin username: ")
@@ -114,7 +114,7 @@ try:
 
             if option == "q":
                 print("Logging out")
-                os.system("cls")  # Clear the screen on logout
+                clear_terminal_with_title()  # Clear the screen on logout
                 break
 
             # Handle actions based on user level
@@ -130,7 +130,7 @@ try:
                 else:
                     print("Invalid option. Please try again.")
                     sleep(2)  # Small delay before clearing
-                    os.system('cls')  # Clear after an invalid option
+                    clear_terminal_with_title()  # Clear after an invalid option
                     continue
 
             elif user["level"] in [3, 4]:  # Admin or Super Admin
@@ -169,7 +169,7 @@ try:
                 else:
                     print("Invalid option. Please try again.")
                     sleep(2)  # Small delay before clearing
-                    os.system('cls')  # Clear after an invalid option
+                    clear_terminal_with_title()  # Clear after an invalid option
                     continue
 
             elif user["level"] == 1:  # Member
