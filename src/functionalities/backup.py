@@ -4,6 +4,8 @@ from os import listdir
 from os.path import isfile, join
 import os
 
+from imports.helper_functions import clear_terminal_with_title, user_input
+
 
 def backup(db: Connection):
     abspath = os.path.abspath("./backups")

@@ -1,16 +1,13 @@
-from time import sleep
 from imports.connection import Connection
 from imports.helper_functions import clear_terminal_with_title, user_input
 from tools.tools import (
     print_user_without_pass,
 )
-import os
 
 
 def list_users(db: Connection, user: dict):
     users = db.getAllUsersAndMembersFromLevelAndLower(user["level"])
     status = ""
-    showpartone = False
 
     while True:
         clear_terminal_with_title("UNIQUE MEAL")
@@ -47,17 +44,15 @@ def list_users(db: Connection, user: dict):
                 for i, _user in enumerate(users):
                     print(f"{i + 1}). {_user['id']} {_user['username']}")
 
-                chosen_user = user_input(
+                option = user_input(
                     "Type the number of the user you want to view information for: "
                 )
 
                 while True:
-                    if chosen_user:
-                        if chosen_user.isdigit() and 1 <= int(chosen_user) <= len(
-                            users
-                        ):
+                    if option:
+                        if option.isdigit() and 1 <= int(option) <= len(users):
                             try:
-                                choose = users[int(chosen_user) - 1]
+                                choose = users[int(option) - 1]
                                 clear_terminal_with_title("UNIQUE MEAL")
                                 print_user_without_pass(choose)
 
@@ -102,12 +97,12 @@ def list_users(db: Connection, user: dict):
                         f"{i + 1}). {_user['type']}\t{_user['id']}\t{_user['username']}"
                     )
 
-                chosen_user = user_input(
+                option = user_input(
                     "Choose the number of the user you'd like to view information of: "
                 )
 
-                if chosen_user.isdigit() and 1 <= int(chosen_user) <= len(users):
-                    chosen_user = users[int(chosen_user) - 1]
+                if option.isdigit() and 1 <= int(option) <= len(users):
+                    chosen_user: dict = users[int(option) - 1]
                     clear_terminal_with_title("UNIQUE MEAL")
                     print_user_without_pass(chosen_user)
 
