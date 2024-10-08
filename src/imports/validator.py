@@ -55,7 +55,7 @@ class User_Info_Validator:
 
         return actual_checksum == expected_checksum
 
-    def validate_id_above_level_3(inp: str) -> bool:
+    def validate_id_above_level_3(self, inp: str) -> bool:
         try:
             id = int(inp)
             if not 0 < id < 1000:

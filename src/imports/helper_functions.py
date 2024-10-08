@@ -5,18 +5,27 @@ import random
 from Crypto.Hash import SHA256
 from cryptography.fernet import Fernet
 import string
+import os
+import pyfiglet
 
 
 class Level:
-    SUPER_ADMINISTRATOR = 4
-    SYSTEM_ADMINISTRATORS = 3
-    CONSULTANT = 2
-    MEMBER = 1
+    SUPER_ADMINISTRATOR = 3
+    SYSTEM_ADMINISTRATORS = 2
+    CONSULTANT = 1
 
 
 class PersonType:
     USER = "user"
     MEMBER = "member"
+
+
+def clear_terminal_with_title(title="UNIQUE MEAL"):
+    os.system(
+        "cls" if os.name == "nt" else "clear"
+    )  # Clear terminal for Windows or Unix
+    big_title = pyfiglet.figlet_format(title, font="slant")  # Use a specific font
+    print(big_title)  # Print the title
 
 
 def generate_password():
@@ -28,7 +37,10 @@ def generate_password():
     )
     for _ in range(10):
         password += random.choice(
-            string.digits + string.ascii_lowercase + string.ascii_uppercase + string.punctuation
+            string.digits
+            + string.ascii_lowercase
+            + string.ascii_uppercase
+            + string.punctuation
         )
     return password
 
@@ -109,9 +121,12 @@ def create_user_dict(tup: tuple) -> dict:
     d: dict = {}
 
     d["id"] = tup[0]
-    d["level"] = tup[1]
-    d["username"] = tup[2]
-    d["hashed_pass"] = tup[3]
+    d["f_name"] = tup[1]
+    d["l_name"] = tup[2]
+    d["level"] = tup[3]
+    d["username"] = tup[4]
+    d["registration_date"] = tup[5]
+    d["hashed_pass"] = tup[6]
 
     d["type"] = PersonType.USER
 
@@ -120,14 +135,20 @@ def create_user_dict(tup: tuple) -> dict:
 
 def create_user_tuple(
     id: str,
-    level: Level,
+    f_name: str,
+    l_name: str,
+    level: int,
     username: str,
+    registration_date: date,
     hashed_pass: bytes,
 ) -> tuple:
     return (
         id,
+        f_name,
+        l_name,
         level,
         username,
+        registration_date,
         hashed_pass,
     )
 
@@ -220,7 +241,6 @@ def decrypt_tuple(
 
     return create_member_tuple(
         bytes.decode(decrypted_tup[0]),
-        int.from_bytes(decrypted_tup[1], "big"),
         bytes.decode(decrypted_tup[2]),
         bytes.decode(decrypted_tup[3]),
         int.from_bytes(decrypted_tup[4], "big"),
@@ -241,7 +261,6 @@ def decrypt_tuple(
 if __name__ == "__main__":
     person = create_member_tuple(
         generate_id(),
-        Level.SYSTEM_ADMINISTRATORS,
         "Soufyan",
         "Abdell",
         25,

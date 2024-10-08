@@ -1,20 +1,15 @@
-from datetime import date, datetime
-from enum import IntEnum
-import sqlite3
 import traceback
 from time import sleep
-import zipfile
-import os
-import re
-from Crypto.Hash import SHA256
-from cryptography.fernet import Fernet
-from pathlib import Path
 
-from imports.helper_functions import Level, user_input
+from imports.helper_functions import (
+    Level,
+    PersonType,
+    clear_terminal_with_title,
+    user_input,
+)
 from imports.connection import Connection
 from functionalities import backup, change_password, edit_user, list_users, see_logs
 from imports import create_user
-from tools.tools import check_password, user_input, clear_terminal_with_title
 
 DEBUG = True
 
@@ -36,7 +31,7 @@ try:
         user = db.getUserFromLogin(username, password)
         clear_terminal_with_title()
 
-        if user is None or user["level"] == 1:
+        if user is None:
             print("wrong login")
             if login_attempts > 5:
                 db.log(
@@ -52,33 +47,14 @@ try:
         # SUCCESFUL LOGIN
         print(f"Logged in with the id: {user['id']}")
         clear_terminal_with_title()
-
-        # Hardcoded credentials for the teachers
-        SUPER_ADMIN_USERNAME = "super_admin"
-        SUPER_ADMIN_PASSWORD = "Admin_123?"
-
-        while True and user["level"] != 1:
+        while True:
             clear_terminal_with_title()
 
-            if user["level"] == 4:  # Super Admin
-                entered_username = input("Enter Super Admin username: ")
-                entered_password = input("Enter Super Admin password: ")
-
-                if (
-                    entered_username == SUPER_ADMIN_USERNAME
-                    and entered_password == SUPER_ADMIN_PASSWORD
-                ):
-                    print("Welcome Super Administrator!")
-                else:
-                    print("Invalid credentials. Exiting.")
-                    break
-
-            else:
-                print(f"Welcome {user['username']}!")
-                print(f"Level: {user['level']}!")
+            print(f"Welcome {user['username']}!")
+            print(f"Level: {user['level']}!")
 
             # Display options based on user level
-            if user["level"] == Level.MEMBER:  # Member
+            if user["type"] == PersonType.MEMBER:  # Member
                 print("As a Member, you have no actions available.")
                 print('Press "Q" to log out.')
 
@@ -122,11 +98,11 @@ try:
                 break
 
             # Handle actions based on user level
-            if user["level"] == 2:  # Consultant
+            if user["level"] == Level.CONSULTANT:  # Consultant
                 if option == "1":
                     change_password.change_my_password(db, user)
                 elif option == "2":
-                    create_user.create_new_member(db, user, Level.MEMBER)
+                    create_user.create_new_member(db, user)
                 elif option == "3":
                     edit_user.edit_user(db, user)
                 elif option == "4":
@@ -137,15 +113,16 @@ try:
                     clear_terminal_with_title()  # Clear after an invalid option
                     continue
 
-            elif user["level"] in [3, 4]:  # Admin or Super Admin
+            elif user["level"] in [
+                Level.SYSTEM_ADMINISTRATORS,
+                Level.SUPER_ADMINISTRATOR,
+            ]:  # Admin or Super Admin
                 if option == "1":
                     change_password.change_my_password(db, user)
                 elif option == "2":
                     list_users.list_users(db, user)  # Clean gemaakt
                 elif option == "3":
-                    create_user.create_new_member(
-                        db, user, Level.MEMBER
-                    )  # Create consultant
+                    create_user.create_new_member(db, user)  # Create consultant
                 elif option == "4":
                     edit_user.edit_user(db, user)  # Modify consultant
                 elif option == "5":
@@ -155,9 +132,7 @@ try:
                         db
                     )  # Reset consultant's password
                 elif option == "7":
-                    create_user.create_new_member(
-                        db, user, Level.MEMBER
-                    )  # Add new member
+                    create_user.create_new_member(db, user)  # Add new member
                 elif option == "8":
                     edit_user.edit_user(db, user)  # Modify member
                 elif option == "9":
@@ -169,11 +144,11 @@ try:
                 elif (
                     option == "12" and user["level"] == 4
                 ):  # Only Super Admin can add a new admin
-                    create_user.create_new_member(db, user, Level.MEMBER)
+                    create_user.create_new_member(db, user)
                 elif option == "13" and user["level"] == 4:  # Admin-specific
-                    edit_user.edit_user(db)
+                    edit_user.edit_user(db, user)
                 elif option == "14" and user["level"] == 4:  # Admin-specific
-                    edit_user.edit_user(db)
+                    edit_user.edit_user(db, user)
                 elif option == "15" and user["level"] == 4:  # Admin-specific
                     reset_password.reset_admin_password(db)  # MOET NOG KOMEN
                 else:

@@ -69,13 +69,6 @@ def check_password(password: str) -> bool:
     return True
 
 
-def user_input(prompt: str = "") -> str:
-    res = ""
-    while res == "":
-        res = input(prompt + "\n")
-    return str(res)
-
-
 def print_user_without_pass(user: dict):
     for key, value in user.items():
         if key != "hashed_pass":
@@ -91,9 +84,3 @@ def validate_number(prompt: str):
             return False
 
 
-def clear_terminal_with_title(title="UNIQUE MEAL"):
-    os.system(
-        "cls" if os.name == "nt" else "clear"
-    )  # Clear terminal for Windows or Unix
-    big_title = pyfiglet.figlet_format(title, font="slant")  # Use a specific font
-    print(big_title)  # Print the title

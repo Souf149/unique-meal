@@ -1,10 +1,8 @@
 from time import sleep
 from imports.connection import Connection
+from imports.helper_functions import clear_terminal_with_title, user_input
 from tools.tools import (
     print_user_without_pass,
-    user_input,
-    validate_number,
-    clear_terminal_with_title,
 )
 import os
 

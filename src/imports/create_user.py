@@ -2,10 +2,16 @@ import re
 from time import sleep
 from imports.connection import Connection
 
-from tools.tools import check_password, user_input, clear_terminal_with_title
 from datetime import datetime
 from imports.validator import User_Info_Validator
-from imports.helper_functions import Level, hash_password
+from imports.helper_functions import (
+    Level,
+    clear_terminal_with_title,
+    create_member_tuple,
+    generate_id,
+    hash_password,
+    user_input,
+)
 import os
 
 
@@ -37,7 +43,7 @@ def choose_city():
             print("Invalid input. Please enter a number.")
 
 
-def create_new_member(db: Connection, user: dict, max_level: Level):
+def create_new_member(db: Connection, user: dict):
     # clear_terminal_with_title()
     Validator = User_Info_Validator
     while True:
@@ -111,16 +117,6 @@ def create_new_member(db: Connection, user: dict, max_level: Level):
                 break
 
         while True:
-            if user["level"] < 3:
-                registration_date = regis_date = datetime.datetime.today().year - 2000
-                break  # mogelijk bij alle levels
-            registration_date = user_input(
-                "Input the registration date. Example: 2001-09-11"
-            )
-            if Validator.validate_registration_date(registration_date):
-                break
-
-        while True:
             password = user_input(
                 "Input the password.\nmust be unique and have a length of at least 8 characters\nmust be no longer than 10 characters\nmust be started with a letter or underscores (_)\ncan contain letters (a-z), numbers (0-9), underscores (_), apostrophes ('), and periods (.)\nno distinguish between lowercase or uppercase letters"
             )
@@ -144,10 +140,7 @@ def create_new_member(db: Connection, user: dict, max_level: Level):
             if Validator.validate_username(username):
                 break
         while True:
-            membershipnumber = helper_functions.generate_id()
-            membership_id = Validator.validate_id(
-                helper_functions.generate_id()
-            )  # membershipID
+            membership_id = Validator.validate_id(generate_id())  # membershipID
             if membership_id:
                 break
         db.addUser(
@@ -165,11 +158,11 @@ def create_new_member(db: Connection, user: dict, max_level: Level):
                 city,
                 email,
                 phone,
-                registration_date,
+                datetime.now(),
                 username,
                 hashed_pass,
             )
-        )  # ID = membership_id
+        )
         db.log(user["username"], "Created new user", f"Created user: {username}", False)
 
         print("User has been created!")

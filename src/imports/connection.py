@@ -50,51 +50,61 @@ class Connection:
 
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS USERS (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            first_name TEXT NOT NULL,
-            last_name TEXT NOT NULL,
-            username TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL,
+            id TEXT PRIMARY KEY,
+            f_name TEXT NOT NULL,
+            l_name TEXT NOT NULL,
+            level INTEGER NOT NULL,
+            username TEXT NOT NULL UNIQUE,
             registration_date DATE NOT NULL,
-            role TEXT NOT NULL,
-            temp BOOLEAN NOT NULL,
-            salt TEXT NOT NULL
+            hashed_pass TEXT NOT NULL
         )
         """)
 
         starter_data = [
             create_user_tuple(
                 "2400000000",
-                Level.SUPER_ADMINISTRATOR,
                 "teacher",
+                "INF",
+                Level.SUPER_ADMINISTRATOR,
+                "super_admin",
+                datetime.now(),
                 hash_password("Admin_123?"),
             ),
             create_user_tuple(
-                generate_id(),
+                "2400000001",
+                "rdc",
+                "def",
+                Level.SYSTEM_ADMINISTRATORS,
+                "cecilus",
+                datetime.now(),
+                hash_password("Lol123."),
+            ),
+            create_user_tuple(
+                "2400000002",
+                "teacher",
+                "INF",
                 Level.SYSTEM_ADMINISTRATORS,
                 "souf149",
+                datetime.now(),
                 hash_password("a"),
             ),
             create_user_tuple(
-                generate_id(),
+                "2400000003",
+                "random",
+                "random2",
                 Level.CONSULTANT,
-                "captainxx",
-                hash_password("a"),
-            ),
-            create_user_tuple(
-                generate_id(),
-                Level.MEMBER,
-                "flower",
-                hash_password("ab"),
+                "consult",
+                datetime.now(),
+                hash_password("Lol123."),
             ),
         ]
 
         cursor.execute("SELECT COUNT(*) FROM USERS")
         if cursor.fetchone()[0] == 0:
             cursor.executemany(
-                """
-            INSERT INTO USERS (id, level, username, hashed_pass)
-            VALUES (?, ?, ?, ?)
+            """
+                INSERT INTO USERS (id, f_name, l_name, level, username, registration_date, hashed_pass)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
                 starter_data,
             )

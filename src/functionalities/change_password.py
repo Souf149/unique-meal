@@ -1,8 +1,10 @@
-from imports.helper_functions import hash_password
-from tools.tools import check_password, user_input
+from imports.helper_functions import (
+    clear_terminal_with_title,
+    hash_password,
+    user_input,
+)
 from time import sleep
 from imports.connection import Connection
-from tools.tools import check_password, clear_terminal_with_title
 from imports.validator import User_Info_Validator
 import os
 
