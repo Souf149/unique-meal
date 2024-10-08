@@ -333,15 +333,13 @@ class Connection:
         with open("./users.db", "rb") as db_file:
             decrypted_data = db_file.read()
 
-
-        inpath = "./_temp/uniquemeal.db"#uniquemeal.db
-        outpath = "./backups/" + datetime.now().strftime('%Y-%m-%d.%H-%M-%S') + ".zip"
+        inpath = "./_temp/uniquemeal.db"  # uniquemeal.db
+        outpath = "./backups/" + datetime.now().strftime("%Y-%m-%d.%H-%M-%S") + ".zip"
         with open(inpath, "wb") as file:
             file.write(decrypted_data)
 
         with zipfile.ZipFile(outpath, "w", compression=zipfile.ZIP_DEFLATED) as zf:
             zf.write(inpath, os.path.basename(inpath))
-
 
     def restore_backup(self, file_name):
         raise NotImplementedError()

@@ -12,9 +12,10 @@ from pathlib import Path
 
 from imports.helper_functions import Level, user_input
 from imports.connection import Connection
-from functionalities import backup,change_password,edit_user,list_users,see_logs
+from functionalities import backup, change_password, edit_user, list_users, see_logs
 from imports import create_user
 from tools.tools import check_password, user_input, clear_terminal_with_title
+
 with open("./key.key") as f:
     key = f.read()
 
@@ -32,7 +33,7 @@ try:
         user = db.getUserFromLogin(username, password)
         clear_terminal_with_title()
 
-        if user is None or user['level'] == 1:
+        if user is None or user["level"] == 1:
             print("wrong login")
             if login_attempts > 5:
                 db.log(
@@ -53,8 +54,8 @@ try:
         SUPER_ADMIN_USERNAME = "super_admin"
         SUPER_ADMIN_PASSWORD = "Admin_123?"
 
-        while True and user['level'] != 1:
-            clear_terminal_with_title() 
+        while True and user["level"] != 1:
+            clear_terminal_with_title()
 
             if user["level"] == 4:  # Super Admin
                 entered_username = input("Enter Super Admin username: ")
@@ -137,17 +138,23 @@ try:
                 if option == "1":
                     change_password.change_my_password(db, user)
                 elif option == "2":
-                    list_users.list_users(db, user) # Clean gemaakt
+                    list_users.list_users(db, user)  # Clean gemaakt
                 elif option == "3":
-                    create_user.create_new_user(db, user, Level.MEMBER)  # Create consultant
+                    create_user.create_new_user(
+                        db, user, Level.MEMBER
+                    )  # Create consultant
                 elif option == "4":
                     edit_user.edit_user(db, user)  # Modify consultant
                 elif option == "5":
                     edit_user.edit_user(db, user)  # Delete consultant
                 elif option == "6":
-                    reset_password.reset_consultant_password(db)  # Reset consultant's password
+                    reset_password.reset_consultant_password(
+                        db
+                    )  # Reset consultant's password
                 elif option == "7":
-                    create_user.create_new_user( db, user, Level.MEMBER)  # Add new member
+                    create_user.create_new_user(
+                        db, user, Level.MEMBER
+                    )  # Add new member
                 elif option == "8":
                     edit_user.edit_user(db, user)  # Modify member
                 elif option == "9":
@@ -159,13 +166,13 @@ try:
                 elif (
                     option == "12" and user["level"] == 4
                 ):  # Only Super Admin can add a new admin
-                    create_user.create_new_user(db, user , Level.MEMBER)
+                    create_user.create_new_user(db, user, Level.MEMBER)
                 elif option == "13" and user["level"] == 4:  # Admin-specific
                     edit_user.edit_user(db)
                 elif option == "14" and user["level"] == 4:  # Admin-specific
                     edit_user.edit_user(db)
                 elif option == "15" and user["level"] == 4:  # Admin-specific
-                    reset_password.reset_admin_password(db) # MOET NOG KOMEN
+                    reset_password.reset_admin_password(db)  # MOET NOG KOMEN
                 else:
                     print("Invalid option. Please try again.")
                     sleep(2)  # Small delay before clearing

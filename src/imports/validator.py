@@ -5,8 +5,6 @@ import uuid
 import random
 
 
-
-
 class User_Info_Validator:
     def __init__(
         self,
@@ -49,14 +47,13 @@ class User_Info_Validator:
         self.hashed_pass = self.validate_hashed_pass(hashed_pass)
 
     @staticmethod
-    def validate_id(membershipid:str) -> bool:
+    def validate_id(membershipid: str) -> bool:
         digits = [int(digit) for digit in membershipid[:-1]]
         digit_sum = sum(digits)
         expected_checksum = digit_sum % 10
         actual_checksum = int(membershipid[-1])
-        
-        return actual_checksum == expected_checksum
 
+        return actual_checksum == expected_checksum
 
     def validate_id_above_level_3(inp: str) -> bool:
         try:
@@ -66,7 +63,7 @@ class User_Info_Validator:
             return True
         except ValueError:
             return False
-        
+
     @staticmethod
     def validate_password(password: str) -> bool:
         #  must have a length of at least 12 characters & ○	must have a length of at least 12 characters
@@ -94,7 +91,7 @@ class User_Info_Validator:
     @staticmethod
     def validate_level(level, user: dict) -> bool:
         print(f"User Level: {user['level']}")
-        
+
         try:
             level = int(level)
         except (ValueError, TypeError):
@@ -102,11 +99,13 @@ class User_Info_Validator:
             return False
 
         print(f"Input Level: {level}")
-        
+
         if 1 <= level <= 4:
             print("Level is within the valid range (1-4).")
-            if user['level'] <= level:
-                print(f"You can only create members of level: {user['level'] - 1} and lower.")
+            if user["level"] <= level:
+                print(
+                    f"You can only create members of level: {user['level'] - 1} and lower."
+                )
                 return False
             return True
         else:
@@ -114,7 +113,6 @@ class User_Info_Validator:
             return False
 
         return False
-
 
     @staticmethod
     def validate_name(name: str) -> bool:
@@ -135,8 +133,6 @@ class User_Info_Validator:
         if not re.match("^[A-Za-z]+$", name):  # No special characters
             return False
         return True  # If everything is valid, returns True
-    
-    
 
     @staticmethod
     def validate_age(age) -> bool:
@@ -144,7 +140,7 @@ class User_Info_Validator:
             if not age.isdigit():  # Check if it's a numeric string
                 return False
             age = int(age)
-            
+
         if isinstance(age, int) and 0 <= age <= 120:
             return True
 
@@ -157,7 +153,6 @@ class User_Info_Validator:
         return False
 
     @staticmethod
-
     def validate_weight(weight) -> bool:
         if isinstance(weight, (int, float)) and 0 < weight < 300:
             return True
@@ -215,7 +210,9 @@ class User_Info_Validator:
 
         if isinstance(registration_date, str):
             try:
-                parsed_date = datetime.datetime.strptime(registration_date, "%Y-%m-%d").date()
+                parsed_date = datetime.datetime.strptime(
+                    registration_date, "%Y-%m-%d"
+                ).date()
 
                 if parsed_date > date.today():
                     return False
@@ -269,7 +266,6 @@ class User_Info_Validator:
             return True
 
         return False
-    
 
     def to_dict(self) -> dict:
         return {

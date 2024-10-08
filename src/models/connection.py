@@ -1,7 +1,13 @@
 import os
 from pathlib import Path
 import sqlite3
-from models.user import create_user_dict, create_user_tuple, generate_id, Level, hash_password
+from models.user import (
+    create_user_dict,
+    create_user_tuple,
+    generate_id,
+    Level,
+    hash_password,
+)
 from datetime import date, datetime
 from tools.tools import user_input
 from cryptography.fernet import Fernet
@@ -9,23 +15,21 @@ import zipfile
 
 
 class Connection:
-
     def __init__(self, key: str) -> None:
         # self.encryptor = Salsa20.new(key.encode())
         # self.decryptor = Salsa20.new(key.encode(), self.encryptor.nonce)
         self.fernet = Fernet(key)
         my_file = Path("./users.encrypted")
         if my_file.is_file():
-            with open('./users.encrypted', 'rb') as file:
-
+            with open("./users.encrypted", "rb") as file:
                 encrypted_data = file.read()
 
                 decrypted_data = self.fernet.decrypt(encrypted_data)
 
-                with open('users.db', 'wb') as db_file:
+                with open("users.db", "wb") as db_file:
                     db_file.write(decrypted_data)
 
-        self.db = sqlite3.connect('users.db')
+        self.db = sqlite3.connect("users.db")
 
         self.init_database_if_needed()
         self.init_logs_if_needed()
@@ -53,8 +57,16 @@ class Connection:
         """
 
         cursor = self.db.cursor()
-        cursor.execute(insert_log_query, (datetime.now().strftime(
-            '%Y-%m-%d %H:%M:%S'), username, desc, add_info, 1 if suspicious else 0))
+        cursor.execute(
+            insert_log_query,
+            (
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                username,
+                desc,
+                add_info,
+                1 if suspicious else 0,
+            ),
+        )
         self.db.commit()
 
     def init_database_if_needed(self) -> None:
@@ -82,22 +94,89 @@ class Connection:
         """)
 
         starter_data = [
-            create_user_tuple("2400000000", Level.SUPER_ADMINISTRATOR, "teacher", "INF", 31, "m", 70.2, "wijnhaven", "207", "4294",
-                              "Rotterdam", "cmi@hr.nl", "+31-6-12345678", date(2023, 3, 1), "teacher23", hash_password("Admin_123?")),
-            create_user_tuple(generate_id(), Level.SYSTEM_ADMINISTRATORS, "Soufyan", "Abdell", 25, "m", 257, "otherstreet", "134",
-                              "2342", "Dordrecht", "0963595@hr.nl", "+31-6-21424244", date(2023, 3, 3), "souf149", hash_password("a")),
-            create_user_tuple(generate_id(), Level.CONSULTANT, "Reajel", "Cic", 26, "m", 50, "boringstreet", "24", "2556",
-                              "Pap", "1535233@hr.nl", "+31-6-11141111", date(2024, 6, 7), "captainxx", hash_password("a")),
-            create_user_tuple(generate_id(), Level.MEMBER, "Cynthia", "Amel", 19, "f", 52, "lijnbaan", "2", "1111",
-                              "Pap", "1534433@hr.nl", "+31-6-22141111", date(2024, 7, 6), "flower", hash_password("ab")),
+            create_user_tuple(
+                "2400000000",
+                Level.SUPER_ADMINISTRATOR,
+                "teacher",
+                "INF",
+                31,
+                "m",
+                70.2,
+                "wijnhaven",
+                "207",
+                "4294",
+                "Rotterdam",
+                "cmi@hr.nl",
+                "+31-6-12345678",
+                date(2023, 3, 1),
+                "teacher23",
+                hash_password("Admin_123?"),
+            ),
+            create_user_tuple(
+                generate_id(),
+                Level.SYSTEM_ADMINISTRATORS,
+                "Soufyan",
+                "Abdell",
+                25,
+                "m",
+                257,
+                "otherstreet",
+                "134",
+                "2342",
+                "Dordrecht",
+                "0963595@hr.nl",
+                "+31-6-21424244",
+                date(2023, 3, 3),
+                "souf149",
+                hash_password("a"),
+            ),
+            create_user_tuple(
+                generate_id(),
+                Level.CONSULTANT,
+                "Reajel",
+                "Cic",
+                26,
+                "m",
+                50,
+                "boringstreet",
+                "24",
+                "2556",
+                "Pap",
+                "1535233@hr.nl",
+                "+31-6-11141111",
+                date(2024, 6, 7),
+                "captainxx",
+                hash_password("a"),
+            ),
+            create_user_tuple(
+                generate_id(),
+                Level.MEMBER,
+                "Cynthia",
+                "Amel",
+                19,
+                "f",
+                52,
+                "lijnbaan",
+                "2",
+                "1111",
+                "Pap",
+                "1534433@hr.nl",
+                "+31-6-22141111",
+                date(2024, 7, 6),
+                "flower",
+                hash_password("ab"),
+            ),
         ]
 
-        cursor.execute('SELECT COUNT(*) FROM USERS')
+        cursor.execute("SELECT COUNT(*) FROM USERS")
         if cursor.fetchone()[0] == 0:
-            cursor.executemany("""
+            cursor.executemany(
+                """
             INSERT INTO USERS (id, level, f_name, l_name, age, gender, weight, street, house_number, zip, city, email, phone, registration_date, username, hashed_pass)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, starter_data)
+            """,
+                starter_data,
+            )
             print("Dummy data inserted into USERS table.")
         else:
             print("USERS table already contains data. No new data inserted.")
@@ -115,10 +194,13 @@ class Connection:
 
         cursor = self.db.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT * FROM USERS 
             WHERE LOWER(username) = ? AND hashed_pass = ?
-        """, (username.lower(), hashed))
+        """,
+            (username.lower(), hashed),
+        )
 
         user = cursor.fetchone()
         if user:
@@ -144,11 +226,11 @@ class Connection:
     def updateUser(self, updatedUser: dict):
         cursor = self.db.cursor()
 
-        values = tuple(updatedUser[key]
-                       for key in updatedUser.keys() if key != "id")
+        values = tuple(updatedUser[key] for key in updatedUser.keys() if key != "id")
         values += (updatedUser["id"],)
         set_clause = ", ".join(
-            [f"{key} = ?" for key in updatedUser.keys() if key != "id"])
+            [f"{key} = ?" for key in updatedUser.keys() if key != "id"]
+        )
         update_query = f"""
             UPDATE USERS
             SET {set_clause}
@@ -176,16 +258,18 @@ class Connection:
 
     def addUser(self, user: tuple):
         cursor = self.db.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO USERS (id, level, f_name, l_name, age, gender, weight, street, house_number, zip, city, email, phone, registration_date, username, hashed_pass)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, user)
+            """,
+            user,
+        )
         self.db.commit()
 
     def getAllUsersFromLevelAndLower(self, level: int) -> list[dict]:
-
         cursor = self.db.cursor()
-        cursor.execute('SELECT * FROM USERS LIMIT 50')
+        cursor.execute("SELECT * FROM USERS LIMIT 50")
         raw_users = cursor.fetchall()
 
         return self._dicts_from_tuples(raw_users)
@@ -208,9 +292,10 @@ class Connection:
                 phone LIKE '%' || ? || '%' OR
                 username LIKE '%' || ? || '%'
         """
-        cursor.execute(search_query, (term, term, term, term,
-                                      term, term, term, term,
-                                      term, term, term))
+        cursor.execute(
+            search_query,
+            (term, term, term, term, term, term, term, term, term, term, term),
+        )
         matching_users = cursor.fetchall()
 
         return self._dicts_from_tuples(matching_users)
@@ -266,7 +351,7 @@ class Connection:
             encrypted_data = self.fernet.encrypt(decrypted_data)
 
         temp_file_path = "./_temp/encrypted_backup.dat"
-        
+
         with open(temp_file_path, "wb") as temp_file:
             temp_file.write(encrypted_data)
 
@@ -284,7 +369,7 @@ class Connection:
         archive = zipfile.ZipFile(f"backups/{file_name}", "r")
         backup_data = archive.read("backup")
 
-        with open('users.db', 'wb') as db_file:
+        with open("users.db", "wb") as db_file:
             db_file.write(backup_data)
 
         self.db = sqlite3.connect("users.db")

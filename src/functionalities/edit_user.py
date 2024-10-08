@@ -4,6 +4,7 @@ from models.connection import Connection
 from tools.tools import print_user_without_pass, user_input, clear_terminal_with_title
 from tools.validators import is_valid
 
+
 def edit_user(db: Connection, user: dict):
     status = ""  # Initialize status message
     while True:
@@ -11,7 +12,9 @@ def edit_user(db: Connection, user: dict):
         if status:
             print(status)
 
-        print("Press [0] to go back to the main menu\nPress [1] to go to the option ID of the user you'd like to edit\nPress [2] to delete a user")
+        print(
+            "Press [0] to go back to the main menu\nPress [1] to go to the option ID of the user you'd like to edit\nPress [2] to delete a user"
+        )
         choice = user_input("Please choose an option: ")
 
         if choice == "2":
@@ -25,10 +28,15 @@ def edit_user(db: Connection, user: dict):
                 continue
 
             try:
-                if user['level'] > victim['level']:
+                if user["level"] > victim["level"]:
                     db.delete_user(user_id)
                     status = "User has been deleted."
-                    db.log(user['username'], "User has been deleted", f"User was of level: {victim['level']}", False)
+                    db.log(
+                        user["username"],
+                        "User has been deleted",
+                        f"User was of level: {victim['level']}",
+                        False,
+                    )
                     continue
                 else:
                     status = "You do not have permission to delete this user."
@@ -40,7 +48,9 @@ def edit_user(db: Connection, user: dict):
 
         if choice == "1":
             clear_terminal_with_title("UNIQUE MEAL")  # Title for edit user option
-            user_id = user_input("Please input the ID of the user you'd like to edit (or press [0] to quit): ")
+            user_id = user_input(
+                "Please input the ID of the user you'd like to edit (or press [0] to quit): "
+            )
             if user_id.lower() == "0":
                 return
 
@@ -50,13 +60,15 @@ def edit_user(db: Connection, user: dict):
                 continue
 
             print_user_without_pass(victim)
-            confirmation = user_input("Is this the user you want to edit? Please input yes or no: ")
+            confirmation = user_input(
+                "Is this the user you want to edit? Please input yes or no: "
+            )
             if confirmation[0].lower() != "y":
                 continue
 
             keys = victim.keys()
             try:
-                if user['level'] > victim['level']:
+                if user["level"] > victim["level"]:
                     while True:
                         chosen_field = user_input("What field would you like to edit? ")
                         if chosen_field in keys and chosen_field != "hashed_pass":
@@ -64,12 +76,18 @@ def edit_user(db: Connection, user: dict):
                         status = "Please choose a valid field."
 
                     while True:
-                        new_value = user_input("What would you like this field to become? ")
+                        new_value = user_input(
+                            "What would you like this field to become? "
+                        )
                         if is_valid(chosen_field, new_value):
-                            victim[chosen_field] = new_value  
+                            victim[chosen_field] = new_value
                             db.updateUser(victim)
-                            db.log(user["username"], "Updated user in database",
-                                   f"User: {user['username']} has been edited in field: {chosen_field}", False)
+                            db.log(
+                                user["username"],
+                                "Updated user in database",
+                                f"User: {user['username']} has been edited in field: {chosen_field}",
+                                False,
+                            )
                             status = "Field has been updated!"
                             sleep(1)
                             break

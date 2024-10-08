@@ -15,8 +15,42 @@ class Level:
     MEMBER = 4
 
 
-def create_user_tuple(id: str, level: int, f_name: str, l_name: str, age: int, gender: str, weight: float, street: str, house_number: str, zip: str, city: str, email: str, phone: str, registration_date: date, username: str, hashed_pass: str) -> tuple:
-    return (id, level, f_name, l_name, age, gender, weight, street, house_number, zip, city, email, phone, registration_date, username, hashed_pass)
+def create_user_tuple(
+    id: str,
+    level: int,
+    f_name: str,
+    l_name: str,
+    age: int,
+    gender: str,
+    weight: float,
+    street: str,
+    house_number: str,
+    zip: str,
+    city: str,
+    email: str,
+    phone: str,
+    registration_date: date,
+    username: str,
+    hashed_pass: str,
+) -> tuple:
+    return (
+        id,
+        level,
+        f_name,
+        l_name,
+        age,
+        gender,
+        weight,
+        street,
+        house_number,
+        zip,
+        city,
+        email,
+        phone,
+        registration_date,
+        username,
+        hashed_pass,
+    )
 
 
 def create_user_dict(tup: tuple) -> dict:
@@ -65,9 +99,17 @@ def hash_password(password: str) -> bytes:
 
 
 def generate_password():
-    password = random.choice(string.ascii_lowercase) + random.choice(string.ascii_uppercase) + \
-        random.choice(string.digits) + random.choice(string.punctuation)
+    password = (
+        random.choice(string.ascii_lowercase)
+        + random.choice(string.ascii_uppercase)
+        + random.choice(string.digits)
+        + random.choice(string.punctuation)
+    )
     for _ in range(10):
-        password += random.choice(string.digits + string.ascii_lowercase +
-                                  string.ascii_uppercase + string.punctuation)
+        password += random.choice(
+            string.digits
+            + string.ascii_lowercase
+            + string.ascii_uppercase
+            + string.punctuation
+        )
     return password
