@@ -49,10 +49,10 @@ def print_user_without_pass(user: dict):
 def validate_number(prompt: str ):
     while True:
         try:
-            value = float(user_input(prompt))  # Change to int() if only integers are allowed
-            return value
+            value = float(prompt)  # Change to int() if only integers are allowed
+            return True
         except ValueError:
-            print("Invalid input! A number is supposed to be given. Please try again.")
+            return False
 def clear_terminal_with_title(title="UNIQUE MEAL"):
     os.system("cls" if os.name == "nt" else "clear")  # Clear terminal for Windows or Unix
     big_title = pyfiglet.figlet_format(title, font='slant')  # Use a specific font

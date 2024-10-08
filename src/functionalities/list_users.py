@@ -19,7 +19,9 @@ def list_users(db: Connection, user: dict):
 
         if choice == "1":
             while True:
-                clear_terminal_with_title("UNIQUE MEAL")  
+                clear_terminal_with_title("UNIQUE MEAL")
+                if status:
+                    print(status)
                 print("LOOKING FOR USER...")
                 term = user_input("Input text that we will look for: ")
                 users = db.searchForUsers(term)
@@ -31,69 +33,72 @@ def list_users(db: Connection, user: dict):
                         return  
                     else:
                         continue  
+
                 clear_terminal_with_title("UNIQUE MEAL")  
                 print("These users have been found: ")
                 for i, _user in enumerate(users):
                     print(f"{i + 1}). {_user['f_name']} {_user['l_name']}")
 
                 chosen_user = user_input("Type the number of the user you want to view information for: ")
+                
                 while True:
-                    if 1 <= int(chosen_user) <= len(users):
-                        try:
-                            chosen_user = users[int(chosen_user) - 1]
-                            clear_terminal_with_title("UNIQUE MEAL")  
-                            print_user_without_pass(chosen_user)
+                    if chosen_user:
+                        if chosen_user.isdigit() and 1 <= int(chosen_user) <= len(users):
+                            try:
+                                choose = users[int(chosen_user) - 1]
+                                clear_terminal_with_title("UNIQUE MEAL")  
+                                print_user_without_pass(choose)
 
-                            choice = user_input("Press [0] to return to the main menu.\nType any other key to list or find another user's information: ")
-                            
-                            if choice == "0":
-                                return  
-                            else:
-                                status = ""
-                                continue  
+                                choice = user_input("Press [0] to return to the main menu.\nType any other key to find another user's information: ")
+                                
+                                if choice == "0":
+                                    return  
+                                else:
+                                    status = ""
+                                    break  
 
-                        except Exception as e:
-                            status = f"An error occurred while processing the user data: {e}"
+                            except Exception as e:
+                                status = f"An error occurred while processing the user data: {e}"
+                                break
+                        else:
+                            status = f"Not a valid option. Press any number from [1] to [{len(users)}]"
                             break
                     else:
-                        print(f"Not a valid option. Press any number from [1] to {len(users)}")
-                        sleep(2)
+                        clear_terminal_with_title("UNIQUE MEMBER")
+                        print("Invalid input! A number is supposed to be given. Please try again.")
                         break
-                        
 
-        
-        if choice == "2":
+        elif choice == "2":
             while True:
-                
-                clear_terminal_with_title("UNIQUE MEAL")  
-                print(status)
+                clear_terminal_with_title("UNIQUE MEAL")
+                if status:
+                    print(status)
+
                 print("List of Users:\n")
+                
+                if not users:  
+                    print("No users available.\n")
+                    user_input("Press [0] to return to the main menu.")
+                    break 
+                
                 for i, _user in enumerate(users):
                     print(f"{i + 1}). {_user['f_name']} {_user['l_name']}")
-                chosen_user = validate_number("Choose the number of the user you'd like to view information of: ")
+                
+                chosen_user = user_input("Choose the number of the user you'd like to view information of: ")
+                
+                if chosen_user.isdigit() and 1 <= int(chosen_user) <= len(users):
+                    chosen_user = users[int(chosen_user) - 1]
+                    clear_terminal_with_title("UNIQUE MEAL")
+                    print_user_without_pass(chosen_user)
 
-                if 1 <= int(chosen_user) <= len(users):
-                    try:
-                        chosen_user = users[int(chosen_user) - 1]
-                        clear_terminal_with_title("UNIQUE MEAL")  
-                        print_user_without_pass(chosen_user)
-
-                        choice = user_input("Press [0] to return to the main menu.\nType any other key to list or find another user's information: ")
-                        
-                        if choice == "0":
-                            return  
-                        else:
-                            status = ""
-                            continue  
-
-                    except Exception as e:
-                        status = f"An error occurred while processing the user data: {e}"
-                        break
+                    choice = user_input("Press [0] to return to the main menu.\nType any other key to list or find another user's information: ")
+                    
+                    if choice == "0":
+                        return  
+                    else:
+                        status = ""
+                        continue  
                 else:
                     status = "Incorrect list number, please try again."
-                    
-        elif choice == "0":
-            break
-        
-        else:
-            status = "That is not a valid option, please try again."
+                    continue 
+
