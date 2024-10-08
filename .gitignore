@@ -166,4 +166,4 @@ cython_debug/
 # personal
 /_temp
 /backups
-/src/users.db
+/src/database.db

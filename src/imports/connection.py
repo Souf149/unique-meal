@@ -102,7 +102,7 @@ class Connection:
         cursor.execute("SELECT COUNT(*) FROM USERS")
         if cursor.fetchone()[0] == 0:
             cursor.executemany(
-            """
+                """
                 INSERT INTO USERS (id, f_name, l_name, level, username, registration_date, hashed_pass)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """,

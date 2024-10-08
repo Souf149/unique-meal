@@ -236,25 +236,25 @@ def decrypt_tuple(
     fernet = Fernet("VyCIeFetb-w7Q3s_8xiuwHRDRLVSZI1sH13l3DJIS6w=")
     decrypted_tup = [fernet.decrypt(x) for x in tup]
 
-    float_str = bytes.decode(decrypted_tup[6])
+    float_str = bytes.decode(decrypted_tup[5])
     print(float_str)
 
     return create_member_tuple(
         bytes.decode(decrypted_tup[0]),
+        bytes.decode(decrypted_tup[1]),
         bytes.decode(decrypted_tup[2]),
-        bytes.decode(decrypted_tup[3]),
-        int.from_bytes(decrypted_tup[4], "big"),
-        bytes.decode(decrypted_tup[5]),
+        int.from_bytes(decrypted_tup[3], "big"),
+        bytes.decode(decrypted_tup[4]),
         float.fromhex(float_str),
+        bytes.decode(decrypted_tup[6]),
         bytes.decode(decrypted_tup[7]),
         bytes.decode(decrypted_tup[8]),
         bytes.decode(decrypted_tup[9]),
         bytes.decode(decrypted_tup[10]),
         bytes.decode(decrypted_tup[11]),
-        bytes.decode(decrypted_tup[12]),
-        date.fromisoformat(bytes.decode(decrypted_tup[13])),
-        bytes.decode(decrypted_tup[14]),
-        decrypted_tup[15],
+        date.fromisoformat(bytes.decode(decrypted_tup[12])),
+        bytes.decode(decrypted_tup[13]),
+        decrypted_tup[14],
     )
 
 
