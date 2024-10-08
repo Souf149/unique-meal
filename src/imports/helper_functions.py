@@ -25,9 +25,8 @@ def user_input(prompt: str = "") -> str:
     return str(res)
 
 
-def create_user_tuple(
+def create_member_tuple(
     id: str,
-    level: int,
     f_name: str,
     l_name: str,
     age: int,
@@ -45,7 +44,6 @@ def create_user_tuple(
 ) -> tuple:
     return (
         id,
-        level,
         f_name,
         l_name,
         age,
@@ -63,11 +61,10 @@ def create_user_tuple(
     )
 
 
-def create_user_dict(tup: tuple) -> dict:
+def create_member_dict(tup: tuple) -> dict:
     d: dict = {}
 
     d["id"] = tup[0]
-    d["level"] = tup[1]
     d["f_name"] = tup[2]
     d["l_name"] = tup[3]
     d["age"] = tup[4]
@@ -84,6 +81,42 @@ def create_user_dict(tup: tuple) -> dict:
     d["hashed_pass"] = tup[15]
 
     return d
+
+
+def create_user_dict(tup: tuple) -> dict:
+    d: dict = {}
+
+    d["id"] = tup[0]
+    d["f_name"] = tup[2]
+    d["l_name"] = tup[3]
+    d["age"] = tup[4]
+    d["gender"] = tup[5]
+    d["weight"] = tup[6]
+    d["street"] = tup[7]
+    d["house_number"] = tup[8]
+    d["zip"] = tup[9]
+    d["city"] = tup[10]
+    d["email"] = tup[11]
+    d["phone"] = tup[12]
+    d["registration_date"] = tup[13]
+    d["username"] = tup[14]
+    d["hashed_pass"] = tup[15]
+
+    return d
+
+
+def create_user_tuple(
+    id: str,
+    level: Level,
+    username: str,
+    hashed_pass: bytes,
+) -> tuple:
+    return (
+        id,
+        level,
+        username,
+        hashed_pass,
+    )
 
 
 def generate_id():
@@ -174,7 +207,7 @@ def decrypt_tuple(
     float_str = bytes.decode(decrypted_tup[6])
     print(float_str)
 
-    return create_user_tuple(
+    return create_member_tuple(
         bytes.decode(decrypted_tup[0]),
         int.from_bytes(decrypted_tup[1], "big"),
         bytes.decode(decrypted_tup[2]),
@@ -195,7 +228,7 @@ def decrypt_tuple(
 
 
 if __name__ == "__main__":
-    person = create_user_tuple(
+    person = create_member_tuple(
         generate_id(),
         Level.SYSTEM_ADMINISTRATORS,
         "Soufyan",
