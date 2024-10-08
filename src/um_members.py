@@ -74,7 +74,7 @@ try:
                     break
 
             else:
-                print(f"Welcome {user['f_name']}!")
+                print(f"Welcome {user['username']}!")
                 print(f"Level: {user['level']}!")
 
             # Display options based on user level

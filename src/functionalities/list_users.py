@@ -10,7 +10,7 @@ import os
 
 
 def list_users(db: Connection, user: dict):
-    users = db.getAllUsersFromLevelAndLower(user["level"])
+    users = db.getAllUsersAndMembersFromLevelAndLower(user["level"])
     status = ""
     showpartone = False
 
@@ -32,7 +32,7 @@ def list_users(db: Connection, user: dict):
                     print(status)
                 print("LOOKING FOR USER...")
                 term = user_input("Input text that we will look for: ")
-                users = db.searchForUsers(term)
+                users = db.searchForUsersAndMembersByTerm(term)
 
                 if len(users) == 0:
                     print("No users found.\n")

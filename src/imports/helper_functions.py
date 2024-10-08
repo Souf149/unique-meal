@@ -87,20 +87,9 @@ def create_user_dict(tup: tuple) -> dict:
     d: dict = {}
 
     d["id"] = tup[0]
-    d["f_name"] = tup[2]
-    d["l_name"] = tup[3]
-    d["age"] = tup[4]
-    d["gender"] = tup[5]
-    d["weight"] = tup[6]
-    d["street"] = tup[7]
-    d["house_number"] = tup[8]
-    d["zip"] = tup[9]
-    d["city"] = tup[10]
-    d["email"] = tup[11]
-    d["phone"] = tup[12]
-    d["registration_date"] = tup[13]
-    d["username"] = tup[14]
-    d["hashed_pass"] = tup[15]
+    d["level"] = tup[1]
+    d["username"] = tup[2]
+    d["hashed_pass"] = tup[3]
 
     return d
 

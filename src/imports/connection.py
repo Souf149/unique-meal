@@ -242,7 +242,7 @@ class Connection:
 
         user = cursor.fetchone()
         if user:
-            return self._dict_from_tuple(user)
+            return self._user_dict_from_tuple(user)
         return None
 
     def getUserFromId(self, id: str) -> dict | None:
@@ -259,7 +259,7 @@ class Connection:
         user = cursor.fetchone()
         if user is None:
             return None
-        return self._dict_from_tuple(user)
+        return self._user_dict_from_tuple(user)
 
     def updateUser(self, updatedUser: dict):
         cursor = self.db.cursor()
@@ -305,14 +305,19 @@ class Connection:
         )
         self.db.commit()
 
-    def getAllUsersFromLevelAndLower(self, level: int) -> list[dict]:
+    def getAllUsersAndMembersFromLevelAndLower(self, level: int) -> list[dict]:
         cursor = self.db.cursor()
         cursor.execute("SELECT * FROM USERS LIMIT 50")
         raw_users = cursor.fetchall()
 
-        return self._dicts_from_tuples(raw_users)
+        cursor.execute("SELECT * FROM MEMBERS LIMIT 50")
+        raw_members = cursor.fetchall()
 
-    def searchForUsers(self, term: str) -> list[dict]:
+        return self._user_dicts_from_tuples(raw_users) + self._member_dicts_from_tuples(
+            raw_members
+        )
+
+    def searchForUsersAndMembersByTerm(self, term: str) -> list[dict]:
         cursor = self.db.cursor()
         search_query = """
             SELECT *
@@ -336,7 +341,7 @@ class Connection:
         )
         matching_users = cursor.fetchall()
 
-        return self._dicts_from_tuples(matching_users)
+        return self._user_dicts_from_tuples(matching_users)
 
     def delete_user(self, id):
         cursor = self.db.cursor()
@@ -359,10 +364,16 @@ class Connection:
 
         return cursor.fetchall()
 
-    def _dict_from_tuple(self, tuple: tuple) -> dict:
+    def _user_dict_from_tuple(self, tuple: tuple) -> dict:
+        return create_user_dict(tuple)
+
+    def _user_dicts_from_tuples(self, tuples: list[tuple]) -> list[dict]:
+        return list(map(create_user_dict, tuples))
+
+    def _member_dict_from_tuple(self, tuple: tuple) -> dict:
         return create_member_dict(tuple)
 
-    def _dicts_from_tuples(self, tuples: list[tuple]) -> list[dict]:
+    def _member_dicts_from_tuples(self, tuples: list[tuple]) -> list[dict]:
         return list(map(create_member_dict, tuples))
 
     def close(self):
