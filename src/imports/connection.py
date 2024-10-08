@@ -319,16 +319,7 @@ class Connection:
     def close(self):
         self.db.commit()
         self.db.close()
-
-        with open(FILE_NAME, "rb") as db_file:
-            decrypted_data = db_file.read()
-
-            encrypted_data = self.fernet.encrypt(decrypted_data)
-
-            with open("./users.encrypted", "wb") as file:
-                file.write(encrypted_data)
-
-        os.remove(FILE_NAME)
+        
         print("Safely exited!")
 
     def make_backup(self):
