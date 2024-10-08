@@ -1,17 +1,11 @@
 import re
 from time import sleep
 from imports.connection import Connection
-from models.user import (
-    Level,
-    create_user_tuple,
-    generate_id,
-    generate_password,
-    hash_password,
-)
+
 from tools.tools import check_password, user_input, clear_terminal_with_title
 from datetime import datetime
 from imports.validator import User_Info_Validator
-from imports import helper_functions
+from imports.helper_functions import Level, hash_password
 import os
 
 
@@ -43,7 +37,7 @@ def choose_city():
             print("Invalid input. Please enter a number.")
 
 
-def create_new_user(db: Connection, user: dict, max_level: Level):
+def create_new_member(db: Connection, user: dict, max_level: Level):
     # clear_terminal_with_title()
     Validator = User_Info_Validator
     while True:
@@ -157,7 +151,7 @@ def create_new_user(db: Connection, user: dict, max_level: Level):
             if membership_id:
                 break
         db.addUser(
-            create_user_tuple(
+            create_member_tuple(
                 generate_id(),
                 level,
                 f_name,

@@ -47,7 +47,7 @@ def list_users(db: Connection, user: dict):
                 clear_terminal_with_title("UNIQUE MEAL")
                 print("These users have been found: ")
                 for i, _user in enumerate(users):
-                    print(f"{i + 1}). {_user['f_name']} {_user['l_name']}")
+                    print(f"{i + 1}). {_user['id']} {_user['username']}")
 
                 chosen_user = user_input(
                     "Type the number of the user you want to view information for: "
@@ -100,7 +100,9 @@ def list_users(db: Connection, user: dict):
                     break
 
                 for i, _user in enumerate(users):
-                    print(f"{i + 1}). {_user['f_name']} {_user['l_name']}")
+                    print(
+                        f"{i + 1}). {_user['type']}\t{_user['id']}\t{_user['username']}"
+                    )
 
                 chosen_user = user_input(
                     "Choose the number of the user you'd like to view information of: "

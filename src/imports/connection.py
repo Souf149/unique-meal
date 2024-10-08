@@ -50,10 +50,15 @@ class Connection:
 
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS USERS (
-            id TEXT PRIMARY KEY,
-            level INTEGER NOT NULL,
-            username TEXT NOT NULL UNIQUE,
-            hashed_pass TEXT NOT NULL
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            first_name TEXT NOT NULL,
+            last_name TEXT NOT NULL,
+            username TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            registration_date DATE NOT NULL,
+            role TEXT NOT NULL,
+            temp BOOLEAN NOT NULL,
+            salt TEXT NOT NULL
         )
         """)
 
@@ -321,27 +326,41 @@ class Connection:
         cursor = self.db.cursor()
         search_query = """
             SELECT *
-            FROM USERS
+            FROM MEMBERS
             WHERE
-                id LIKE '%' || ? || '%' OR
-                f_name LIKE '%' || ? || '%' OR
-                l_name LIKE '%' || ? || '%' OR
-                gender LIKE '%' || ? || '%' OR
-                street LIKE '%' || ? || '%' OR
-                house_number LIKE '%' || ? || '%' OR
-                zip LIKE '%' || ? || '%' OR
-                city LIKE '%' || ? || '%' OR
-                email LIKE '%' || ? || '%' OR
-                phone LIKE '%' || ? || '%' OR
-                username LIKE '%' || ? || '%'
+                f_name LIKE ? OR
+                l_name LIKE ? OR
+                gender LIKE ? OR
+                street LIKE ? OR
+                house_number LIKE ? OR
+                zip LIKE ? OR
+                city LIKE ? OR
+                email LIKE ? OR
+                phone LIKE ? OR
+                username LIKE ?
         """
         cursor.execute(
             search_query,
-            (term, term, term, term, term, term, term, term, term, term, term),
+            (term, term, term, term, term, term, term, term, term, term),
+        )
+        matching_members = cursor.fetchall()
+
+        search_query = """
+            SELECT *
+            FROM USERS
+            WHERE
+                id LIKE ? OR
+                username LIKE ?
+        """
+        cursor.execute(
+            search_query,
+            (term, term),
         )
         matching_users = cursor.fetchall()
 
-        return self._user_dicts_from_tuples(matching_users)
+        return self._user_dicts_from_tuples(
+            matching_users
+        ) + self._member_dicts_from_tuples(matching_members)
 
     def delete_user(self, id):
         cursor = self.db.cursor()

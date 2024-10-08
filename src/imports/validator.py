@@ -202,7 +202,7 @@ class User_Info_Validator:
         return False
 
     @staticmethod
-    def validate_registration_date(registration_date, user) -> bool:
+    def validate_registration_date(registration_date) -> bool:
         if isinstance(registration_date, date):
             if registration_date > date.today():
                 return False

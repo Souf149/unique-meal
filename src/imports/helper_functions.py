@@ -4,13 +4,33 @@ from enum import IntEnum
 import random
 from Crypto.Hash import SHA256
 from cryptography.fernet import Fernet
+import string
 
 
-class Level(IntEnum):
+class Level:
     SUPER_ADMINISTRATOR = 4
     SYSTEM_ADMINISTRATORS = 3
     CONSULTANT = 2
     MEMBER = 1
+
+
+class PersonType:
+    USER = "user"
+    MEMBER = "member"
+
+
+def generate_password():
+    password = (
+        random.choice(string.ascii_lowercase)
+        + random.choice(string.ascii_uppercase)
+        + random.choice(string.digits)
+        + random.choice(string.punctuation)
+    )
+    for _ in range(10):
+        password += random.choice(
+            string.digits + string.ascii_lowercase + string.ascii_uppercase + string.punctuation
+        )
+    return password
 
 
 def hash_password(password: str) -> bytes:
@@ -65,20 +85,22 @@ def create_member_dict(tup: tuple) -> dict:
     d: dict = {}
 
     d["id"] = tup[0]
-    d["f_name"] = tup[2]
-    d["l_name"] = tup[3]
-    d["age"] = tup[4]
-    d["gender"] = tup[5]
-    d["weight"] = tup[6]
-    d["street"] = tup[7]
-    d["house_number"] = tup[8]
-    d["zip"] = tup[9]
-    d["city"] = tup[10]
-    d["email"] = tup[11]
-    d["phone"] = tup[12]
-    d["registration_date"] = tup[13]
-    d["username"] = tup[14]
-    d["hashed_pass"] = tup[15]
+    d["f_name"] = tup[1]
+    d["l_name"] = tup[2]
+    d["age"] = tup[3]
+    d["gender"] = tup[4]
+    d["weight"] = tup[5]
+    d["street"] = tup[6]
+    d["house_number"] = tup[7]
+    d["zip"] = tup[8]
+    d["city"] = tup[9]
+    d["email"] = tup[10]
+    d["phone"] = tup[11]
+    d["registration_date"] = tup[12]
+    d["username"] = tup[13]
+    d["hashed_pass"] = tup[14]
+
+    d["type"] = PersonType.MEMBER
 
     return d
 
@@ -90,6 +112,8 @@ def create_user_dict(tup: tuple) -> dict:
     d["level"] = tup[1]
     d["username"] = tup[2]
     d["hashed_pass"] = tup[3]
+
+    d["type"] = PersonType.USER
 
     return d
 
@@ -151,8 +175,6 @@ def encrypt_tuple(
             res.append(str.encode(val))
         elif isinstance(val, int):
             res.append(val.to_bytes(4, "big"))
-        elif isinstance(val, Level):
-            res.append(val.value.to_bytes(4, "big"))
         elif isinstance(val, float):
             res.append(val.hex().encode())
         elif isinstance(val, date):

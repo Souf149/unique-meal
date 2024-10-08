@@ -126,7 +126,7 @@ try:
                 if option == "1":
                     change_password.change_my_password(db, user)
                 elif option == "2":
-                    create_user.create_new_user(db, user, Level.MEMBER)
+                    create_user.create_new_member(db, user, Level.MEMBER)
                 elif option == "3":
                     edit_user.edit_user(db, user)
                 elif option == "4":
@@ -143,7 +143,7 @@ try:
                 elif option == "2":
                     list_users.list_users(db, user)  # Clean gemaakt
                 elif option == "3":
-                    create_user.create_new_user(
+                    create_user.create_new_member(
                         db, user, Level.MEMBER
                     )  # Create consultant
                 elif option == "4":
@@ -155,7 +155,7 @@ try:
                         db
                     )  # Reset consultant's password
                 elif option == "7":
-                    create_user.create_new_user(
+                    create_user.create_new_member(
                         db, user, Level.MEMBER
                     )  # Add new member
                 elif option == "8":
@@ -169,7 +169,7 @@ try:
                 elif (
                     option == "12" and user["level"] == 4
                 ):  # Only Super Admin can add a new admin
-                    create_user.create_new_user(db, user, Level.MEMBER)
+                    create_user.create_new_member(db, user, Level.MEMBER)
                 elif option == "13" and user["level"] == 4:  # Admin-specific
                     edit_user.edit_user(db)
                 elif option == "14" and user["level"] == 4:  # Admin-specific
@@ -187,7 +187,9 @@ try:
 
             db.db.commit()
 
-
+except KeyboardInterrupt:
+    db.close()
+    print("Bye bye :)")
 except BaseException:
     if DEBUG:
         print(traceback.format_exc())
