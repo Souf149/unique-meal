@@ -11,4 +11,4 @@ def see_logs(db: Connection):
     for log in logs:
         print("%s\t%s\t%s\t%s\t%s\t%s" % log)
 
-    input("Please input something to continue.\n")  # type: ignore
+    input("Please input [0] or something something to go back to the main menu.\n")  # type: ignore

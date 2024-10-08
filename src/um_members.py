@@ -32,7 +32,7 @@ try:
         user = db.getUserFromLogin(username, password)
         clear_terminal_with_title()
 
-        if user is None and user['level'] == 1:
+        if user is None or user['level'] == 1:
             print("wrong login")
             if login_attempts > 5:
                 db.log(

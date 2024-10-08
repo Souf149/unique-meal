@@ -5,8 +5,12 @@ from tools.tools import print_user_without_pass, user_input, clear_terminal_with
 from tools.validators import is_valid
 
 def edit_user(db: Connection, user: dict):
+    status = ""  # Initialize status message
     while True:
         clear_terminal_with_title("UNIQUE MEAL")  # Title for the main menu
+        if status:
+            print(status)
+
         print("Press [0] to go back to the main menu\nPress [1] to go to the option ID of the user you'd like to edit\nPress [2] to delete a user")
         choice = user_input("Please choose an option: ")
 
@@ -17,22 +21,21 @@ def edit_user(db: Connection, user: dict):
             victim = db.getUserFromId(user_id)
 
             if victim is None:
-                print("User not found...")
-                sleep(5)
+                status = "User not found..."
                 continue
 
             try:
                 if user['level'] > victim['level']:
                     db.delete_user(user_id)
-                    print("User has been deleted")
+                    status = "User has been deleted."
                     db.log(user['username'], "User has been deleted", f"User was of level: {victim['level']}", False)
                     continue
                 else:
-                    print("You do not have permission to delete this user.")
+                    status = "You do not have permission to delete this user."
             except KeyError as e:
-                print(f"Key error occurred: {e}. Please ensure that 'level' exists in the user dictionary.")
+                status = f"Key error occurred: {e}. Please ensure that 'level' exists in the user dictionary."
             except Exception as e:
-                print(f"An unexpected error occurred: {e}")
+                status = f"An unexpected error occurred: {e}"
             continue
 
         if choice == "1":
@@ -43,7 +46,7 @@ def edit_user(db: Connection, user: dict):
 
             victim = db.getUserFromId(user_id)
             if victim is None:
-                print("This ID does not exist, please enter a valid one.")
+                status = "This ID does not exist, please enter a valid one."
                 continue
 
             print_user_without_pass(victim)
@@ -58,7 +61,7 @@ def edit_user(db: Connection, user: dict):
                         chosen_field = user_input("What field would you like to edit? ")
                         if chosen_field in keys and chosen_field != "hashed_pass":
                             break
-                        print("Please choose a valid field.")
+                        status = "Please choose a valid field."
 
                     while True:
                         new_value = user_input("What would you like this field to become? ")
@@ -67,20 +70,19 @@ def edit_user(db: Connection, user: dict):
                             db.updateUser(victim)
                             db.log(user["username"], "Updated user in database",
                                    f"User: {user['username']} has been edited in field: {chosen_field}", False)
-                            print("Field has been updated!")
+                            status = "Field has been updated!"
                             sleep(1)
                             break
-                        print("That is not a valid input, please try again.")
+                        status = "That is not a valid input, please try again."
                 else:
-                    print(f"You can only change info of users with levels: {user['level']} and lower!")
+                    status = f"You can only change info of users with levels: {user['level']} and lower!"
             except KeyError as e:
-                print(f"Key error occurred: {e}. Please ensure that 'level' exists in the user dictionary.")
+                status = f"Key error occurred: {e}. Please ensure that 'level' exists in the user dictionary."
             except Exception as e:
-                print(f"An unexpected error occurred: {e}")
+                status = f"An unexpected error occurred: {e}"
 
         if choice == "0":
             return
 
         else:
-            clear_terminal_with_title("UNIQUE MEAL")  # Title for invalid option
-            print("Invalid option. Please choose option [0], [1], or [2].")
+            status = "Invalid option. Please choose option [0], [1], or [2]."
