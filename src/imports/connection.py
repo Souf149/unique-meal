@@ -14,12 +14,14 @@ from .helper_functions import (
     hash_password,
 )
 
+FILE_NAME: str = "database.db"
+
 
 class Connection:
     def __init__(self, key: str) -> None:
         self.fernet = Fernet(key)
 
-        self.db = sqlite3.connect("users.db")
+        self.db = sqlite3.connect(FILE_NAME)
 
         self.init_database_if_needed()
         self.init_logs_if_needed()
@@ -318,7 +320,7 @@ class Connection:
         self.db.commit()
         self.db.close()
 
-        with open("./users.db", "rb") as db_file:
+        with open(FILE_NAME, "rb") as db_file:
             decrypted_data = db_file.read()
 
             encrypted_data = self.fernet.encrypt(decrypted_data)
@@ -326,14 +328,14 @@ class Connection:
             with open("./users.encrypted", "wb") as file:
                 file.write(encrypted_data)
 
-        os.remove("./users.db")
+        os.remove(FILE_NAME)
         print("Safely exited!")
 
     def make_backup(self):
-        with open("./users.db", "rb") as db_file:
+        with open(FILE_NAME, "rb") as db_file:
             decrypted_data = db_file.read()
 
-        inpath = "./_temp/uniquemeal.db"  # uniquemeal.db
+        inpath = f"./_temp/{FILE_NAME}"  # uniquemeal.db
         outpath = "./backups/" + datetime.now().strftime("%Y-%m-%d.%H-%M-%S") + ".zip"
         with open(inpath, "wb") as file:
             file.write(decrypted_data)
@@ -348,10 +350,10 @@ class Connection:
         archive = zipfile.ZipFile(f"backups/{file_name}", "r")
         backup_data = archive.read("backup")
 
-        with open("users.db", "wb") as db_file:
+        with open(FILE_NAME, "wb") as db_file:
             db_file.write(backup_data)
 
-        self.db = sqlite3.connect("users.db")
+        self.db = sqlite3.connect(FILE_NAME)
         self.log("", "Old data has been restored", "", "")
 
     def encrypt_tuple(

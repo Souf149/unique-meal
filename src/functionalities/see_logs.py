@@ -1,5 +1,5 @@
 from time import sleep
-from models.connection import Connection
+from imports.connection import Connection
 from tools.tools import user_input, clear_terminal_with_title
 import os
 

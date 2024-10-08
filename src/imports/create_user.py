@@ -1,6 +1,6 @@
 import re
 from time import sleep
-from models.connection import Connection
+from imports.connection import Connection
 from models.user import (
     Level,
     create_user_tuple,

@@ -16,9 +16,12 @@ from functionalities import backup, change_password, edit_user, list_users, see_
 from imports import create_user
 from tools.tools import check_password, user_input, clear_terminal_with_title
 
+DEBUG = False
+
 with open("./key.key") as f:
     key = f.read()
 
+clear_terminal_with_title()
 
 db = Connection(key)
 login_attempts = 0
@@ -185,6 +188,7 @@ try:
             db.db.commit()
 
 
-except Exception:
-    print(traceback.format_exc())
+except BaseException:
+    if DEBUG:
+        print(traceback.format_exc())
     db.close()

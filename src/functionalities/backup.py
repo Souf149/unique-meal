@@ -1,6 +1,6 @@
 from tools.tools import check_password, user_input, clear_terminal_with_title
 from time import sleep
-from models.connection import Connection
+from imports.connection import Connection
 from os import listdir
 from os.path import isfile, join
 import os

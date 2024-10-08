@@ -1,5 +1,5 @@
 from time import sleep
-from models.connection import Connection
+from imports.connection import Connection
 from tools.tools import (
     print_user_without_pass,
     user_input,

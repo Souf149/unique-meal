@@ -2,7 +2,6 @@ from enum import Enum
 import datetime
 import random
 from datetime import date
-from Crypto.Cipher import Salsa20
 from Crypto.Hash import HMAC, SHA256
 from Crypto.Random import get_random_bytes
 import string
