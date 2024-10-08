@@ -382,7 +382,7 @@ class Connection:
             if type(val) is str:
                 res.append(str.encode(val))
             elif type(val) is int:
-                res.append(val.to_bytes(4, "big"))
+                res.append(str.encode(str(val)))
             elif type(val) is float:
                 res.append(val.hex().encode())
             elif type(val) is date:
@@ -397,4 +397,3 @@ class Connection:
 
     # def decrypt_tuple(self, tup: tuple[bytes]):
     #     return create_user_tuple()
-

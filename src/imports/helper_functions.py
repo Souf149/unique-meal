@@ -169,7 +169,7 @@ def decrypt_tuple(
     bytes,
 ]:
     fernet = Fernet("VyCIeFetb-w7Q3s_8xiuwHRDRLVSZI1sH13l3DJIS6w=")
-    decrypted_tup = [fernet.encrypt(x) for x in tup]
+    decrypted_tup = [fernet.decrypt(x) for x in tup]
 
     float_str = bytes.decode(decrypted_tup[6])
     print(float_str)
@@ -202,7 +202,7 @@ if __name__ == "__main__":
         "Abdell",
         25,
         "m",
-        257,
+        257.3,
         "otherstreet",
         "134",
         "2342",
