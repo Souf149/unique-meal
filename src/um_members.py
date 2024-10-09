@@ -65,9 +65,10 @@ try:
                 Level.SYSTEM_ADMINISTRATOR,
                 Level.SUPER_ADMINISTRATOR,
             ]:
-                print("5).\tReset an existing account's password")
-                print("6).\tMake/Delete a backup of the system")
-                print("7).\tSee logs")
+                print("5).\tAdd a new user")
+                print("6).\tReset an existing account's password")
+                print("7).\tMake/Delete a backup of the system")
+                print("8).\tSee logs")
 
             option = user_input('Select an action or press "Q" to log out: ').lower()
 
@@ -83,7 +84,7 @@ try:
             if option == "3":
                 edit_account(db, user)
             if option == "4":
-                list_users(db, user)  # TODO: download whole database and manually query
+                list_users(db, user)
 
             if user["level"] in [
                 Level.SYSTEM_ADMINISTRATOR,

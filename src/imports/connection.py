@@ -462,7 +462,7 @@ class Connection:
         with zipfile.ZipFile(outpath, "w", compression=zipfile.ZIP_DEFLATED) as zf:
             zf.write(inpath, os.path.basename(inpath))
 
-    def restore_backup(current_user, file_name):
+    def restore_backup(self, file_name):
         # Constants
         BACKUP_FOLDER = "./backups"
         DATABASE_FILE = "uniquemeal.db"  # Adjust based on your backup file naming

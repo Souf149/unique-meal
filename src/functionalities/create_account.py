@@ -68,10 +68,16 @@ def create_new_user(db: Connection, user: dict):
         hashed_pass = hash_password(password)
 
         while True:
-            level = user_input(
-                f"What level should this user have access to?. Important: You can only make users of level: {Level.NAMES[user['level']]}"
+            options = " ".join(
+                map(
+                    lambda x: f"[{str(x)}] {Level.NAMES[x]}",
+                    range(1, user["level"] + 1),
+                )
             )
-            if Validator.validate_level(level) and level <= user["level"]:
+            level = user_input(
+                f"What level should this user have access to?. Important: You can only make users of levels: {options}"
+            )
+            if Validator.validate_level(level) and int(level) <= user["level"]:
                 break
 
         while True:
@@ -99,7 +105,6 @@ def create_new_user(db: Connection, user: dict):
         db.log(user["username"], "Created new user", f"Created user: {username}", False)
 
         print("User has been created!")
-        print("The password of this user is: " + password)
         sleep(1)
         return
 
@@ -218,6 +223,5 @@ def create_new_member(db: Connection, user: dict):
         db.log(user["username"], "Created new user", f"Created user: {username}", False)
 
         print("User has been created!")
-        print("The password of this user is: " + password)
         sleep(1)
         return
