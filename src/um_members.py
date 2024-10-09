@@ -1,10 +1,16 @@
 import traceback
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.backends import default_backend
 
 from imports.helper_functions import (
     Level,
     clear_terminal_with_title,
     user_input,
 )
+
 from imports.connection import Connection
 from functionalities.backup import backup
 from functionalities.change_password import change_my_password
@@ -15,12 +21,51 @@ from functionalities.create_account import create_new_member, create_new_user
 
 DEBUG = True
 
-with open("./key.key") as f:
+
+with open("./key.key", "rb") as f:
     key = f.read()
+
+with open("./private.key", "rb") as f:
+    private_key = serialization.load_pem_private_key(
+        data=f.read(),
+        backend=default_backend(),
+        password=None,
+    )
+
+
+with open("./public.key", "rb") as f:
+    public_key = serialization.load_pem_public_key(
+        f.read(),
+    )
+
+message = b"abcdef"
+
+ciphertext = public_key.encrypt(  # type: ignore
+    message,
+    padding.OAEP(
+        mgf=padding.MGF1(algorithm=hashes.SHA256()),
+        algorithm=hashes.SHA256(),
+        label=None,
+    ),
+)
+decrypted = private_key.decrypt(  # type: ignore
+    ciphertext,
+    padding.OAEP(
+        mgf=padding.MGF1(algorithm=hashes.SHA256()),
+        algorithm=hashes.SHA256(),
+        label=None,
+    ),
+)
+
+print(f"""
+        msg: {str(message)}
+        cipphertext: {str(ciphertext)}
+        decrypted: {str(decrypted)}    
+      """)
 
 clear_terminal_with_title()
 
-db = Connection(key)
+db = Connection(private_key, public_key)
 login_attempts = 0
 
 
@@ -31,7 +76,6 @@ try:
         password = user_input("Give your password please: ")
         login_attempts += 1
         user = db.getUserFromLogin(username, password)
-        clear_terminal_with_title()
 
         if user is None:
             print("wrong login")
@@ -93,11 +137,11 @@ try:
                 if option == "5":
                     create_new_user(db, user)
                 if option == "6":
-                    backup(db)
-                if option == "7":
-                    see_logs(db)
-                if option == "8":
                     reset_account_password(db, user)
+                if option == "7":
+                    backup(db)
+                if option == "8":
+                    see_logs(db)
 
             db.db.commit()
 

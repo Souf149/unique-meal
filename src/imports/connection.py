@@ -19,10 +19,11 @@ FILE_NAME: str = "database.db"
 
 
 class Connection:
-    def __init__(self, key: str) -> None:
-        self.fernet = Fernet(key)
-
+    def __init__(self, private_key, public_key) -> None:
         self.db = sqlite3.connect(FILE_NAME)
+
+        self.private_key = private_key
+        self.public_key = public_key
 
         self.init_user_database_if_needed()
         self.init_member_database_if_needed()
@@ -443,6 +444,12 @@ class Connection:
 
     def _member_dicts_from_tuples(self, tuples: list[tuple]) -> list[dict]:
         return list(map(create_member_dict, tuples))
+
+    def _encrypt_tuple(self, tup: tuple) -> tuple:
+        return ("",)
+
+    def _decrypt_tuple(self, tup: tuple) -> tuple:
+        return ("",)
 
     def close(self):
         self.db.commit()

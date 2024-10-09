@@ -1,6 +1,7 @@
 from datetime import date
 import datetime
 import random
+import time
 from Crypto.Hash import SHA256
 from cryptography.fernet import Fernet
 import string
@@ -26,7 +27,10 @@ def clear_terminal_with_title(title="UNIQUE MEAL"):
         "cls" if os.name == "nt" else "clear"
     )  # Clear terminal for Windows or Unix
     big_title = pyfiglet.figlet_format(title, font="slant")  # Use a specific font
-    print(big_title)  # Print the title
+
+    for step in range(len(big_title.split("\n"))):
+        print(big_title.split("\n")[step])
+        time.sleep(0.015)
 
 
 def generate_password():
