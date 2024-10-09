@@ -13,7 +13,7 @@ class Level:
     SYSTEM_ADMINISTRATOR = 2
     CONSULTANT = 1
 
-    NAMES = {3: "super_administrator", 2: "system_administrator", 1: "consultant"}
+    NAMES = {3: "super administrator", 2: "system administrator", 1: "consultant"}
 
 
 class PersonType:

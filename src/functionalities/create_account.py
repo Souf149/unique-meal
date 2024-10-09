@@ -45,7 +45,68 @@ def choose_city():
 
 
 def create_new_user(db: Connection, user: dict):
-    # clear_terminal_with_title()
+    Validator = User_Info_Validator
+    while True:
+        while True:
+            clear_terminal_with_title()
+            f_name = user_input("Input first name please")
+            if Validator.validate_name(f_name):
+                break
+            else:
+                print("Invalid option! Example: Mark")
+
+        while True:
+            l_name = user_input("Input last name please")
+            if Validator.validate_name(l_name):
+                break
+
+        while True:
+            password = user_input(
+                "Input the password.\nmust be unique and have a length of at least 8 characters\nmust be no longer than 10 characters\nmust be started with a letter or underscores (_)\ncan contain letters (a-z), numbers (0-9), underscores (_), apostrophes ('), and periods (.)\nno distinguish between lowercase or uppercase letters"
+            )
+            if Validator.validate_password(password):
+                break
+
+        hashed_pass = hash_password(password)
+
+        while True:
+            level = user_input(
+                f"What level should this user have access to?. Important: You can only make users of level: {user['level']}"
+            )
+            if Validator.validate_level(level, user):
+                break
+
+        while True:
+            print(
+                "For the final info, please choose a name for the user.\nmust be unique and have a length of at least 8 characters\nmust be no longer than 10 characters\nmust be started with a letter or underscores (_)\ncan contain letters (a-z), numbers (0-9), underscores (_), apostrophes ('), and periods (.)\nno distinguish between lowercase or uppercase letters"
+            )
+            username = user_input("Input the username")
+            if Validator.validate_username(username):
+                break
+        while True:
+            membership_id = Validator.validate_id(generate_id())  # membershipID
+            if membership_id:
+                break
+        db.addUser(
+            create_user_tuple(
+                generate_id(),
+                f_name,
+                l_name,
+                int(level),
+                username,
+                datetime.now(),
+                hashed_pass,
+            )
+        )
+        db.log(user["username"], "Created new user", f"Created user: {username}", False)
+
+        print("User has been created!")
+        print("The password of this user is: " + password)
+        sleep(1)
+        return
+
+
+def create_new_member(db: Connection, user: dict):
     Validator = User_Info_Validator
     while True:
         while True:
@@ -127,13 +188,6 @@ def create_new_user(db: Connection, user: dict):
         hashed_pass = hash_password(password)  # komt nog
 
         while True:
-            level = user_input(
-                f"What level should this user have access to?. Important: You can only make users of level: {user['level']}"
-            )
-            if Validator.validate_level(level, user):
-                break
-
-        while True:
             print(
                 "For the final info, please choose a name for the user.\nmust be unique and have a length of at least 8 characters\nmust be no longer than 10 characters\nmust be started with a letter or underscores (_)\ncan contain letters (a-z), numbers (0-9), underscores (_), apostrophes ('), and periods (.)\nno distinguish between lowercase or uppercase letters"
             )
@@ -141,17 +195,25 @@ def create_new_user(db: Connection, user: dict):
             if Validator.validate_username(username):
                 break
         while True:
-            membership_id = Validator.validate_id(generate_id())  # membershipID
+            membership_id = Validator.validate_id(generate_id())
             if membership_id:
                 break
-        db.addUser(
-            create_user_tuple(
+        db.addMember(
+            create_member_tuple(
                 generate_id(),
                 f_name,
                 l_name,
-                int(level),
-                username,
+                int(age),
+                gender,
+                float(weight),
+                street,
+                house_number,
+                zip,
+                city,
+                email,
+                phone,
                 datetime.now(),
+                username,
                 hashed_pass,
             )
         )

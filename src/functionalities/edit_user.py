@@ -6,10 +6,10 @@ from tools.tools import print_user_without_pass
 from tools.validators import is_valid
 
 
-def edit_user(db: Connection, user: dict):
-    status = ""  # Initialize status message
+def edit_account(db: Connection, user: dict):
+    status = ""
     while True:
-        clear_terminal_with_title()  # Title for the main menu
+        clear_terminal_with_title()
         if status:
             print(status)
 
@@ -18,44 +18,15 @@ def edit_user(db: Connection, user: dict):
         )
         choice = user_input("Please choose an option: ")
 
-        if choice == "2":
-            clear_terminal_with_title()  # Title for delete user option
-            print("We are going to DELETE a user")
-            user_id = user_input("Please enter the ID of the user you want to delete: ")
-            victim = db.getUserFromId(user_id)
-
-            if victim is None:
-                status = "User not found..."
-                continue
-
-            try:
-                if user["level"] > victim["level"]:
-                    db.delete_user(user_id)
-                    status = "User has been deleted."
-                    db.log(
-                        user["username"],
-                        "User has been deleted",
-                        f"User was of level: {victim['level']}",
-                        False,
-                    )
-                    continue
-                else:
-                    status = "You do not have permission to delete this user."
-            except KeyError as e:
-                status = f"Key error occurred: {e}. Please ensure that 'level' exists in the user dictionary."
-            except Exception as e:
-                status = f"An unexpected error occurred: {e}"
-            continue
-
         if choice == "1":
-            clear_terminal_with_title()  # Title for edit user option
+            clear_terminal_with_title()
             user_id = user_input(
                 "Please input the ID of the user you'd like to edit (or press [0] to quit): "
             )
             if user_id.lower() == "0":
                 return
 
-            victim = db.getUserFromId(user_id)
+            victim = db.getAccountFromId(user_id)
             if victim is None:
                 status = "This ID does not exist, please enter a valid one."
                 continue
@@ -64,12 +35,12 @@ def edit_user(db: Connection, user: dict):
             confirmation = user_input(
                 "Is this the user you want to edit? Please input yes or no: "
             )
-            if confirmation[0].lower() != "y":
+            if confirmation[0].lower() not in ["y", "yes"]:
                 continue
 
             keys = victim.keys()
             try:
-                if user["level"] > victim["level"]:
+                if user["level"] > victim.get("level", -1):
                     while True:
                         chosen_field = user_input("What field would you like to edit? ")
                         if chosen_field in keys and chosen_field != "hashed_pass":
@@ -99,6 +70,35 @@ def edit_user(db: Connection, user: dict):
                 status = f"Key error occurred: {e}. Please ensure that 'level' exists in the user dictionary."
             except Exception as e:
                 status = f"An unexpected error occurred: {e}"
+
+        if choice == "2":
+            clear_terminal_with_title()
+            print("We are going to DELETE a user")
+            user_id = user_input("Please enter the ID of the user you want to delete: ")
+            victim = db.getAccountFromId(user_id)
+
+            if victim is None:
+                status = "User not found..."
+                continue
+
+            try:
+                if user["level"] > victim["level"]:
+                    db.delete_user(user_id)
+                    status = "User has been deleted."
+                    db.log(
+                        user["username"],
+                        "User has been deleted",
+                        f"User was of level: {victim['level']}",
+                        False,
+                    )
+                    continue
+                else:
+                    status = "You do not have permission to delete this user."
+            except KeyError as e:
+                status = f"Key error occurred: {e}. Please ensure that 'level' exists in the user dictionary."
+            except Exception as e:
+                status = f"An unexpected error occurred: {e}"
+            continue
 
         if choice == "0":
             return

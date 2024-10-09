@@ -261,7 +261,7 @@ class Connection:
             return self._user_dict_from_tuple(user)
         return None
 
-    def getUserFromId(self, id: str) -> dict | None:
+    def getAccountFromId(self, id: str) -> dict | None:
         cursor = self.db.cursor()
 
         # Query to get the user by their ID
@@ -274,14 +274,29 @@ class Connection:
         cursor.execute(get_user_query, (id,))
         user = cursor.fetchone()
         if user is None:
-            return None
+            # Query to get the user by their ID
+            get_member_query = """
+                SELECT *
+                FROM MEMBERS
+                WHERE id = ?
+            """
+
+            cursor.execute(get_member_query, (id,))
+
+            member = cursor.fetchone()
+            if member is None:
+                return None
+
+            return self._member_dict_from_tuple(member)
         return self._user_dict_from_tuple(user)
 
     def updateAcount(self, updatedAcount: dict):
         cursor = self.db.cursor()
 
         values = tuple(
-            updatedAcount[key] for key in updatedAcount.keys() if key not in ["id", "type"]
+            updatedAcount[key]
+            for key in updatedAcount.keys()
+            if key not in ["id", "type"]
         )
         values += (updatedAcount["id"],)
         set_clause = ", ".join(
