@@ -1,12 +1,11 @@
 from datetime import date
 import datetime
-from enum import IntEnum
 import random
 from Crypto.Hash import SHA256
 from cryptography.fernet import Fernet
 import string
 import os
-import pyfiglet
+import pyfiglet # type: ignore
 
 
 class Level:

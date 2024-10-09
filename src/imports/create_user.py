@@ -8,6 +8,7 @@ from imports.helper_functions import (
     Level,
     clear_terminal_with_title,
     create_member_tuple,
+    create_user_tuple,
     generate_id,
     hash_password,
     user_input,
@@ -43,7 +44,7 @@ def choose_city():
             print("Invalid input. Please enter a number.")
 
 
-def create_new_member(db: Connection, user: dict):
+def create_new_user(db: Connection, user: dict):
     # clear_terminal_with_title()
     Validator = User_Info_Validator
     while True:
@@ -144,22 +145,13 @@ def create_new_member(db: Connection, user: dict):
             if membership_id:
                 break
         db.addUser(
-            create_member_tuple(
+            create_user_tuple(
                 generate_id(),
-                level,
                 f_name,
                 l_name,
-                age,
-                gender,
-                weight,
-                street,
-                house_number,
-                zip,
-                city,
-                email,
-                phone,
-                datetime.now(),
+                int(level),
                 username,
+                datetime.now(),
                 hashed_pass,
             )
         )

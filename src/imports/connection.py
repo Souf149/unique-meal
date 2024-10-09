@@ -313,10 +313,21 @@ class Connection:
         cursor = self.db.cursor()
         cursor.execute(
             """
-            INSERT INTO USERS (id, level, f_name, l_name, age, gender, weight, street, house_number, zip, city, email, phone, registration_date, username, hashed_pass)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO USERS (id, f_name, l_name, level, username, registration_date, hashed_pass)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
             user,
+        )
+        self.db.commit()
+
+    def addMember(self, member: tuple):
+        cursor = self.db.cursor()
+        cursor.execute(
+            """
+            INSERT INTO MEMBERS (id, f_name, l_name, age, gender, weight, street, house_number, zip, city, email, phone, registration_date, username, hashed_pass)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            member,
         )
         self.db.commit()
 

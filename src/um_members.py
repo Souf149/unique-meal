@@ -46,7 +46,7 @@ try:
 
         # SUCCESFUL LOGIN
         print(f"Logged in with the id: {user['id']}")
-        clear_terminal_with_title()
+
         while True:
             clear_terminal_with_title()
 
@@ -102,7 +102,7 @@ try:
                 if option == "1":
                     change_password.change_my_password(db, user)
                 elif option == "2":
-                    create_user.create_new_member(db, user)
+                    create_user.create_new_user(db, user)
                 elif option == "3":
                     edit_user.edit_user(db, user)
                 elif option == "4":
@@ -122,7 +122,7 @@ try:
                 elif option == "2":
                     list_users.list_users(db, user)  # Clean gemaakt
                 elif option == "3":
-                    create_user.create_new_member(db, user)  # Create consultant
+                    create_user.create_new_user(db, user)  # Create consultant
                 elif option == "4":
                     edit_user.edit_user(db, user)  # Modify consultant
                 elif option == "5":
@@ -132,7 +132,7 @@ try:
                         db
                     )  # Reset consultant's password
                 elif option == "7":
-                    create_user.create_new_member(db, user)  # Add new member
+                    create_user.create_new_user(db, user)  # Add new member
                 elif option == "8":
                     edit_user.edit_user(db, user)  # Modify member
                 elif option == "9":
@@ -144,7 +144,7 @@ try:
                 elif (
                     option == "12" and user["level"] == 4
                 ):  # Only Super Admin can add a new admin
-                    create_user.create_new_member(db, user)
+                    create_user.create_new_user(db, user)
                 elif option == "13" and user["level"] == 4:  # Admin-specific
                     edit_user.edit_user(db, user)
                 elif option == "14" and user["level"] == 4:  # Admin-specific

@@ -1,7 +1,5 @@
 from builtins import input
 import re
-import os
-import pyfiglet
 
 
 def check_password(password: str) -> bool:
@@ -82,5 +80,3 @@ def validate_number(prompt: str):
             return True
         except ValueError:
             return False
-
-

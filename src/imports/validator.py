@@ -112,8 +112,6 @@ class User_Info_Validator:
             print("Level is out of range.")
             return False
 
-        return False
-
     @staticmethod
     def validate_name(name: str) -> bool:
         if not isinstance(name, str):
