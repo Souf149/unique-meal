@@ -21,12 +21,18 @@ class PersonType:
     MEMBER = "member"
 
 
-def clear_terminal_with_title(title="UNIQUE MEAL"):
+def clear_terminal_with_title():
     os.system(
         "cls" if os.name == "nt" else "clear"
-    )  # Clear terminal for Windows or Unix
-    big_title = pyfiglet.figlet_format(title, font="slant")  # Use a specific font
-    print(big_title)  # Print the title
+    )  
+    art = r"""
+   __  ___   __________  __  ________   __  ____________    __
+  / / / / | / /  _/ __ \/ / / / ____/  /  |/  / ____/   |  / /
+ / / / /  |/ // // / / / / / / __/    / /|_/ / __/ / /| | / /
+/ /_/ / /|  // // /_/ / /_/ / /___   / /  / / /___/ ___ |/ /___
+\____/_/ |_/___/\___\_\____/_____/  /_/  /_/_____/_/  |_/_____/
+    """
+    print(art)
 
 
 def generate_password():
