@@ -446,7 +446,13 @@ class Connection:
         return list(map(create_member_dict, tuples))
 
     def _encrypt_tuple(self, tup: tuple) -> tuple:
-        return ("",)
+        new_list: list = []
+        for value in tup:
+            if type(value) is str:
+                new_list.append(value)
+            else:
+                new_list.append(value)
+        return tuple(new_list)
 
     def _decrypt_tuple(self, tup: tuple) -> tuple:
         return ("",)
