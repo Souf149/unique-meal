@@ -1,10 +1,12 @@
 from time import sleep
 from imports.connection import Connection
-from imports.helper_functions import clear_terminal_with_title, user_input
+from imports.helper_functions import clear_terminal_with_title, generate_password, hash_password, user_input
 from tools.tools import print_user_without_pass
 from tools.validators import is_valid
-
-
+from functionalities import create_account
+from imports.validator import User_Info_Validator
+import time
+from imports.helper_functions import Level, PersonType
 def edit_account(db: Connection, user: dict):
     status = ""
     while True:
@@ -26,6 +28,7 @@ def edit_account(db: Connection, user: dict):
                 return
 
             victim = db.getAccountFromId(user_id)
+            print(f"f{victim}")
             if victim is None:
                 status = "This ID does not exist, please enter a valid one."
                 continue
@@ -40,17 +43,104 @@ def edit_account(db: Connection, user: dict):
             keys = victim.keys()
             try:
                 if user["level"] > victim.get("level", -1):
+                    status = ""
                     while True:
+                        if (status):
+                            print(status)
                         chosen_field = user_input("What field would you like to edit? ")
                         if chosen_field in keys and chosen_field != "hashed_pass":
+                            
                             break
-                        status = "Please choose a valid field."
+                        else:
+                            status = "Please choose a valid field."
+                            continue
+                    
+                    new_value = user_input("What would you like this field to become? ")
+                    correctvalue = False
 
                     while True:
-                        new_value = user_input(
-                            "What would you like this field to become? "
-                        )
-                        if is_valid(chosen_field, new_value):
+
+                        if chosen_field == "l_name":
+                            status = "You've chosen for the value: last name"
+                            correctvalue = User_Info_Validator.validate_name(new_value)
+
+                        elif chosen_field == "age" and victim["type"] == PersonType.MEMBER:
+                            status = "You've chosen for the value: age"
+                            correctvalue = User_Info_Validator.validate_age(new_value)
+
+                        elif chosen_field == "gender" and victim["type"] == PersonType.MEMBER:
+                            status = "You've chosen for the value: gender"
+                            correctvalue = User_Info_Validator.validate_gender(new_value)
+
+                        elif chosen_field == "weight" and victim["type"] == PersonType.MEMBER:
+                            status = "You've chosen for the value: weight"
+                            correctvalue = User_Info_Validator.validate_weight(new_value)
+
+                        elif chosen_field == "street" and victim["type"] == PersonType.MEMBER:
+                            status = "You've chosen for the value: street"
+                            correctvalue = User_Info_Validator.validate_street_name(new_value)
+
+                        elif chosen_field == "house_number" and victim["type"] == PersonType.MEMBER:
+                            status = "You've chosen for the value: house number"
+                            correctvalue = User_Info_Validator.validate_housenumber(new_value)
+
+                        elif chosen_field == "zip" and victim["type"] == PersonType.MEMBER:
+                            status = "You've chosen for the value: zip"
+                            correctvalue = User_Info_Validator.validate_zip(new_value)
+                            
+                        elif chosen_field == "city" and victim["type"] == PersonType.MEMBER:
+                            status = "You've chosen for the value: city"
+                            correctvalue = create_account.choose_city()
+
+                        elif chosen_field == "email" and victim["type"] == PersonType.MEMBER:
+                            status = "You've chosen for the value: email"
+                            correctvalue = User_Info_Validator.validate_housenumber(new_value)
+
+                        elif chosen_field == "phone" and victim["type"] == PersonType.MEMBER:
+                            status = "You've chosen for the value: phone"
+                            correctvalue = User_Info_Validator.validate_phone(new_value)
+
+                        elif chosen_field == "registration_date" and victim["type"] == PersonType.MEMBER:
+                            status = "You've chosen for the value: registration_date"
+                            
+                        elif chosen_field == "id" and victim["type"] == PersonType.MEMBER:
+                            correctvalue = User_Info_Validator.validate_id(new_value)
+                            status = "You've chosen for the value: ID"
+                            
+                        elif chosen_field == "f_name":
+                            status = "You've chosen for the value: first name"
+                            correctvalue = User_Info_Validator.validate_name(new_value)
+                        elif chosen_field == "username":
+                            status = "You've chosen for the value: username"
+                            correctvalue = User_Info_Validator.validate_housenumber(new_value)
+
+                        elif chosen_field == "level" and user["level"] >= Level.SYSTEM_ADMINISTRATOR:
+                            while True:
+                                print("You've chosen for the value: level")
+                                options = " ".join(map( lambda x: f"[{str(x)}] {Level.NAMES[x]}",range(1, user["level"] + 1),))
+                                
+                                if (new_value == "1" or new_value == "2"):
+                                    correctvalue = User_Info_Validator.validate_level(new_value)
+                                    break
+                                elif (new_value == "3" and user["level"] == Level.SUPER_ADMINISTRATOR):
+                                    correctvalue = User_Info_Validator.validate_level(new_value)
+                                    break
+                                else:
+                                    print("Incorrect option! ")
+                                    new_value = user_input("Try again! You can only create users of level: {options} and lower!") 
+                                    continue
+                        else:
+                            status = "Incorrect input"
+                            time.sleep(2)
+                            
+                            return 
+
+                        if not correctvalue:
+                            status = "That is not a valid input, please try again."
+                            time.sleep(2)
+                            
+                            return  
+                        if (correctvalue):
                             victim[chosen_field] = new_value
                             db.updateAcount(victim)
                             db.log(
@@ -60,11 +150,19 @@ def edit_account(db: Connection, user: dict):
                                 False,
                             )
                             status = "Field has been updated!"
-                            sleep(1)
-                            break
-                        status = "That is not a valid input, please try again."
+                            time.sleep(10)
+                            return  # Exit after updating the field
+                        else:
+                            status = "That is not a valid input, please try again."
+                            print("1111133333111")
+                            time.sleep(55)
+                            
+                            return  
+            
+
                 else:
                     status = f"You can only change info of users with levels: {user['level']} and lower!"
+                    break
             except KeyError as e:
                 status = f"Key error occurred: {e}. Please ensure that 'level' exists in the user dictionary."
             except Exception as e:
@@ -107,4 +205,43 @@ def edit_account(db: Connection, user: dict):
 
 
 def reset_account_password(db: Connection, user: dict):
-    raise NotImplementedError(reset_account_password.__name__)
+    message = ""
+    while True:
+        clear_terminal_with_title()
+        if (message):
+            print(message)
+        users = db.getAllUsersAndMembersFromLevelAndLower(user["level"])
+        if not users:
+            print("No users available.\n")
+            time.sleep(2)
+            break
+
+        for i, _user in enumerate(users):
+            print(
+                f"{i + 1}). {_user['type']}\t{_user['id']}\t{_user['username']}"
+            )
+        userinputid = user_input("Type [0] to go back to the main menu.\nType the ID of the user you want reset the password of.")
+        if not (User_Info_Validator.validate_id(userinputid)):
+            message = "Incorrect ID, user has not been found!"
+            continue
+        founduser = db.getAccountFromId(userinputid)
+        if (founduser == "0"):
+            break
+
+        if not (founduser):
+            message = "User has not been found! Try again"
+            continue
+
+        if (founduser in users and founduser):
+                if (founduser["level"] <= user["level"]):
+                    new_pass = generate_password()
+                    founduser['hashed_pass'] = hash_password(new_pass)
+                    db.updateAcount(founduser)
+                    print(f"The new password for this user is {new_pass}")
+                    time.sleep(5)
+                    break
+                options = " ".join(map(lambda x: f"[{str(x)}] {Level.NAMES[x]}",range(1, user["level"] + 1),))
+                message = f"You can only reset the passwords of level:{options}"
+                continue
+        
+        message ="Incorrect ID, user has not been found!"

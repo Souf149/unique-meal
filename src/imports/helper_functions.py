@@ -6,7 +6,6 @@ from Crypto.Hash import SHA256
 from cryptography.fernet import Fernet
 import string
 import os
-import pyfiglet  # type: ignore
 
 
 class Level:

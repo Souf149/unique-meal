@@ -93,10 +93,9 @@ def create_new_user(db: Connection, user: dict):
                     range(1, user["level"] + 1),
                 )
             )
-            level = user_input(
-                f"What level should this user have access to?. Important: You can only make users of levels: {options}"
-            )
+            level = user_input(f"What level should this user have access to?. Important: You can only make users of levels: {options} and lower")
             if Validator.validate_level(level) and int(level) <= user["level"]:
+                message = ""
                 break
             else:
                 message = "Incorrect level! Following the instructions of the user levels you can make"
