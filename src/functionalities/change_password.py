@@ -6,13 +6,12 @@ from imports.helper_functions import (
 from time import sleep
 from imports.connection import Connection
 from imports.validator import User_Info_Validator
-import os
 
 
 def change_my_password(db: Connection, user: dict):
     status = ""
     while True:
-        clear_terminal_with_title("UNIQUE MEAL")
+        clear_terminal_with_title()
         if status:
             print(status)
 
@@ -30,7 +29,7 @@ def change_my_password(db: Connection, user: dict):
             # Validate password
             if User_Info_Validator.validate_password(new_pass):
                 user["hashed_pass"] = hash_password(new_pass)
-                db.updateUser(user)
+                db.updateAcount(user)
                 print("Password changed successfully!")
                 sleep(1)
                 db.log(

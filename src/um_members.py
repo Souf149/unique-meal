@@ -8,7 +8,11 @@ from imports.helper_functions import (
     user_input,
 )
 from imports.connection import Connection
-from functionalities import backup, change_password, edit_user, list_users, see_logs
+from functionalities.backup import backup
+from functionalities.change_password import change_my_password
+from functionalities.edit_user import edit_user
+from functionalities.list_users import list_users
+from functionalities.see_logs import see_logs
 from imports import create_user
 
 DEBUG = True
@@ -51,14 +55,54 @@ try:
             clear_terminal_with_title()
 
             print(f"Welcome {user['username']}!")
-            print(f"Level: {user['level']}!")
+            print(f"Level: {Level.NAMES[user['level']]}!")
 
-            # Display options based on user level
-            if user["type"] == PersonType.MEMBER:  # Member
-                print("As a Member, you have no actions available.")
-                print('Press "Q" to log out.')
+            if user["level"] >= Level.CONSULTANT:
+                print("Choose a number to select what you want to do:")
+                print("1).\tChange my password")
+                print("2).\tAdd a new member")
+                print("3).\tModify/update member information")
+                print("4).\tSearch/retrieve member information")
 
-            elif user["level"] == Level.CONSULTANT:  # Consultant
+            if user["level"] in [
+                Level.SYSTEM_ADMINISTRATOR,
+                Level.SUPER_ADMINISTRATOR,
+            ]:
+                print("5).\tDelete an existing account")
+                print("6).\tReset an existing consultant's password")
+                print("7).\tAdd a new member")
+                print("8).\tModify/update member information")
+                print("9).\tSearch/retrieve member information")
+                print("10).\tMake/Delete a backup of the system")
+                print("11).\tSee logs")
+
+            if user["level"] == Level.SUPER_ADMINISTRATOR:
+                print("12).\tDefine and add a new admin")
+                print("13).\tModify/update an existing admin's account")
+                print("14).\tDelete an existing admin's account")
+                print("15).\tReset an existing admin's password")
+
+            option = user_input('Select an action or press "Q" to log out: ').lower()
+
+            if option == "q":
+                print("Logging out")
+                clear_terminal_with_title()  # Clear the screen on logout
+                break
+
+            if user["level"] >= Level.CONSULTANT:
+                change_my_password(db, user)
+            if user["level"] in [
+                Level.SYSTEM_ADMINISTRATOR,
+                Level.SUPER_ADMINISTRATOR,
+            ]:
+                pass
+            if user["level"] == Level.SUPER_ADMINISTRATOR:
+                pass
+
+        while True:
+            clear_terminal_with_title()
+
+            if user["level"] == Level.CONSULTANT:  # Consultant
                 print("Choose a number to select what you want to do:")
                 print("1).\tChange my password")
                 print("2).\tAdd a new member")
@@ -67,7 +111,7 @@ try:
                 print('Press "Q" to log out.')
 
             elif user["level"] in [
-                Level.SYSTEM_ADMINISTRATORS,
+                Level.SYSTEM_ADMINISTRATOR,
                 Level.SUPER_ADMINISTRATOR,
             ]:  # Admin or Super Admin
                 print("Choose a number to select what you want to do:")
@@ -114,7 +158,7 @@ try:
                     continue
 
             elif user["level"] in [
-                Level.SYSTEM_ADMINISTRATORS,
+                Level.SYSTEM_ADMINISTRATOR,
                 Level.SUPER_ADMINISTRATOR,
             ]:  # Admin or Super Admin
                 if option == "1":

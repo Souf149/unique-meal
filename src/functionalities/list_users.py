@@ -10,7 +10,7 @@ def list_users(db: Connection, user: dict):
     status = ""
 
     while True:
-        clear_terminal_with_title("UNIQUE MEAL")
+        clear_terminal_with_title()
 
         if status:
             print(status)
@@ -22,7 +22,7 @@ def list_users(db: Connection, user: dict):
 
         if choice == "1":
             while True:
-                clear_terminal_with_title("UNIQUE MEAL")
+                clear_terminal_with_title()
                 if status:
                     print(status)
                 print("LOOKING FOR USER...")
@@ -39,7 +39,7 @@ def list_users(db: Connection, user: dict):
                     else:
                         continue
 
-                clear_terminal_with_title("UNIQUE MEAL")
+                clear_terminal_with_title()
                 print("These users have been found: ")
                 for i, _user in enumerate(users):
                     print(f"{i + 1}). {_user['id']} {_user['username']}")
@@ -53,7 +53,7 @@ def list_users(db: Connection, user: dict):
                         if option.isdigit() and 1 <= int(option) <= len(users):
                             try:
                                 choose = users[int(option) - 1]
-                                clear_terminal_with_title("UNIQUE MEAL")
+                                clear_terminal_with_title()
                                 print_user_without_pass(choose)
 
                                 choice = user_input(
@@ -81,7 +81,7 @@ def list_users(db: Connection, user: dict):
 
         elif choice == "2":
             while True:
-                clear_terminal_with_title("UNIQUE MEAL")
+                clear_terminal_with_title()
                 if status:
                     print(status)
 
@@ -103,7 +103,7 @@ def list_users(db: Connection, user: dict):
 
                 if option.isdigit() and 1 <= int(option) <= len(users):
                     chosen_user: dict = users[int(option) - 1]
-                    clear_terminal_with_title("UNIQUE MEAL")
+                    clear_terminal_with_title()
                     print_user_without_pass(chosen_user)
 
                     choice = user_input(

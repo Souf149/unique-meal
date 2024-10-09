@@ -9,7 +9,7 @@ from tools.validators import is_valid
 def edit_user(db: Connection, user: dict):
     status = ""  # Initialize status message
     while True:
-        clear_terminal_with_title("UNIQUE MEAL")  # Title for the main menu
+        clear_terminal_with_title()  # Title for the main menu
         if status:
             print(status)
 
@@ -19,7 +19,7 @@ def edit_user(db: Connection, user: dict):
         choice = user_input("Please choose an option: ")
 
         if choice == "2":
-            clear_terminal_with_title("UNIQUE MEAL")  # Title for delete user option
+            clear_terminal_with_title()  # Title for delete user option
             print("We are going to DELETE a user")
             user_id = user_input("Please enter the ID of the user you want to delete: ")
             victim = db.getUserFromId(user_id)
@@ -48,7 +48,7 @@ def edit_user(db: Connection, user: dict):
             continue
 
         if choice == "1":
-            clear_terminal_with_title("UNIQUE MEAL")  # Title for edit user option
+            clear_terminal_with_title()  # Title for edit user option
             user_id = user_input(
                 "Please input the ID of the user you'd like to edit (or press [0] to quit): "
             )
@@ -82,7 +82,7 @@ def edit_user(db: Connection, user: dict):
                         )
                         if is_valid(chosen_field, new_value):
                             victim[chosen_field] = new_value
-                            db.updateUser(victim)
+                            db.updateAcount(victim)
                             db.log(
                                 user["username"],
                                 "Updated user in database",

@@ -8,6 +8,7 @@ from pathlib import Path
 
 from .helper_functions import (
     Level,
+    PersonType,
     create_member_dict,
     create_member_tuple,
     create_user_dict,
@@ -74,7 +75,7 @@ class Connection:
                 "2400000001",
                 "rdc",
                 "def",
-                Level.SYSTEM_ADMINISTRATORS,
+                Level.SYSTEM_ADMINISTRATOR,
                 "cecilus",
                 datetime.now(),
                 hash_password("Lol123."),
@@ -83,7 +84,7 @@ class Connection:
                 "2400000002",
                 "teacher",
                 "INF",
-                Level.SYSTEM_ADMINISTRATORS,
+                Level.SYSTEM_ADMINISTRATOR,
                 "souf149",
                 datetime.now(),
                 hash_password("a"),
@@ -276,20 +277,26 @@ class Connection:
             return None
         return self._user_dict_from_tuple(user)
 
-    def updateUser(self, updatedUser: dict):
+    def updateAcount(self, updatedAcount: dict):
         cursor = self.db.cursor()
 
-        values = tuple(updatedUser[key] for key in updatedUser.keys() if key != "id")
-        values += (updatedUser["id"],)
-        set_clause = ", ".join(
-            [f"{key} = ?" for key in updatedUser.keys() if key != "id"]
+        values = tuple(
+            updatedAcount[key] for key in updatedAcount.keys() if key not in ["id", "type"]
         )
+        values += (updatedAcount["id"],)
+        set_clause = ", ".join(
+            [f"{key} = ?" for key in updatedAcount.keys() if key not in ["id", "type"]]
+        )
+
+        table = "USERS" if updatedAcount["type"] == PersonType.USER else "MEMBERS"
+
         update_query = f"""
-            UPDATE USERS
+            UPDATE {table}
             SET {set_clause}
             WHERE id = ?
         """
-
+        print(update_query)
+        print(updatedAcount)
         cursor.execute(update_query, tuple(values))
         self.db.commit()
 

@@ -5,13 +5,15 @@ from Crypto.Hash import SHA256
 from cryptography.fernet import Fernet
 import string
 import os
-import pyfiglet # type: ignore
+import pyfiglet  # type: ignore
 
 
 class Level:
     SUPER_ADMINISTRATOR = 3
-    SYSTEM_ADMINISTRATORS = 2
+    SYSTEM_ADMINISTRATOR = 2
     CONSULTANT = 1
+
+    NAMES = {3: "super_administrator", 2: "system_administrator", 1: "consultant"}
 
 
 class PersonType:
