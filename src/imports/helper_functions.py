@@ -55,7 +55,7 @@ def user_input(prompt: str = "") -> str:
     res = ""
     while res == "":
         res = input(prompt + "\n")
-    return str(res)
+    return str(res).rstrip()
 
 
 def filter_accounts(accounts: list[dict], term: str) -> list[dict]:
