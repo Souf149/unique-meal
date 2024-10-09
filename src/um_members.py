@@ -1,19 +1,17 @@
 import traceback
-from time import sleep
 
 from imports.helper_functions import (
     Level,
-    PersonType,
     clear_terminal_with_title,
     user_input,
 )
 from imports.connection import Connection
 from functionalities.backup import backup
 from functionalities.change_password import change_my_password
-from functionalities.edit_user import edit_account
+from functionalities.edit_user import edit_account, reset_account_password
 from functionalities.list_users import list_users
 from functionalities.see_logs import see_logs
-from functionalities.create_account import create_new_member, create_new_user
+from functionalities.create_account import create_new_member
 
 DEBUG = True
 
@@ -67,7 +65,7 @@ try:
                 Level.SYSTEM_ADMINISTRATOR,
                 Level.SUPER_ADMINISTRATOR,
             ]:
-                print("5).\tReset an existing consultant's password")
+                print("5).\tReset an existing account's password")
                 print("6).\tMake/Delete a backup of the system")
                 print("7).\tSee logs")
 
@@ -92,7 +90,7 @@ try:
                 Level.SUPER_ADMINISTRATOR,
             ]:
                 if option == "5":
-                    reset_consultant_password(db)
+                    reset_account_password(db, user)
                 if option == "6":
                     backup(db)
                 if option == "7":

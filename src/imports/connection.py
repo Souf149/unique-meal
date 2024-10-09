@@ -1,10 +1,8 @@
 from datetime import date, datetime
-from enum import IntEnum
 import sqlite3
 import zipfile
 import os
 from cryptography.fernet import Fernet
-from pathlib import Path
 
 from .helper_functions import (
     Level,

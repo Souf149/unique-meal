@@ -1,11 +1,9 @@
-import re
 from time import sleep
 from imports.connection import Connection
 
 from datetime import datetime
 from imports.validator import User_Info_Validator
 from imports.helper_functions import (
-    Level,
     clear_terminal_with_title,
     create_member_tuple,
     create_user_tuple,
@@ -13,7 +11,6 @@ from imports.helper_functions import (
     hash_password,
     user_input,
 )
-import os
 
 
 def choose_city():

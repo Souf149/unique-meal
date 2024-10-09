@@ -1,4 +1,3 @@
-import os
 from time import sleep
 from imports.connection import Connection
 from imports.helper_functions import clear_terminal_with_title, user_input
@@ -105,3 +104,7 @@ def edit_account(db: Connection, user: dict):
 
         else:
             status = "Invalid option. Please choose option [0], [1], or [2]."
+
+
+def reset_account_password(db: Connection, user: dict):
+    raise NotImplementedError(reset_account_password.__name__)

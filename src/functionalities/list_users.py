@@ -1,5 +1,9 @@
 from imports.connection import Connection
-from imports.helper_functions import clear_terminal_with_title, user_input
+from imports.helper_functions import (
+    clear_terminal_with_title,
+    filter_accounts,
+    user_input,
+)
 from tools.tools import (
     print_user_without_pass,
 )
@@ -27,9 +31,9 @@ def list_users(db: Connection, user: dict):
                     print(status)
                 print("LOOKING FOR USER...")
                 term = user_input("Input text that we will look for: ")
-                users = db.searchForUsersAndMembersByTerm(term)
+                filtered_users = filter_accounts(users, term)
 
-                if len(users) == 0:
+                if len(filtered_users) == 0:
                     print("No users found.\n")
                     choice = user_input(
                         "Press [0] to return to the main menu, or any other key to try again: "
@@ -41,7 +45,7 @@ def list_users(db: Connection, user: dict):
 
                 clear_terminal_with_title()
                 print("These users have been found: ")
-                for i, _user in enumerate(users):
+                for i, _user in enumerate(filtered_users):
                     print(f"{i + 1}). {_user['id']} {_user['username']}")
 
                 option = user_input(

@@ -31,5 +31,5 @@ def is_valid(key: str, value: Any):
 
         return True
 
-    except:
+    except Exception:
         return False

@@ -1,8 +1,6 @@
 from datetime import date
 import datetime
 import re
-import uuid
-import random
 
 
 class User_Info_Validator:

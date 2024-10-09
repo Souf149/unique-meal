@@ -58,6 +58,12 @@ def user_input(prompt: str = "") -> str:
     return str(res)
 
 
+def filter_accounts(users: list[dict], term: str) -> list[dict]:
+    found_accounts: list[dict] = []
+
+    return found_accounts
+
+
 def create_member_tuple(
     id: str,
     f_name: str,
