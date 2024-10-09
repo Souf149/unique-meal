@@ -4,6 +4,7 @@ from imports.connection import Connection
 from datetime import datetime
 from imports.validator import User_Info_Validator
 from imports.helper_functions import (
+    Level,
     clear_terminal_with_title,
     create_member_tuple,
     create_user_tuple,
@@ -15,16 +16,16 @@ from imports.helper_functions import (
 
 def choose_city():
     city_list = [
-        "Amsterdam",
-        "Rotterdam",
-        "Utrecht",
-        "The Hague",
-        "Eindhoven",
-        "Groningen",
-        "Maastricht",
-        "Leiden",
-        "Tilburg",
-        "Almere",
+        "amsterdam",
+        "rotterdam",
+        "utrecht",
+        "breda",
+        "eindhoven",
+        "groningen",
+        "maastricht",
+        "leiden",
+        "tilburg",
+        "almere",
     ]
     print("Please choose a city from the list below by entering the number next to it:")
     for i, city in enumerate(city_list, 1):
@@ -68,9 +69,9 @@ def create_new_user(db: Connection, user: dict):
 
         while True:
             level = user_input(
-                f"What level should this user have access to?. Important: You can only make users of level: {user['level']}"
+                f"What level should this user have access to?. Important: You can only make users of level: {Level.NAMES[user['level']]}"
             )
-            if Validator.validate_level(level, user):
+            if Validator.validate_level(level) and level <= user["level"]:
                 break
 
         while True:

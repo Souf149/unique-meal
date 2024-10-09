@@ -11,7 +11,7 @@ from functionalities.change_password import change_my_password
 from functionalities.edit_user import edit_account, reset_account_password
 from functionalities.list_users import list_users
 from functionalities.see_logs import see_logs
-from functionalities.create_account import create_new_member
+from functionalities.create_account import create_new_member, create_new_user
 
 DEBUG = True
 
@@ -90,11 +90,13 @@ try:
                 Level.SUPER_ADMINISTRATOR,
             ]:
                 if option == "5":
-                    reset_account_password(db, user)
+                    create_new_user(db, user)
                 if option == "6":
                     backup(db)
                 if option == "7":
                     see_logs(db)
+                if option == "8":
+                    reset_account_password(db, user)
 
             db.db.commit()
 
