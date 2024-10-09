@@ -22,14 +22,17 @@ class PersonType:
     MEMBER = "member"
 
 
-def clear_terminal_with_title(title="UNIQUE MEAL"):
-    os.system(
-        "cls" if os.name == "nt" else "clear"
-    )  # Clear terminal for Windows or Unix
-    big_title = pyfiglet.figlet_format(title, font="slant")  # Use a specific font
-
-    for step in range(len(big_title.split("\n"))):
-        print(big_title.split("\n")[step])
+def clear_terminal_with_title():
+    os.system("cls" if os.name == "nt" else "clear")
+    art = r"""
+   __  ___   __________  __  ________   __  ____________    __
+  / / / / | / /  _/ __ \/ / / / ____/  /  |/  / ____/   |  / /
+ / / / /  |/ // // / / / / / / __/    / /|_/ / __/ / /| | / /
+/ /_/ / /|  // // /_/ / /_/ / /___   / /  / / /___/ ___ |/ /___
+\____/_/ |_/___/\___\_\____/_____/  /_/  /_/_____/_/  |_/_____/
+    """
+    for step in range(len(art.split("\n"))):
+        print(art.split("\n")[step])
         time.sleep(0.015)
 
 
