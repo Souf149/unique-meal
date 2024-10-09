@@ -454,22 +454,21 @@ class Connection:
         with zipfile.ZipFile(outpath, "w", compression=zipfile.ZIP_DEFLATED) as zf:
             zf.write(inpath, os.path.basename(inpath))
 
-
     def restore_backup(current_user, file_name):
-            # Constants
+        # Constants
         BACKUP_FOLDER = "./backups"
         DATABASE_FILE = "uniquemeal.db"  # Adjust based on your backup file naming
-        backup_file = input("Enter the name of the backup file to restore (including .zip): ")
+        backup_file = input(
+            "Enter the name of the backup file to restore (including .zip): "
+        )
 
         if Connection.has_null_byte(backup_file):
             print("Invalid backup file name. Null bytes detected.")
-            time.sleep(10)
             return
 
         # Validate backup file format
         if not Connection.validate_backup_file(backup_file):
             print("Invalid backup file name. Backup format error.")
-            time.sleep(10)
             return
 
         try:
@@ -480,7 +479,7 @@ class Connection:
             if not os.path.exists(backup_path):
                 print("Backup file not found.")
                 return
-            
+
             # Create a temporary directory for extraction
             temp_dir = "./_temprestore"
             if not os.path.exists(temp_dir):
@@ -488,28 +487,25 @@ class Connection:
                 print("Temporary directory created.")
 
             # Extract the backup zip file
-            with zipfile.ZipFile(backup_path, 'r') as zipf:
+            with zipfile.ZipFile(backup_path, "r") as zipf:
                 zipf.extract(DATABASE_FILE, temp_dir)
-            
+
             extracted_db_path = os.path.join(temp_dir, DATABASE_FILE)
             print(f"Extracted to: {extracted_db_path}")
-            time.sleep(2)
             # Step 1: Backup current database
             current_db_path = os.path.join(BACKUP_FOLDER, DATABASE_FILE)
             print(f"Extracted to: {current_db_path}")
 
             print("derde")
-            time.sleep(2)
             # backup_db_path = os.path.join(Connection.BACKUP_FOLDER, f"backup_{time.strftime('%Y%m%d_%H%M%S')}.db")
             # if os.path.exists(current_db_path):
             #     os.rename(current_db_path, backup_db_path)
             #     print(f"Current database backed up to: {backup_db_path}")
             # time.sleep(10)
             # Step 2: Restore the new database
-            #os.rename(extracted_db_path, current_db_path)
+            # os.rename(extracted_db_path, current_db_path)
 
             print("Database restored successfully.")
-            time.sleep(10)
 
             # Step 3: Connect to the restored database
             db = sqlite3.connect(current_db_path)
@@ -525,7 +521,6 @@ class Connection:
             # print("Temporary files cleaned up.")
 
             print("System backup restored successfully.")
-            time.sleep(10)
 
         except Exception as e:
             print(f"Error restoring system backup: {str(e)}")

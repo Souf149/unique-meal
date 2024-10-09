@@ -58,8 +58,14 @@ def user_input(prompt: str = "") -> str:
     return str(res)
 
 
-def filter_accounts(users: list[dict], term: str) -> list[dict]:
+def filter_accounts(accounts: list[dict], term: str) -> list[dict]:
     found_accounts: list[dict] = []
+
+    for account in accounts:
+        for key in account.keys():
+            if term in str(account[key]) and key != "hashed_pass":
+                found_accounts.append(account)
+                break
 
     return found_accounts
 

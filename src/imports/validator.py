@@ -4,7 +4,6 @@ import re
 
 
 class User_Info_Validator:
-
     @staticmethod
     def validate_id(membershipid: str) -> bool:
         digits = [int(digit) for digit in membershipid[:-1]]
@@ -282,23 +281,3 @@ class User_Info_Validator:
                 return 0 <= int(housenumber) <= 9999
 
         return False
-
-    def to_dict(self) -> dict:
-        return {
-            "id": self.id,
-            "level": self.level,
-            "f_name": self.f_name,
-            "l_name": self.l_name,
-            "age": self.age,
-            "gender": self.gender,
-            "weight": self.weight,
-            "street": self.street,
-            "house_number": self.house_number,
-            "zip": self.zip,
-            "city": self.city,
-            "email": self.email,
-            "phone": self.phone,
-            "registration_date": self.registration_date,
-            "username": self.username,
-            "hashed_pass": self.hashed_pass,
-        }
