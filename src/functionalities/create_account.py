@@ -82,7 +82,7 @@ def create_new_user(db: Connection, user: dict):
             if Validator.validate_username(username):
                 break
         while True:
-            membership_id = Validator.validate_id(generate_id())  # membershipID
+            membership_id = Validator.validate_id(generate_id())
             if membership_id:
                 break
         db.addUser(

@@ -331,6 +331,14 @@ class Connection:
 
     def addUser(self, user: tuple):
         cursor = self.db.cursor()
+
+        potential_user = self.getAccountFromId(user[0])
+        while potential_user:
+            list_user = list(user)
+            list_user[0] = generate_id()
+            user = tuple(list_user)
+            potential_user = self.getAccountFromId(user[0])
+
         cursor.execute(
             """
                 INSERT INTO USERS (id, f_name, l_name, level, username, registration_date, hashed_pass)
