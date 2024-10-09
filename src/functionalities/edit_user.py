@@ -34,7 +34,7 @@ def edit_account(db: Connection, user: dict):
             confirmation = user_input(
                 "Is this the user you want to edit? Please input yes or no: "
             )
-            if confirmation[0].lower() not in ["y", "yes"]:
+            if confirmation[0].lower() != "y":
                 continue
 
             keys = victim.keys()
@@ -65,6 +65,7 @@ def edit_account(db: Connection, user: dict):
                         status = "That is not a valid input, please try again."
                 else:
                     status = f"You can only change info of users with levels: {user['level']} and lower!"
+                    continue
             except KeyError as e:
                 status = f"Key error occurred: {e}. Please ensure that 'level' exists in the user dictionary."
             except Exception as e:

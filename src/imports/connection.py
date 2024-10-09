@@ -288,7 +288,7 @@ class Connection:
                 return None
 
             return self._member_dict_from_tuple(member)
-        return self._user_dict_from_tuple(user)
+        return self._user_dict_from_tuple(self._decrypt_user_tuple(user))
 
     def updateAcount(self, updatedAcount: dict):
         cursor = self.db.cursor()
@@ -363,15 +363,17 @@ class Connection:
 
     def getAllUsersAndMembersFromLevelAndLower(self, level: int) -> list[dict]:
         cursor = self.db.cursor()
-        cursor.execute("SELECT * FROM USERS LIMIT 50")
+        cursor.execute("SELECT * FROM USERS")
         raw_users = cursor.fetchall()
-
-        cursor.execute("SELECT * FROM MEMBERS LIMIT 50")
-        raw_members = cursor.fetchall()
-
-        return self._user_dicts_from_tuples(raw_users) + self._member_dicts_from_tuples(
-            raw_members
+        users = self._user_dicts_from_tuples(
+            self._decrypt_multiple_user_tuples(raw_users)
         )
+
+        cursor.execute("SELECT * FROM MEMBERS")
+        raw_members = cursor.fetchall()
+        members = self._member_dicts_from_tuples(raw_members)
+
+        return list(filter(lambda x: x["level"] <= level, users)) + members
 
     def searchForUsersAndMembersByTerm(self, term: str) -> list[dict]:
         cursor = self.db.cursor()
@@ -476,6 +478,9 @@ class Connection:
             tup[5],
             tup[6],
         )
+
+    def _decrypt_multiple_user_tuples(self, tuples: list[tuple]) -> list[tuple]:
+        return [self._decrypt_user_tuple(tup) for tup in tuples]
 
     def _decrypt_user_tuple(self, tup: tuple) -> tuple:
         return (

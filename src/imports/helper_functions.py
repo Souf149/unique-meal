@@ -23,7 +23,7 @@ class PersonType:
 
 
 def clear_terminal_with_title():
-    os.system("cls" if os.name == "nt" else "clear")
+    # os.system("cls" if os.name == "nt" else "clear")
     art = """
    __  ___   __________  __  ________   __  ____________    __
   / / / / | / /  _/ __ \/ / / / ____/  /  |/  / ____/   |  / /
