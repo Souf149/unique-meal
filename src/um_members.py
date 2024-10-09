@@ -2,7 +2,6 @@ import traceback
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend
 
 from imports.helper_functions import (
@@ -25,43 +24,18 @@ DEBUG = True
 with open("./key.key", "rb") as f:
     key = f.read()
 
-with open("./private.key", "rb") as f:
+with open("./private_key.pem", "rb") as private_file:
     private_key = serialization.load_pem_private_key(
-        data=f.read(),
+        private_file.read(),
+        password=key,  # Provide the password if the key is encrypted
         backend=default_backend(),
-        password=None,
     )
 
-
-with open("./public.key", "rb") as f:
+with open("./public_key.pem", "rb") as public_file:
     public_key = serialization.load_pem_public_key(
-        f.read(),
+        public_file.read(), backend=default_backend()
     )
 
-message = b"abcdef"
-
-ciphertext = public_key.encrypt(  # type: ignore
-    message,
-    padding.OAEP(
-        mgf=padding.MGF1(algorithm=hashes.SHA256()),
-        algorithm=hashes.SHA256(),
-        label=None,
-    ),
-)
-decrypted = private_key.decrypt(  # type: ignore
-    ciphertext,
-    padding.OAEP(
-        mgf=padding.MGF1(algorithm=hashes.SHA256()),
-        algorithm=hashes.SHA256(),
-        label=None,
-    ),
-)
-
-print(f"""
-        msg: {str(message)}
-        cipphertext: {str(ciphertext)}
-        decrypted: {str(decrypted)}    
-      """)
 
 clear_terminal_with_title()
 

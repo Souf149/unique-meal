@@ -77,7 +77,7 @@ def list_users(db: Connection, user: dict):
                             status = f"Not a valid option. Press any number from [1] to [{len(users)}]"
                             break
                     else:
-                        clear_terminal_with_title("UNIQUE MEMBER")
+                        clear_terminal_with_title()
                         print(
                             "Invalid input! A number is supposed to be given. Please try again."
                         )

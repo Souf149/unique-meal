@@ -3,6 +3,8 @@ import sqlite3
 import zipfile
 import os
 from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
 
 from .helper_functions import (
     Level,
@@ -51,12 +53,12 @@ class Connection:
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS USERS (
             id TEXT PRIMARY KEY,
-            f_name TEXT NOT NULL,
-            l_name TEXT NOT NULL,
+            f_name BLOB NOT NULL,
+            l_name BLOB NOT NULL,
             level INTEGER NOT NULL,
-            username TEXT NOT NULL UNIQUE,
+            username BLOB NOT NULL UNIQUE,
             registration_date DATE NOT NULL,
-            hashed_pass TEXT NOT NULL
+            hashed_pass BLOB NOT NULL
         )
         """)
 
@@ -106,7 +108,7 @@ class Connection:
                 INSERT INTO USERS (id, f_name, l_name, level, username, registration_date, hashed_pass)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
-                starter_data,
+                self._encrypt_multiple_user_tuples(starter_data),
             )
             print("Dummy data inserted into USERS table.")
         else:
@@ -247,17 +249,16 @@ class Connection:
 
         cursor = self.db.cursor()
 
-        cursor.execute(
-            """
-            SELECT * FROM USERS 
-            WHERE LOWER(username) = ? AND hashed_pass = ?
-        """,
-            (username.lower(), hashed),
-        )
+        cursor.execute("SELECT * FROM USERS")
 
-        user = cursor.fetchone()
-        if user:
-            return self._user_dict_from_tuple(user)
+        users = cursor.fetchall()
+
+        for enc_u in users:
+            user = self._user_dict_from_tuple(self._decrypt_user_tuple(enc_u))
+            if user["username"] == username and bytes(user["hashed_pass"]) == bytes(
+                hashed
+            ):
+                return user
         return None
 
     def getAccountFromId(self, id: str) -> dict | None:
@@ -445,17 +446,47 @@ class Connection:
     def _member_dicts_from_tuples(self, tuples: list[tuple]) -> list[dict]:
         return list(map(create_member_dict, tuples))
 
-    def _encrypt_tuple(self, tup: tuple) -> tuple:
-        new_list: list = []
-        for value in tup:
-            if type(value) is str:
-                new_list.append(value)
-            else:
-                new_list.append(value)
-        return tuple(new_list)
+    def _encrypt(self, data: str) -> bytes:
+        print(f"ENCRYPTING: {str(data.encode())}")
+        x = self.public_key.encrypt(
+            data.encode(),
+            padding.PKCS1v15(),
+        )
+        print(f"ENCRYPTED: {x}")
 
-    def _decrypt_tuple(self, tup: tuple) -> tuple:
-        return ("",)
+        return x
+
+    def _decrypt(self, data: bytes) -> str:
+        return self.private_key.decrypt(
+            data,
+            padding.PKCS1v15(),
+        ).decode()
+
+    def _encrypt_multiple_user_tuples(self, tuples: list[tuple]) -> list[tuple]:
+        return [self._encrypt_user_tuple(tup) for tup in tuples]
+
+    def _encrypt_user_tuple(self, tup: tuple) -> tuple:
+        print(tup)
+        return (
+            tup[0],
+            self._encrypt(tup[1]),
+            self._encrypt(tup[2]),
+            tup[3],
+            self._encrypt(tup[4]),
+            tup[5],
+            tup[6],
+        )
+
+    def _decrypt_user_tuple(self, tup: tuple) -> tuple:
+        return (
+            tup[0],
+            self._decrypt(tup[1]),
+            self._decrypt(tup[2]),
+            tup[3],
+            self._decrypt(tup[4]),
+            tup[5],
+            tup[6],
+        )
 
     def close(self):
         self.db.commit()
