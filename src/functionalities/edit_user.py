@@ -52,7 +52,7 @@ def edit_account(db: Connection, user: dict):
                         )
                         if is_valid(chosen_field, new_value):
                             victim[chosen_field] = new_value
-                            db.updateAcount(victim)
+                            db.updateAcount(victim) # SOUF REJEL
                             db.log(
                                 user["username"],
                                 "Updated user in database",

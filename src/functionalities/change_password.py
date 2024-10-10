@@ -34,7 +34,7 @@ def change_my_password(db: Connection, user: dict):
                 user["hashed_pass"] = str(hash_password(new_pass)) # Hash the new password
 
                 #user = Connection._encrypt(user["hashed_pass"])
-                db.updateAcount(user)
+                db.updateFieldOfAccount(user)
                 print("Password changed successfully!")
                 sleep(1)
                 db.log(

@@ -6,7 +6,7 @@ import shutil
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
-import cryptography 
+import cryptography
 
 from .helper_functions import (
     Level,
@@ -302,7 +302,7 @@ class Connection:
         )
         values += (updatedAcount["id"],)
         set_clause = ", ".join(
-            [f"{key} = ?" for key in updatedAcount.keys() if key not in [ "type"]]
+            [f"{key} = ?" for key in updatedAcount.keys() if key not in ["type"]]
         )
 
         table = "USERS" if updatedAcount["type"] == PersonType.USER else "MEMBERS"
@@ -314,15 +314,26 @@ class Connection:
         """
         print(update_query)
         print(updatedAcount)
-        if (table=="USERS"):
-            encrypted_user = self._encrypt_user_tuple(self._)
-
-            cursor.execute(update_query, (encrypted_user)
+        del updatedAcount["type"]
+        if table == "USERS":
+            encrypted_user = self._encrypt_user_tuple(
+                create_user_tuple(**updatedAcount)
+            )
+            print("SOUFFFFF")
+            print((encrypted_user[1:] + (encrypted_user[0],)))
+            cursor.execute(update_query, (encrypted_user + (encrypted_user[0],)))
         else:
             cursor.execute(update_query, tuple(values))
 
-            
         self.db.commit()
+
+    def updateFieldOfAccount(self, id: str, chosen_field: str, data, is_user: bool):
+        if chosen_field in ["f_name", "l_name", "username"] and is_user:
+            database_value = self._encrypt(data)
+        else:
+            database_value = data
+
+        raise NotImplementedError()
 
     def usernameExist(self, username: str):
         # Connect to SQLite database
@@ -513,11 +524,11 @@ class Connection:
             decrypted_data = db_file.read()
 
         inpath = f"./_temp/{FILE_NAME}"  # uniquemeal.db
-        inpath_check = f"./_temp" 
+        inpath_check = f"./_temp"
         outpath = "./backups/" + datetime.now().strftime("%Y-%m-%d.%H-%M-%S") + ".zip"
 
         if not os.path.exists(inpath_check):
-            os.makedirs(inpath_check) 
+            os.makedirs(inpath_check)
             print("Temporary directory created.")
             return
 
@@ -530,12 +541,11 @@ class Connection:
     def restore_backup(self, file_name):
         BACKUP_FOLDER = "./backups"
         CURRENT_DB_FOLDER = "./"
-        DATABASE_FILE = "database.db"  "./"
+        DATABASE_FILE = "database.db" "./"
         backup_file = file_name
 
         try:
             backup_path = os.path.join(BACKUP_FOLDER, backup_file)
-
 
             if not os.path.exists(backup_path):
                 print("Backup file not found.")
@@ -543,10 +553,10 @@ class Connection:
 
             temp_dir = "./_temprestore"
             if not os.path.exists(temp_dir):
-                os.makedirs(temp_dir) 
+                os.makedirs(temp_dir)
                 print("Temporary directory created.")
 
-            with zipfile.ZipFile(backup_path, 'r') as zipf:
+            with zipfile.ZipFile(backup_path, "r") as zipf:
                 zipf.extract(DATABASE_FILE, temp_dir)
 
             extracted_db_path = os.path.join(temp_dir, DATABASE_FILE)
@@ -554,8 +564,10 @@ class Connection:
 
             current_db_path = os.path.join(CURRENT_DB_FOLDER, DATABASE_FILE)
 
-            backup_current_db = os.path.join(CURRENT_DB_FOLDER, "backup_" + DATABASE_FILE)
-            shutil.copy2(current_db_path, backup_current_db) 
+            backup_current_db = os.path.join(
+                CURRENT_DB_FOLDER, "backup_" + DATABASE_FILE
+            )
+            shutil.copy2(current_db_path, backup_current_db)
             print(f"Backup of the current database created at: {backup_current_db}")
 
             shutil.copy2(extracted_db_path, current_db_path)
