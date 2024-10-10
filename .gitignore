@@ -167,3 +167,5 @@ cython_debug/
 /_temp
 /backups
 /src/database.db
+/src/.vs
+/.vs
