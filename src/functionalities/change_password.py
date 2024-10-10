@@ -1,3 +1,4 @@
+from multiprocessing import connection
 from imports.helper_functions import (
     clear_terminal_with_title,
     hash_password,
@@ -6,7 +7,6 @@ from imports.helper_functions import (
 from time import sleep
 from imports.connection import Connection
 from imports.validator import User_Info_Validator
-
 
 def change_my_password(db: Connection, user: dict):
     status = ""
@@ -27,8 +27,13 @@ def change_my_password(db: Connection, user: dict):
             )
 
             # Validate password
+
             if User_Info_Validator.validate_password(new_pass):
-                user["hashed_pass"] = hash_password(new_pass)
+
+                # Now you can use the instance to encrypt the hashed password
+                user["hashed_pass"] = str(hash_password(new_pass)) # Hash the new password
+
+                #user = Connection._encrypt(user["hashed_pass"])
                 db.updateAcount(user)
                 print("Password changed successfully!")
                 sleep(1)

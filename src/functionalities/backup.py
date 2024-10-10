@@ -3,12 +3,15 @@ from imports.connection import Connection
 from os import listdir
 from os.path import isfile, join
 import os
-
+import time
 from imports.helper_functions import clear_terminal_with_title, user_input
 
 
 def backup(db: Connection):
     abspath = os.path.abspath("./backups")
+    backup_path_check = "./backups"
+    if not os.path.exists(backup_path_check):
+            os.makedirs(backup_path_check) #Toekomstige problemen mogelijk hierdoor
     files = [f for f in listdir(abspath) if isfile(join(abspath, f))]
     while True:
         clear_terminal_with_title()

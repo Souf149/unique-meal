@@ -1,3 +1,4 @@
+from email import message
 from imports.connection import Connection
 from imports.helper_functions import (
     clear_terminal_with_title,
@@ -102,7 +103,7 @@ def list_users(db: Connection, user: dict):
                     )
 
                 option = user_input(
-                    "Choose the number of the user you'd like to view information of: "
+                    "Choose the number of the user you'd like to view information of: \nPress [0] to go back to the main menu"
                 )
 
                 if option.isdigit() and 1 <= int(option) <= len(users):
@@ -119,6 +120,12 @@ def list_users(db: Connection, user: dict):
                     else:
                         status = ""
                         continue
+                elif (option == "0"):
+                    return
                 else:
                     status = "Incorrect list number, please try again."
                     continue
+        elif (choice == "0"):
+            break
+        else:
+            message = "Incorrect choice! Please pick [0] [1] or [2]"
