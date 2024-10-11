@@ -42,7 +42,6 @@ clear_terminal_with_title()
 db = Connection(private_key, public_key)
 login_attempts = 0
 
-
 try:
     while True:
         user = None

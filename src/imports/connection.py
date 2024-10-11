@@ -320,8 +320,6 @@ class Connection:
             encrypted_user = self._encrypt_user_tuple(
                 create_user_tuple(**updatedAcount)
             )
-            print("SOUFFFFF")
-            print((encrypted_user[1:] + (encrypted_user[0],)))
             cursor.execute(update_query, (encrypted_user + (encrypted_user[0],)))
         else:
             cursor.execute(update_query, tuple(values))
@@ -370,23 +368,20 @@ class Connection:
 
     def addUser(self, user: tuple):
         cursor = self.db.cursor()
-        first_name_encrypted = self._encrypt(user[1])
-        second_name_encrypted = self._encrypt(user[2])
-        third_name_encrypted = self._encrypt(user[4])
 
-        potential_user = self.getAccountFromId(mytuple[0])
+        potential_user = self.getAccountFromId(user[0])
         while potential_user:
-            list_user = list(mytuple)
+            list_user = list(user)
             list_user[0] = generate_id()
-            mytuple = tuple(list_user)
-            potential_user = self.getAccountFromId(mytuple[0])
+            user = tuple(list_user)
+            potential_user = self.getAccountFromId(user[0])
 
         cursor.execute(
             """
                 INSERT INTO USERS (id, f_name, l_name, level, username, registration_date, hashed_pass)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
-            mytuple,
+            self._encrypt_user_tuple(user),
         )
         self.db.commit()
 
@@ -508,7 +503,6 @@ class Connection:
         return [self._encrypt_user_tuple(tup) for tup in tuples]
 
     def _encrypt_user_tuple(self, tup: tuple) -> tuple:
-        print(tup)
         return (
             tup[0],
             self._encrypt(tup[1]),
