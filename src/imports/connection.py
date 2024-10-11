@@ -140,7 +140,7 @@ class Connection:
             username TEXT NOT NULL UNIQUE,
             hashed_pass TEXT NOT NULL
         )
-        """)
+        """) 
 
         starter_data = [
             create_member_tuple(
@@ -292,7 +292,7 @@ class Connection:
             if member is None:
                 return None
 
-            return self._member_dict_from_tuple(self._decrypt_members_tuple(member)) # PUNT 1
+            return self._member_dict_from_tuple(self._decrypt_member_tuple(member)) # PUNT 1 
         return self._user_dict_from_tuple(self._decrypt_user_tuple(user))
 
     def updateAcount(self, updatedAcount: dict):
@@ -331,9 +331,9 @@ class Connection:
         cursor = self.db.cursor()
         # self, id: str, chosen_field: str, data, is_user: bool data = gewenste veld , is_user = user of niet
         if chosen_field in ["f_name", "l_name", "username"] and is_user:
+            database_value = self._encrypt(data) ###username 13, phone 11, street 6, house_number 7, zip 8, city 9,
+        elif ((not is_user) and chosen_field in ["phone", "house_number", "zip" , "city" , "street" , "username" ]) :
             database_value = self._encrypt(data)
-        else:
-            database_value = data
 
         table = "USERS" if is_user else "MEMBERS"
 
@@ -378,7 +378,7 @@ class Connection:
                 INSERT INTO USERS (id, f_name, l_name, level, username, registration_date, hashed_pass)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
-            self._encrypt_user_tuple(user),
+            self._encrypt_user_tuple(user), #TOP 1
         )
         self.db.commit()
 
@@ -389,7 +389,7 @@ class Connection:
             INSERT INTO MEMBERS (id, f_name, l_name, age, gender, weight, street, house_number, zip, city, email, phone, registration_date, username, hashed_pass)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            member,
+            self._encrypt_member_tuple(member)
         )
         self.db.commit()
 
@@ -403,8 +403,11 @@ class Connection:
 
         cursor.execute("SELECT * FROM MEMBERS")
         raw_members = cursor.fetchall()
+
         #members = self._member_dicts_from_tuples(raw_members) 
-        members = self._member_dicts_from_tuples(raw_members)
+        members = self._member_dicts_from_tuples(
+            self._decrypt_multiple_member_tuples(raw_members)
+            )
 
         return list(filter(lambda x: x["level"] <= level, users)) + members
 
@@ -547,28 +550,49 @@ class Connection:
         print("Safely exited!")
 
     def _encrypt_member_tuple(self, tup: tuple) -> tuple:
-        print(tup)
+
         return (
             tup[0],
-            self._encrypt(tup[1]),
-            self._encrypt(tup[2]),
+            tup[1], 
+            tup[2],
             tup[3],
             tup[4],
             tup[5],
-            tup[6],
-            tup[7],
-            tup[8],
-            tup[9],
+            self._encrypt(str(tup[6])),
+            self._encrypt(tup[7]),
+            self._encrypt(tup[8]),
+            self._encrypt(tup[9]),
             tup[10],
-            tup[11],
             self._encrypt(tup[11]),
-            tup[13],
+            tup[12],
+            self._encrypt(tup[13]),
             tup[14]
         )
     
     def _encrypt_multiple_member_tuples(self, tuples: list[tuple]) -> list[tuple]:
         return [self._encrypt_member_tuple(tup) for tup in tuples]
-    
+
+    def _decrypt_multiple_member_tuples(self, tuples: list[tuple]) -> list[tuple]:
+        return [self._decrypt_member_tuple(tup) for tup in tuples]
+
+    def _decrypt_member_tuple(self, tup: tuple) -> tuple:
+        return (
+            tup[0],
+            tup[1],
+            tup[2],
+            tup[3],
+            tup[4],
+            tup[5],
+            self._decrypt(tup[6]),
+            self._decrypt(tup[7]),
+            self._decrypt(tup[8]),
+            self._decrypt(tup[9]),
+            tup[10],
+            self._decrypt(tup[11]),
+            tup[12],
+            self._decrypt(tup[13]),
+            tup[14]
+        )
 
     def make_backup(self):
         with open(FILE_NAME, "rb") as db_file:
