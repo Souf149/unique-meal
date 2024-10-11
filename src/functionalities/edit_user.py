@@ -176,27 +176,3 @@ def reset_account_password(db: Connection, user: dict):
         else:
             message = "Incorrect ID! See the list"
             continue
-        # elif ()
-
-            
-        # if not (User_Info_Validator.validate_id(userinputid)):
-        #     message = "Incorrect ID, user has not been found!"
-        #     continue
-
-        # if not (founduser):
-        #     message = "User has not been found! Try again"
-        #     continue
-
-        # if (founduser in users and founduser):
-        #         if (founduser["level"] <= user["level"]):
-        #             new_pass = generate_password()
-        #             founduser['hashed_pass'] = hash_password(new_pass)
-        #             db.updateAcount(founduser)
-        #             print(f"The new password for this user is {new_pass}")
-        #             time.sleep(5)
-        #             break
-        #         options = " ".join(map(lambda x: f"[{str(x)}] {Level.NAMES[x]}",range(1, user["level"] + 1),))
-        #         message = f"You can only reset the passwords of level:{options}"
-        #         continue
-        
-        # message ="Incorrect ID, user has not been found!"

@@ -220,7 +220,7 @@ class Connection:
             INSERT INTO MEMBERS (id, f_name, l_name, age, gender, weight, street, house_number, zip, city, email, phone, registration_date, username, hashed_pass)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
-                starter_data,
+                self._encrypt_multiple_member_tuples(starter_data),
             )
             print("Dummy data inserted into MEMBERS table.")
         else:
@@ -290,7 +290,7 @@ class Connection:
             if member is None:
                 return None
 
-            return self._member_dict_from_tuple(member)
+            return self._member_dict_from_tuple(self._decrypt_members_tuple(member)) # PUNT 1
         return self._user_dict_from_tuple(self._decrypt_user_tuple(user))
 
     def updateAcount(self, updatedAcount: dict):
@@ -416,6 +416,7 @@ class Connection:
 
         cursor.execute("SELECT * FROM MEMBERS")
         raw_members = cursor.fetchall()
+        #members = self._member_dicts_from_tuples(raw_members) 
         members = self._member_dicts_from_tuples(raw_members)
 
         return list(filter(lambda x: x["level"] <= level, users)) + members
@@ -508,7 +509,7 @@ class Connection:
             data,
             padding.PKCS1v15(),
         ).decode()
-
+    
     def _encrypt_multiple_user_tuples(self, tuples: list[tuple]) -> list[tuple]:
         return [self._encrypt_user_tuple(tup) for tup in tuples]
 
@@ -543,6 +544,30 @@ class Connection:
         self.db.close()
 
         print("Safely exited!")
+
+    def _encrypt_member_tuple(self, tup: tuple) -> tuple:
+        print(tup)
+        return (
+            tup[0],
+            self._encrypt(tup[1]),
+            self._encrypt(tup[2]),
+            tup[3],
+            tup[4],
+            tup[5],
+            tup[6],
+            tup[7],
+            tup[8],
+            tup[9],
+            tup[10],
+            tup[11],
+            self._encrypt(tup[11]),
+            tup[13],
+            tup[14]
+        )
+    
+    def _encrypt_multiple_member_tuples(self, tuples: list[tuple]) -> list[tuple]:
+        return [self._encrypt_member_tuple(tup) for tup in tuples]
+    
 
     def make_backup(self):
         with open(FILE_NAME, "rb") as db_file:
