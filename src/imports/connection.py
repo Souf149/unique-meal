@@ -237,12 +237,14 @@ class Connection:
         cursor = self.db.cursor()
         cursor.execute(
             insert_log_query,
-            (
-                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                username,
-                desc,
-                add_info,
-                1 if suspicious else 0,
+            self._encrypt_log_tuple(
+                (
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    username,
+                    desc,
+                    add_info,
+                    suspicious,
+                )
             ),
         )
         self.db.commit()
@@ -313,8 +315,6 @@ class Connection:
             SET {set_clause}
             WHERE id = ?
         """
-        print(update_query)
-        print(updatedAcount)
         del updatedAcount["type"]
         if table == "USERS":
             encrypted_user = self._encrypt_user_tuple(
@@ -342,9 +342,6 @@ class Connection:
             SET {chosen_field} = ?
             WHERE id = ?
         """
-
-        print(update_query)
-        print(f"Updating {table}: {chosen_field} = {database_value}, id = {idx}")
 
         cursor.execute(update_query, (database_value, idx))
 
@@ -461,15 +458,15 @@ class Connection:
 
         self.db.commit()
 
-    def get_logs(self) -> list[tuple]:
+    def get_logs(self) -> tuple[tuple]:
         cursor = self.db.cursor()
 
         cursor.execute("""
-            SELECT *
+            SELECT Time, Username, Description_of_activity, Additional_Information, Suspicious
             FROM logs
         """)
 
-        return cursor.fetchall()
+        return self._decrypt_log_tuples(cursor.fetchall())
 
     def _user_dict_from_tuple(self, tuple: tuple) -> dict:
         return create_user_dict(tuple)
@@ -484,12 +481,10 @@ class Connection:
         return list(map(create_member_dict, tuples))
 
     def _encrypt(self, data: str) -> bytes:
-        print(f"ENCRYPTING: {str(data.encode())}")
         x = self.public_key.encrypt(
             data.encode(),
             padding.PKCS1v15(),
         )
-        print(f"ENCRYPTED: {x}")
 
         return x
 
@@ -526,6 +521,23 @@ class Connection:
             tup[5],
             tup[6],
         )
+
+    def _encrypt_log_tuple(self, tup: tuple) -> tuple:
+        return tuple([self._encrypt(x) for x in tup])
+
+    def _decrypt_log_tuple(self, tup: tuple) -> tuple:
+        x = (
+            self._decrypt(tup[0]),
+            self._decrypt(tup[1]),
+            self._decrypt(tup[2]),
+            self._decrypt(tup[3]),
+            self._decrypt(tup[4]),
+        )
+
+        return x
+
+    def _decrypt_log_tuples(self, lst: list) -> tuple:
+        return tuple([self._decrypt_log_tuple(x) for x in lst])
 
     def close(self):
         self.db.commit()
