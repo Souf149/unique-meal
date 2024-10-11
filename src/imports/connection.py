@@ -43,7 +43,7 @@ class Connection:
                 Username TEXT NOT NULL,
                 Description_of_activity TEXT NOT NULL,
                 Additional_Information TEXT,
-                Suspicious BOOLEAN NOT NULL CHECK (Suspicious IN (0, 1))
+                Suspicious TEXT NOT NULL
             )
         """
 
@@ -228,7 +228,7 @@ class Connection:
 
         self.db.commit()
 
-    def log(self, username: str, desc: str, add_info: str, suspicious: bool):
+    def log(self, username: str, desc: str, add_info: str, suspicious: str):
         insert_log_query = """
             INSERT INTO logs (Time, Username, Description_of_activity, Additional_Information, Suspicious)
             VALUES (?, ?, ?, ?, ?)
@@ -237,12 +237,14 @@ class Connection:
         cursor = self.db.cursor()
         cursor.execute(
             insert_log_query,
-            (
-                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                username,
-                desc,
-                add_info,
-                1 if suspicious else 0,
+            self._encrypt_log_tuple(
+                (
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    username,
+                    desc,
+                    add_info,
+                    suspicious,
+                )
             ),
         )
         self.db.commit()
@@ -313,24 +315,21 @@ class Connection:
             SET {set_clause}
             WHERE id = ?
         """
-        print(update_query)
-        print(updatedAcount)
         del updatedAcount["type"]
         if table == "USERS":
             encrypted_user = self._encrypt_user_tuple(
                 create_user_tuple(**updatedAcount)
             )
-            print("SOUFFFFF")
-            print((encrypted_user[1:] + (encrypted_user[0],)))
             cursor.execute(update_query, (encrypted_user + (encrypted_user[0],)))
         else:
             cursor.execute(update_query, tuple(values))
 
         self.db.commit()
-        #self, id: str, chosen_field: str, data, is_user: bool data = gewenste veld , is_user = user of niet
+        # self, id: str, chosen_field: str, data, is_user: bool data = gewenste veld , is_user = user of niet
+
     def updateFieldOfAccount(self, idx: str, chosen_field: str, data, is_user: bool):
         cursor = self.db.cursor()
-        #self, id: str, chosen_field: str, data, is_user: bool data = gewenste veld , is_user = user of niet
+        # self, id: str, chosen_field: str, data, is_user: bool data = gewenste veld , is_user = user of niet
         if chosen_field in ["f_name", "l_name", "username"] and is_user:
             database_value = self._encrypt(data)
         else:
@@ -344,15 +343,9 @@ class Connection:
             WHERE id = ?
         """
 
-        print(update_query)
-        print(f"Updating {table}: {chosen_field} = {database_value}, id = {idx}")
-
-
         cursor.execute(update_query, (database_value, idx))
 
         self.db.commit()
-
-
 
     def usernameExist(self, username: str):
         # Connect to SQLite database
@@ -372,26 +365,20 @@ class Connection:
 
     def addUser(self, user: tuple):
         cursor = self.db.cursor()
-        first_name_encrypted =  self._encrypt(user[1])
-        second_name_encrypted =  self._encrypt(user[2])
-        third_name_encrypted =  self._encrypt(user[4])
 
-     
-
-
-        potential_user = self.getAccountFromId(mytuple[0])
+        potential_user = self.getAccountFromId(user[0])
         while potential_user:
-            list_user = list(mytuple)
+            list_user = list(user)
             list_user[0] = generate_id()
-            mytuple = tuple(list_user)
-            potential_user = self.getAccountFromId(mytuple[0])
+            user = tuple(list_user)
+            potential_user = self.getAccountFromId(user[0])
 
         cursor.execute(
             """
                 INSERT INTO USERS (id, f_name, l_name, level, username, registration_date, hashed_pass)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
-            mytuple,
+            self._encrypt_user_tuple(user),
         )
         self.db.commit()
 
@@ -472,15 +459,15 @@ class Connection:
 
         self.db.commit()
 
-    def get_logs(self) -> list[tuple]:
+    def get_logs(self) -> tuple[tuple]:
         cursor = self.db.cursor()
 
         cursor.execute("""
-            SELECT *
+            SELECT Time, Username, Description_of_activity, Additional_Information, Suspicious
             FROM logs
         """)
 
-        return cursor.fetchall()
+        return self._decrypt_log_tuples(cursor.fetchall())
 
     def _user_dict_from_tuple(self, tuple: tuple) -> dict:
         return create_user_dict(tuple)
@@ -495,12 +482,10 @@ class Connection:
         return list(map(create_member_dict, tuples))
 
     def _encrypt(self, data: str) -> bytes:
-        print(f"ENCRYPTING: {str(data.encode())}")
         x = self.public_key.encrypt(
             data.encode(),
             padding.PKCS1v15(),
         )
-        print(f"ENCRYPTED: {x}")
 
         return x
 
@@ -514,7 +499,6 @@ class Connection:
         return [self._encrypt_user_tuple(tup) for tup in tuples]
 
     def _encrypt_user_tuple(self, tup: tuple) -> tuple:
-        print(tup)
         return (
             tup[0],
             self._encrypt(tup[1]),
@@ -538,6 +522,23 @@ class Connection:
             tup[5],
             tup[6],
         )
+
+    def _encrypt_log_tuple(self, tup: tuple) -> tuple:
+        return tuple([self._encrypt(x) for x in tup])
+
+    def _decrypt_log_tuple(self, tup: tuple) -> tuple:
+        x = (
+            self._decrypt(tup[0]),
+            self._decrypt(tup[1]),
+            self._decrypt(tup[2]),
+            self._decrypt(tup[3]),
+            self._decrypt(tup[4]),
+        )
+
+        return x
+
+    def _decrypt_log_tuples(self, lst: list) -> tuple:
+        return tuple([self._decrypt_log_tuple(x) for x in lst])
 
     def close(self):
         self.db.commit()

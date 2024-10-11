@@ -1,7 +1,5 @@
 import traceback
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 
 from imports.helper_functions import (
@@ -27,7 +25,7 @@ with open("./key.key", "rb") as f:
 with open("./private_key.pem", "rb") as private_file:
     private_key = serialization.load_pem_private_key(
         private_file.read(),
-        password=key,  # Provide the password if the key is encrypted
+        password=key,
         backend=default_backend(),
     )
 
@@ -41,7 +39,6 @@ clear_terminal_with_title()
 
 db = Connection(private_key, public_key)
 login_attempts = 0
-
 
 try:
     while True:
@@ -58,10 +55,10 @@ try:
                     "",
                     "Unsuccessful login.",
                     f"username: {username}. Multiple usernames and passwords are tried in a row.",
-                    True,
+                    "yes",
                 )
             else:
-                db.log("", "Unsuccessful login.", f"username: {username}.", False)
+                db.log("", "Unsuccessful login.", f"username: {username}.", "no")
             continue
 
         # SUCCESFUL LOGIN
