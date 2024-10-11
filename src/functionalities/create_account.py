@@ -126,7 +126,7 @@ def create_new_user(db: Connection, user: dict):
                 hashed_pass,
             )
         )
-        db.log(user["username"], "Created new user", f"Created user: {username}", False)
+        db.log(user["username"], "Created new user", f"Created user: {username}", "no")
 
         print("User has been created!")
         sleep(1)
@@ -305,7 +305,7 @@ def create_new_member(db: Connection, user: dict):
                 hashed_pass,
             )
         )
-        db.log(user["username"], "Created new user", f"Created user: {username}", False)
+        db.log(user["username"], "Created new user", f"Created user: {username}", "no")
 
         print("User has been created!")
         sleep(1)

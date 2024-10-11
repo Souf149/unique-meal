@@ -50,7 +50,7 @@ def change_my_password(db: Connection, user: dict):
                     user["username"],
                     "Changed password",
                     f"Changed password of user: [{user['username']}]",
-                    False,
+                    "no",
                 )
                 return
             else:

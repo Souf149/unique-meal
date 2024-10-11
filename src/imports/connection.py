@@ -43,7 +43,7 @@ class Connection:
                 Username TEXT NOT NULL,
                 Description_of_activity TEXT NOT NULL,
                 Additional_Information TEXT,
-                Suspicious BOOLEAN NOT NULL CHECK (Suspicious IN (0, 1))
+                Suspicious TEXT NOT NULL
             )
         """
 
@@ -228,7 +228,7 @@ class Connection:
 
         self.db.commit()
 
-    def log(self, username: str, desc: str, add_info: str, suspicious: bool):
+    def log(self, username: str, desc: str, add_info: str, suspicious: str):
         insert_log_query = """
             INSERT INTO logs (Time, Username, Description_of_activity, Additional_Information, Suspicious)
             VALUES (?, ?, ?, ?, ?)
@@ -327,10 +327,11 @@ class Connection:
             cursor.execute(update_query, tuple(values))
 
         self.db.commit()
-        #self, id: str, chosen_field: str, data, is_user: bool data = gewenste veld , is_user = user of niet
+        # self, id: str, chosen_field: str, data, is_user: bool data = gewenste veld , is_user = user of niet
+
     def updateFieldOfAccount(self, idx: str, chosen_field: str, data, is_user: bool):
         cursor = self.db.cursor()
-        #self, id: str, chosen_field: str, data, is_user: bool data = gewenste veld , is_user = user of niet
+        # self, id: str, chosen_field: str, data, is_user: bool data = gewenste veld , is_user = user of niet
         if chosen_field in ["f_name", "l_name", "username"] and is_user:
             database_value = self._encrypt(data)
         else:
@@ -347,12 +348,9 @@ class Connection:
         print(update_query)
         print(f"Updating {table}: {chosen_field} = {database_value}, id = {idx}")
 
-
         cursor.execute(update_query, (database_value, idx))
 
         self.db.commit()
-
-
 
     def usernameExist(self, username: str):
         # Connect to SQLite database
@@ -372,12 +370,9 @@ class Connection:
 
     def addUser(self, user: tuple):
         cursor = self.db.cursor()
-        first_name_encrypted =  self._encrypt(user[1])
-        second_name_encrypted =  self._encrypt(user[2])
-        third_name_encrypted =  self._encrypt(user[4])
-
-     
-
+        first_name_encrypted = self._encrypt(user[1])
+        second_name_encrypted = self._encrypt(user[2])
+        third_name_encrypted = self._encrypt(user[4])
 
         potential_user = self.getAccountFromId(mytuple[0])
         while potential_user:

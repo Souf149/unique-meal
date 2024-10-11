@@ -27,7 +27,7 @@ with open("./key.key", "rb") as f:
 with open("./private_key.pem", "rb") as private_file:
     private_key = serialization.load_pem_private_key(
         private_file.read(),
-        password=key,  # Provide the password if the key is encrypted
+        password=key,
         backend=default_backend(),
     )
 
@@ -58,10 +58,10 @@ try:
                     "",
                     "Unsuccessful login.",
                     f"username: {username}. Multiple usernames and passwords are tried in a row.",
-                    True,
+                    "yes",
                 )
             else:
-                db.log("", "Unsuccessful login.", f"username: {username}.", False)
+                db.log("", "Unsuccessful login.", f"username: {username}.", "no")
             continue
 
         # SUCCESFUL LOGIN

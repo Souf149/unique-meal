@@ -58,7 +58,7 @@ def edit_account(db: Connection, user: dict):
                                 user["username"],
                                 "Updated user in database",
                                 f"User: {user['username']} has been edited in field: {chosen_field}",
-                                False,
+                                "no",
                             )
                             status = "Field has been updated!"
                             sleep(1)
@@ -90,7 +90,7 @@ def edit_account(db: Connection, user: dict):
                         user["username"],
                         "User has been deleted",
                         f"User was of level: {victim['level']}",
-                        False,
+                        "no",
                     )
                     continue
                 else:
