@@ -1,5 +1,6 @@
 from multiprocessing import connection
 from imports.helper_functions import (
+    PersonType,
     clear_terminal_with_title,
     hash_password,
     user_input,
@@ -31,10 +32,18 @@ def change_my_password(db: Connection, user: dict):
             if User_Info_Validator.validate_password(new_pass):
 
                 # Now you can use the instance to encrypt the hashed password
-                user["hashed_pass"] = str(hash_password(new_pass)) # Hash the new password
+                user["hashed_pass"] = hash_password(new_pass) # Hash the new password
 
                 #user = Connection._encrypt(user["hashed_pass"])
-                db.updateFieldOfAccount(user)
+                #        #self, id: str, chosen_field: str, data, is_user: bool
+                is_user = False
+                chosen_field = "hashed_pass"
+                if ( user["type"] == PersonType.MEMBER):
+                    is_user = False
+                else:
+                    is_user = True
+
+                db.updateFieldOfAccount(user['id'], chosen_field,user["hashed_pass"], is_user )
                 print("Password changed successfully!")
                 sleep(1)
                 db.log(

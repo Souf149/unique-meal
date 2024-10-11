@@ -1,5 +1,6 @@
 from datetime import date, datetime
 import sqlite3
+import time
 import zipfile
 import os
 import shutil
@@ -326,14 +327,32 @@ class Connection:
             cursor.execute(update_query, tuple(values))
 
         self.db.commit()
-
-    def updateFieldOfAccount(self, id: str, chosen_field: str, data, is_user: bool):
+        #self, id: str, chosen_field: str, data, is_user: bool data = gewenste veld , is_user = user of niet
+    def updateFieldOfAccount(self, idx: str, chosen_field: str, data, is_user: bool):
+        cursor = self.db.cursor()
+        #self, id: str, chosen_field: str, data, is_user: bool data = gewenste veld , is_user = user of niet
         if chosen_field in ["f_name", "l_name", "username"] and is_user:
             database_value = self._encrypt(data)
         else:
             database_value = data
 
-        raise NotImplementedError()
+        table = "USERS" if is_user else "MEMBERS"
+
+        update_query = f"""
+            UPDATE {table}
+            SET {chosen_field} = ?
+            WHERE id = ?
+        """
+
+        print(update_query)
+        print(f"Updating {table}: {chosen_field} = {database_value}, id = {idx}")
+
+
+        cursor.execute(update_query, (database_value, idx))
+
+        self.db.commit()
+
+
 
     def usernameExist(self, username: str):
         # Connect to SQLite database
@@ -353,20 +372,26 @@ class Connection:
 
     def addUser(self, user: tuple):
         cursor = self.db.cursor()
+        first_name_encrypted =  self._encrypt(user[1])
+        second_name_encrypted =  self._encrypt(user[2])
+        third_name_encrypted =  self._encrypt(user[4])
 
-        potential_user = self.getAccountFromId(user[0])
+     
+
+
+        potential_user = self.getAccountFromId(mytuple[0])
         while potential_user:
-            list_user = list(user)
+            list_user = list(mytuple)
             list_user[0] = generate_id()
-            user = tuple(list_user)
-            potential_user = self.getAccountFromId(user[0])
+            mytuple = tuple(list_user)
+            potential_user = self.getAccountFromId(mytuple[0])
 
         cursor.execute(
             """
                 INSERT INTO USERS (id, f_name, l_name, level, username, registration_date, hashed_pass)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
-            user,
+            mytuple,
         )
         self.db.commit()
 
@@ -541,7 +566,7 @@ class Connection:
     def restore_backup(self, file_name):
         BACKUP_FOLDER = "./backups"
         CURRENT_DB_FOLDER = "./"
-        DATABASE_FILE = "database.db" "./"
+        DATABASE_FILE = "database.db"
         backup_file = file_name
 
         try:
@@ -555,12 +580,15 @@ class Connection:
             if not os.path.exists(temp_dir):
                 os.makedirs(temp_dir)
                 print("Temporary directory created.")
-
+                time.sleep(2)
             with zipfile.ZipFile(backup_path, "r") as zipf:
+                print(backup_path)
                 zipf.extract(DATABASE_FILE, temp_dir)
+            print("dfdsgfdggd")
 
             extracted_db_path = os.path.join(temp_dir, DATABASE_FILE)
             print(f"Extracted to: {extracted_db_path}")
+            print("ywetgweed")
 
             current_db_path = os.path.join(CURRENT_DB_FOLDER, DATABASE_FILE)
 
@@ -568,6 +596,8 @@ class Connection:
                 CURRENT_DB_FOLDER, "backup_" + DATABASE_FILE
             )
             shutil.copy2(current_db_path, backup_current_db)
+            print("FDFDFFFDFFD")
+
             print(f"Backup of the current database created at: {backup_current_db}")
 
             shutil.copy2(extracted_db_path, current_db_path)

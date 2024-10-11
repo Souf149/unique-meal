@@ -1,6 +1,7 @@
 from time import sleep
 from imports.connection import Connection
-from imports.helper_functions import clear_terminal_with_title, user_input
+from imports.helper_functions import PersonType, clear_terminal_with_title, filter_accounts, generate_password, hash_password, user_input
+from imports.validator import User_Info_Validator
 from tools.tools import print_user_without_pass
 from tools.validators import is_valid
 
@@ -108,4 +109,94 @@ def edit_account(db: Connection, user: dict):
 
 
 def reset_account_password(db: Connection, user: dict):
-    raise NotImplementedError(reset_account_password.__name__)
+    message = ""
+    while True:
+        clear_terminal_with_title()
+        if (message):
+            print(message)
+        users = db.getAllUsersAndMembersFromLevelAndLower(user["level"])
+        if not users:
+            print("No users available.\n")
+            sleep(2)
+            break
+
+        for i, _user in enumerate(users):
+            print(
+                f"{i + 1}). {_user['type']}\t{_user['id']}\t{_user['username']}"
+            )
+        choice = user_input("Type [0] to go back to the main menu.\nType [1] to choose search for the user you want reset the password of.")
+        if (choice == "0"):
+            return
+        elif (choice == "1"):
+            break
+        else:
+            message = "Incorrect option! Choose 1 or 2"
+            continue
+    while True:
+        if (message):
+            print(message)
+        userinputid = user_input("What is the id of the user you'd like to reset the password of?")
+        if (   userinputid.isdigit() and len(userinputid) == 10):  
+            print("DSSDDS")
+            #founduser =  filter_accounts(users, userinputid)
+            founduser = db.getAccountFromId(userinputid)
+            print(founduser)
+            sleep(2)
+            #booltest = User_Info_Validator.validate_id(userinputid)
+            if ( founduser ):
+                print("FSFDSFDF")
+                #sleep(100)
+                if ( founduser['type'] == PersonType.MEMBER ):
+                    new_pass = generate_password()
+                    new_pass_placeholder = generate_password()
+                    #founduser['hashed_pass'] = hash_password(new_pass)
+                    new_pass = hash_password(new_pass)
+                    if ( user["type"] == PersonType.MEMBER):
+                        is_user = False
+                    else:
+                        is_user = True
+                    db.updateFieldOfAccount(userinputid, "hashed_pass", new_pass , is_user) 
+                    print(f"The new password for this user is {new_pass_placeholder}")
+                    sleep(10)
+                    break
+                elif (founduser["level"] <= user["level"]):
+                    new_pass = generate_password()
+                    founduser['hashed_pass'] = hash_password(new_pass)
+                    db.updateAcount(founduser)
+                    print(f"The new password for this user is {new_pass}")
+                    sleep(5)
+                    break
+                else:
+                    options = " ".join(map(lambda x: f"[{str(x)}] {Level.NAMES[x]}",range(1, user["level"] + 1),))
+                    message = f"You can only reset the passwords of level:{options}"
+                    continue
+            else:
+                message = "User has not been found! Wrong ID" 
+                continue     
+        else:
+            message = "Incorrect ID! See the list"
+            continue
+        # elif ()
+
+            
+        # if not (User_Info_Validator.validate_id(userinputid)):
+        #     message = "Incorrect ID, user has not been found!"
+        #     continue
+
+        # if not (founduser):
+        #     message = "User has not been found! Try again"
+        #     continue
+
+        # if (founduser in users and founduser):
+        #         if (founduser["level"] <= user["level"]):
+        #             new_pass = generate_password()
+        #             founduser['hashed_pass'] = hash_password(new_pass)
+        #             db.updateAcount(founduser)
+        #             print(f"The new password for this user is {new_pass}")
+        #             time.sleep(5)
+        #             break
+        #         options = " ".join(map(lambda x: f"[{str(x)}] {Level.NAMES[x]}",range(1, user["level"] + 1),))
+        #         message = f"You can only reset the passwords of level:{options}"
+        #         continue
+        
+        # message ="Incorrect ID, user has not been found!"

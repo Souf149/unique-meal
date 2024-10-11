@@ -77,6 +77,31 @@ def filter_accounts(accounts: list[dict], term: str) -> list[dict]:
     return found_accounts
 
 
+def filter_accounts_id(accounts: list[dict], term: str) -> list[dict]:
+    found_accounts: list[dict] = []
+
+    for account in accounts:
+        for value in account.values():
+            if type(value) is str:
+                if term in value:
+                    found_accounts.append(account)
+                    break
+
+    return found_accounts
+
+
+def filter_id_account(accounts: list[dict], term: str) -> list[dict]:
+    found_accounts: list[dict] = []
+
+    for account in accounts:
+        for value in account.values():
+            if type(value) is str:
+                if term in value:
+                    found_accounts.append(account)
+                    break
+
+    return found_accounts
+
 def create_member_tuple(
     id: str,
     f_name: str,
